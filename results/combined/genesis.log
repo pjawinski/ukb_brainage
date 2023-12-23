@@ -1,0 +1,10 @@
+
+--- plot results of genetic effect size distribution analysis ---
+traits: gap_gwm
+traitLabels: Brain age gap
+genesisFit: results/gap_gwm/genesis/genesis.fit3.Rds
+reftraits: neur,height
+reftraitLabels: Neuroticism,Height
+refgenesisFit: data/sumstats/genesis/04_neur_baselmans_2019/genesis.fit3.Rds,data/sumstats/genesis/mr_height_wood_2014/genesis.fit3.Rds
+outFile: results/combined/genesis
+

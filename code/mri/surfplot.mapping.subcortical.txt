@@ -1,0 +1,17 @@
+Structure	id
+left-accumbens	Left.Accumbens.area
+left-amygdala	Left.Amygdala
+left-caudate	Left.Caudate
+left-hippocampus	Left.Hippocampus
+left-pallidum	Left.Pallidum
+left-putamen	Left.Putamen
+left-thalamus	Left.Thalamus.Proper
+left-ventricles	Left.Lateral.Ventricle
+right-accumbens	Right.Accumbens.area
+right-amygdala	Right.Amygdala
+right-caudate	Right.Caudate
+right-hippocampus	Right.Hippocampus
+right-pallidum	Right.Pallidum
+right-putamen	Right.Putamen
+right-thalamus	Right.Thalamus.Proper
+right-ventricles	Right.Lateral.Ventricle
