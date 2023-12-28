@@ -16,9 +16,9 @@ Keywords: aging, genetics, machine learning, mental health, MRI
 ## Software requirements
 Analyses were run on Debian GNU/Linux 11 (bullseye) with kernel version 5.10.0-23-amd64. Several scripts to install the required bioinformatic tools are provided in folder [code/prepare/](code/prepare/). We recommend [mamba](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html) for installing conda environments. A list of required tools is provided below.
 
-- [CAT12](https://neuro-jena.github.io/cat/) (r1364))
-- [PLINK](https://www.cog-genomics.org/plink/) v1.90b6.8 64-bit (for clumping)
-- [PLINK](https://www.cog-genomics.org/plink/2.0/) v2.00a2LM 64-bit Intel (association analysis)
+- [CAT12](https://neuro-jena.github.io/cat/) (r1364)
+- [PLINK](https://www.cog-genomics.org/plink/) v1.90b6.8 64-bit
+- [PLINK](https://www.cog-genomics.org/plink/2.0/) v2.00a2LM 64-bit Intel
 - [LOCUSZOOM](https://genome.sph.umich.edu/wiki/LocusZoom_Standalone) v1.4 standalone
 - [GCTA](https://yanglab.westlake.edu.cn/software/gcta/) v1.93.1f beta Linux
 - [SMR](https://yanglab.westlake.edu.cn/software/smr/#Overview) v1.3.0
@@ -38,7 +38,7 @@ cd ukb_brainage
 
 - To obtain and preprocess MRI files, refer to the steps outlined in [code/prepare.mri.sh](code/prepare.mri.sh) 
 - For genetics file download and preparation, follow the instructions in [code/prepare.genetics.sh](code/prepare.genetics.sh)
-- For a step-by-step guide through individual analysis processes, consult the primary analysis files [run.mri.sh](run.mri.sh) and [run.genetics.sh](run.genetics.sh)
+- For a step-by-step guide through individual analysis processes, please see the primary analysis files [run.mri.sh](run.mri.sh) and [run.genetics.sh](run.genetics.sh)
 
 
 <br>
@@ -48,14 +48,14 @@ cd ukb_brainage
 ![alt text](results/combined/phenotypic.png "Figure 1")
 **Fig. 1**	Prediction accuracies and phenotypic associations for combined grey and white matter BAG. **(a)** Predicion accuracies. Blue dots in the first three plots (from left to right) show brain-predicted age estimates plotted against the chronological age in the UKB discovery sample (n = 32,634), UKB replication sample (n = 5,427), and LIFE-Adult replication sample (n = 1,883). To facilitate comparisons, results of the UKB discovery sample are also shown as grey dots in the background of the UKB replication and LIFE replication plots. At this stage, brain-predicted age estimates have not yet been bias-corrected for regression dilution as indicated by the linear regression line (solid) crossing the identity line (dashed). The fourth plot shows the test-retest reliabilities of brain age gap in a subset of the UKB discovery (grey dots, n = 3,625) and UKB replication sample (blue dots, n = 376). Brain age gap was bias-corrected for age, age2, sex, scanner site, and total intracranial volume. **(b)** Cross-trait association results between brain age gap and 7,088 UK Biobank phenotypes from different health domains (sex, age, age2, scanner site, total intracranial volume served as covariates). Horizontal lines indicate the Bonferroni-adjusted (solid) and FDR-adjusted (dashed) level of significance. The top associations per category have been annotated. **(c)** Surface plots showing the correlations between brain age gap and 220 FreeSurfer brain structure variables. Colors reflect the strength and direction of partial product-moment correlations (sex, age, age2, scanner site, total intracranial volume served as covariates). MAE: mean absolute error; rho: product-moment correlation coefficient. ICC: intraclass correlation coefficient (C,1).
 
-<br><br><br>
+<br><br>
 
 
 
-![alt text](results/combined/gwas.manhattan.png "Figure 2")
+![alt text](results/combined/qqplot.manhattan.png "Figure 2")
 **Fig. 2**	Manhattan plots (a-c) and quantile-quantile plots (d-f) showing the results of the discovery genome-wide association analyses for the three brain age gap traits (N = 32,634 UK Biobank individuals). Manhattan plots show the p-values (-log10 scale) of the tested genetic variations on the y-axis and base-pair positions along the chromosomes on the x-axis. The solid horizontal line indicates the threshold of genome-wide significance (p = 5E-8). Index variations are highlighted by circles and were annotated with those genes implicated by our gene prioritization analysis. Results of pseudoautosomal variations have been added to chromosome ‘X’. Quantile-quantile plots show the observed p-values from the association analysis vs. the expected p values under the null hypothesis of no effect (-log10 scale). For illustrative reasons, the y-axis has been truncated at p = 1e-35. **a,d** grey matter brain age gap; **b,e** white matter brain age gap; **c,f** combined grey and white matter brain age gap.
 
-<br><br><br>
+<br><br>
 
 
 
@@ -63,7 +63,7 @@ cd ukb_brainage
 **Fig. 3**	Overview of the post-GWAS analysis workflow including the gene prioritization procedure. Green boxes represent data input (discovery GWAS) and output (prioritized genes). Blue boxes represent analyses whose outcomes were used for gene nomination and subsequent prioritization. Apricot-colored boxes reflect gene nomination categories. Grey boxes reflect all other analyses carried out to refine the genetic architecture of brain age gap such as heritability and polygenicity analyses. Genes were prioritized by integrating data from multiple strategies such as functional annotation of credible variants, summary-data-based Mendelian Randomization (SMR), GTEx eQTL lookups, and Polygenic Priority Scores (PoPS).
 
 
-<br><br><br>
+<br><br>
 
 
 
@@ -71,7 +71,7 @@ cd ukb_brainage
 **Fig. 4**	Results from the genetic correlation analyses between brain age gap and 1,027 other complex phenotypes. **(a)** Genetic correlation matrix between brain age gap (columns) and 38 selected phenotypes from different health domains (rows). * p < 0.05 (nominal significance) ** FDR < 0.05 (level of significance after multiple testing-correction) **(b)** Volcano plot showing the magnitude (x-axis) and significance (y-axis) of genetic correlations between grey matter brain age gap and 989 traits examined by Neale and colleagues. The dashed horizontal line indicates the FDR-adjusted level of significance. **(c)** Forest plot showing the genetic correlation coefficients and standard errors for a subset of 23 exemplary traits that showed significant genetic correlations with grey matter brain age gap. 
 
 
-<br><br><br>
+<br><br>
 
 
 
