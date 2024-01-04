@@ -1,5 +1,5 @@
 # Genome-wide analysis of brain age gap identifies 25 associated loci and unveils relationships with mental and physical health
-This repository contains all the analysis scripts necessary to reproduce the results presented in our article entitled "Genome-wide analysis of brain age gap identifies 25 associated loci and unveils relationships with mental and physical health".
+This repository contains all the analysis scripts necessary to reproduce the results presented in our article entitled "Genome-wide analysis of brain age gap identifies 25 associated loci and unveils relationships with mental and physical health", published on [medRxiv](https://www.medrxiv.org/content/10.1101/2023.12.26.23300533v1.full-text).
 
 ## Abstract
 Neuroimaging and machine learning are opening up new opportunities in studying biological aging mechanisms. In this field, ‘brain age gap’ has emerged as promising MRI-based biomarker quantifying the deviation between an individual’s biological and chronological age of the brain – an indicator of accelerated/decelerated aging. Here, we investigated the genetic architecture of brain age gap and its relationships with over 1,000 health traits. Genome-wide analyses in 32,634 UK Biobank individuals unveiled a 30% SNP-based heritability and highlighted 25 associated loci. Of these, 23 showed sign-consistency and 16 replicated in another 7,259 individuals. The leading locus encompasses MAPT, encoding the tau protein central to Alzheimer's disease. Genetic correlations revealed relationships with various mental health (depression), physical health (diabetes), and socioeconomic variables (education). Mendelian Randomization indicated a causal role of enhanced blood pressure on accelerated brain aging. This work refines our understanding of genetically modulated brain aging and its implications for human health.
@@ -17,7 +17,7 @@ Keywords: aging, genetics, machine learning, mental health, MRI
 Analyses were run on Debian GNU/Linux 11 (bullseye) with kernel version 5.10.0-23-amd64. Several scripts to install the required bioinformatic tools are provided in folder [code/prepare/](code/prepare/). We recommend [mamba](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html) for installing conda environments. A list of required tools is provided below.
 
 - [CAT12](https://neuro-jena.github.io/cat/) (r1364)
-- [PLINK](https://www.cog-genomics.org/plink/) v1.90b6.8 64-bit
+- [PLINK](https://www.cog-genomics.org/plink/) v1.90b6.8 64-bit Intel
 - [PLINK](https://www.cog-genomics.org/plink/2.0/) v2.00a2LM 64-bit Intel
 - [LOCUSZOOM](https://genome.sph.umich.edu/wiki/LocusZoom_Standalone) v1.4 standalone
 - [GCTA](https://yanglab.westlake.edu.cn/software/gcta/) v1.93.1f beta Linux
@@ -26,6 +26,7 @@ Analyses were run on Debian GNU/Linux 11 (bullseye) with kernel version 5.10.0-2
 - [FINEMAP](http://www.christianbenner.com) v1.4.1
 - [PRSice2](https://choishingwan.github.io/PRSice/) v2.3.3
 - [PHESANT](https://github.com/MRCIEU/PHESANT)
+- [MAGMA](https://ctg.cncr.nl/software/magma) v1.10 Linux Debian 64-bit
 - [PoPS](https://github.com/FinucaneLab/pops) v0.2
 - [METAL](https://csg.sph.umich.edu/abecasis/Metal/) 2020-05-05
 
