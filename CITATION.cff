@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use our code published on GitHub, please cite our article."
+type: article
+authors:
+- family-names: "Jawinski"
+  given-names: "Philippe"
+  orcid: "http://orcid.org/0000-0002-2994-3075"
+- family-names: "Helena"
+  given-names: "Forstbach"
+- family-names: "Kirsten"
+  given-names: "Holger"
+  orcid: "http://orcid.org/0000-0002-3126-7950"
+- family-names: "Beyer"
+  given-names: "Frauke"
+  orcid: "http://orcid.org/0000-0001-5401-852X"
+- family-names: "Villringer"
+  given-names: "Arno"
+  orcid: "http://orcid.org/0000-0003-2604-2404"
+- family-names: "Witte"
+  given-names: "A. Veronica"
+  orcid: "http://orcid.org/0000-0001-9054-6688"
+- family-names: "Scholz"
+  given-names: "Markus"
+  orcid: "http://orcid.org/0000-0002-4059-1779"
+- family-names: "Ripke"
+  given-names: "Stephan"
+  orcid: "http://orcid.org/0000-0003-3622-835X"
+- family-names: "Markett"
+  given-names: "Sebastian"
+  orcid: "http://orcid.org/0000-0002-0841-3163"
+title: "Genome-wide analysis of brain age identifies 25 associated loci and unveils relationships with mental and physical health"
+doi: 10.1101/2023.12.26.23300533
+date-released: 2023-12-29
