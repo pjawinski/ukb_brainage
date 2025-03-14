@@ -27,9 +27,6 @@ replication.meta.IID = replication.meta.IID(idx,:);
 replication.brainage.data = replication.brainage.data(idx,:);
 replication.brainage_singlemodel.data = replication.brainage_singlemodel.data(idx,:);
 
-% make directory for figures
-system('mkdir -p code/figures/');
-
 % calculate correlations, mean absolute errors, and weighted mean absoluted
 % error
 fprintf(' - calculating accuracy metrics.\n')
@@ -172,22 +169,21 @@ for i = 1:3
                 discovery_refline = refline(discovery_mdl.Coefficients{2,1}, discovery_mdl.Coefficients{1,1});
                 discovery_refline.Color = [0, 0, 0];
             text(30, 86, textanno{i}, 'Fontsize', 14, 'HorizontalAlignment', 'left', 'Color', [0, 0, 0]);
-
-        elseif j < 4
+        elseif j == 2
+            scatter(replication.age, replication.brainage_singlemodel.data(:,i*4),'.', 'MarkerFaceColor',[0, 0.4470, 0.7410],'MarkerEdgeColor',[0, 0.4470, 0.7410],'LineWidth',0.25, 'MarkerFaceAlpha',.05,'MarkerEdgeAlpha',.05)
+                xlim([min(replication.age) max(replication.age)]); ylim([min(replication.age) max(replication.age)]); 
+                mdl = fitlm(replication.age,replication.brainage_singlemodel.data(:,i*4));
+                sec_refline = refline(mdl.Coefficients{2,1}, mdl.Coefficients{1,1});
+                sec_refline.Color = [0, 0, 0]; 
+        elseif j == 3
             plot(discovery.age, discovery.brainage.data(:,i*4), '.','Color',[230/255, 230/255, 230/255],'Markersize',2,'LineWidth',0.25)
                 %discovery_refline = refline(discovery_mdl.Coefficients{2,1}, discovery_mdl.Coefficients{1,1});
                 %discovery_refline.Color = [0, 0, 0];
-            if j == 2
-                plot(replication.age, replication.brainage.data(:,i*4), '.','Color',[0, 0.4470, 0.7410],'Markersize',1,'LineWidth',0.25)
-                    xlim([min(replication.age) max(replication.age)]); ylim([min(replication.age) max(replication.age)]); 
-                    mdl = fitlm(replication.age,replication.brainage.data(:,i*4));
-            elseif j == 3
-                plot(life.age, life.brainage.data(:,i*4), '.','Color',[0, 0.4470, 0.7410],'Markersize',2,'LineWidth',0.25)
-                    xlim([min(life.age) max(life.age)]); ylim([min(life.age) max(life.age)]); 
-                    mdl = fitlm(life.age,life.brainage.data(:,i*4));
-            end    
-            sec_refline = refline(mdl.Coefficients{2,1}, mdl.Coefficients{1,1});
-            sec_refline.Color = [0, 0, 0]; 
+            plot(life.age, life.brainage.data(:,i*4), '.','Color',[0, 0.4470, 0.7410],'Markersize',2,'LineWidth',0.25)
+                xlim([min(life.age) max(life.age)]); ylim([min(life.age) max(life.age)]); 
+                mdl = fitlm(life.age,life.brainage.data(:,i*4));
+                sec_refline = refline(mdl.Coefficients{2,1}, mdl.Coefficients{1,1});
+                sec_refline.Color = [0, 0, 0]; 
         end
         
         if j < 4
@@ -205,14 +201,14 @@ for i = 1:3
         
             % add ylabel
             if j == 1
-                ylabel(sprintf('brain age (years)'),'fontsize',10);
+                ylabel(sprintf('brain age (years)'),'fontsize',9);
                 yh = get(gca,'ylabel');
                 set(yh,'position', [35.8 63.5000 -1]);
             end 
         
             % add xlabel
             if i == 3
-                xlabel(sprintf('chronological age (years)'),'fontsize',10);
+                xlabel(sprintf('chronological age (years)'),'fontsize',9);
                 xh = get(gca,'xlabel');
                 set(xh,'position', [63.5 36.5 -1]);
             end
@@ -251,11 +247,11 @@ for i = 1:3
             ax.YRuler.TickLabelGapOffset = 2; 
             
             % add labels
-            ylabel('T2 brain age gap (years)','fontsize',10);
+            ylabel('T2 brain age gap (years)','fontsize',9);
                 % yh = get(gca,'ylabel');
                 % set(yh,'position', [36.8 63.5000 -1]);
             if i == 3
-            xlabel(sprintf('T1 brain age gap  (years)'),'fontsize',10);
+            xlabel(sprintf('T1 brain age gap  (years)'),'fontsize',9);
                 xh = get(gca,'xlabel');
                 set(xh,'position', [0 -16.5 -1]);
             end
@@ -304,22 +300,21 @@ for i = 3
                 discovery_refline = refline(discovery_mdl.Coefficients{2,1}, discovery_mdl.Coefficients{1,1});
                 discovery_refline.Color = [0, 0, 0];
             % text(30, 86, textanno{i}, 'Fontsize', 14, 'HorizontalAlignment', 'left', 'Color', [0, 0, 0]);
-
-        elseif j < 4
+        elseif j == 2
+            scatter(replication.age, replication.brainage_singlemodel.data(:,i*4),'.', 'MarkerFaceColor',[0, 0.4470, 0.7410],'MarkerEdgeColor',[0, 0.4470, 0.7410],'LineWidth',0.25, 'MarkerFaceAlpha',.05,'MarkerEdgeAlpha',.05)
+                xlim([min(replication.age) max(replication.age)]); ylim([min(replication.age) max(replication.age)]); 
+                mdl = fitlm(replication.age,replication.brainage_singlemodel.data(:,i*4));
+                sec_refline = refline(mdl.Coefficients{2,1}, mdl.Coefficients{1,1});
+                sec_refline.Color = [0, 0, 0]; 
+        elseif j == 3
             plot(discovery.age, discovery.brainage.data(:,i*4), '.','Color',[230/255, 230/255, 230/255],'Markersize',2,'LineWidth',0.25)
                 %discovery_refline = refline(discovery_mdl.Coefficients{2,1}, discovery_mdl.Coefficients{1,1});
                 %discovery_refline.Color = [0, 0, 0];
-            if j == 2
-                plot(replication.age, replication.brainage.data(:,i*4), '.','Color',[0, 0.4470, 0.7410],'Markersize',1,'LineWidth',0.25)
-                    xlim([min(replication.age) max(replication.age)]); ylim([min(replication.age) max(replication.age)]); 
-                    mdl = fitlm(replication.age,replication.brainage.data(:,i*4));
-            elseif j == 3
-                plot(life.age, life.brainage.data(:,i*4), '.','Color',[0, 0.4470, 0.7410],'Markersize',2,'LineWidth',0.25)
-                    xlim([min(life.age) max(life.age)]); ylim([min(life.age) max(life.age)]); 
-                    mdl = fitlm(life.age,life.brainage.data(:,i*4));
-            end    
-            sec_refline = refline(mdl.Coefficients{2,1}, mdl.Coefficients{1,1});
-            sec_refline.Color = [0, 0, 0]; 
+            plot(life.age, life.brainage.data(:,i*4), '.','Color',[0, 0.4470, 0.7410],'Markersize',2,'LineWidth',0.25)
+                xlim([min(life.age) max(life.age)]); ylim([min(life.age) max(life.age)]); 
+                mdl = fitlm(life.age,life.brainage.data(:,i*4));
+                sec_refline = refline(mdl.Coefficients{2,1}, mdl.Coefficients{1,1});
+                sec_refline.Color = [0, 0, 0]; 
         end
         
         if j < 4
@@ -337,7 +332,7 @@ for i = 3
         
             % add ylabel
             if j == 1
-                ylabel(sprintf('brain age (years)'),'fontsize',10);
+                ylabel(sprintf('brain age (years)'),'fontsize',9);
                 yh = get(gca,'ylabel');
                 set(yh,'position', [35.8 63.5000 -1]);
             end 

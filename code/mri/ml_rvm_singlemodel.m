@@ -33,7 +33,7 @@ Train_Targets = y;
 
 % run pca and keep first 500 components
 fprintf(' - running pca.\n')
-[Train_Samples_pca_coeff,Train_Samples_pca_score] = pca(Train_Samples);
+[Train_Samples_pca_coeff,Train_Samples_pca_score,latent] = pca(Train_Samples);
 Train_Samples_pca_score = Train_Samples_pca_score(:,1:500);
 Train_Samples_pca_coeff = Train_Samples_pca_coeff(:,1:500);
 Train_Samples_means = mean(Train_Samples);
@@ -56,6 +56,14 @@ fprintf(' - saving model.\n')
 save(sprintf('%s/rvm_%s.mat', targetDir, tissue), 'RVM')
 LogFileName=sprintf('%s/rvm_%s.log', targetDir, tissue);
 system(sprintf('mv logfile.txt %s', LogFileName));
+
+% save eigenvalues
+eigen = latent/sum(latent);
+eigen = eigen(1:500);
+eigenFormatted = arrayfun(@(x) sprintf('%.12f', x), eigen, 'UniformOutput', false);
+eigenTable = table(eigenFormatted, 'VariableNames', {'Eigenvalues'});
+writetable(eigenTable, sprintf('%s/rvm_%s.eigenvalues.txt', targetDir, tissue), ...
+    'Delimiter', '\t', 'WriteVariableNames', true, 'FileType', 'text');
 
 % quit matlab
 fprintf('Completed: RVM (singlemodel)\n')

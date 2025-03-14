@@ -41,10 +41,10 @@ snplevel = snplevel[,c('LOCUS_COUNT','DISCOV_COUNT','CHR', 'BP','key')]
 # load eqtl files
 for (i in 1:length(eqtlFiles)) {
   tmp = read.table(eqtlFiles[i], sep = '\t', head = T)
-  tmp = tmp[,-which(names(tmp) == "LOCUS_COUNT")]
+  tmp = tmp[,-which(names(tmp) == "locusnum")]
   #tmp = tmp[,-grep("pval_",names(tmp))]
   tmp$trait = traitNames[i]
-  tmp$key = paste0(traits[i],"_", tmp$LEAD_SNP)
+  tmp$key = paste0(traits[i],"_", tmp$leadsnp)
   if (i == 1) { eqtl = tmp } else { eqtl = rbind(eqtl, tmp)}
 }
 
@@ -54,7 +54,7 @@ df = df[order(df$LOCUS_COUNT, df$DISCOV_COUNT, df$PVALUE_RE2),]
 df$X.SIGN = rowSums(df[,names(df)[grep('mval_',names(df))]] >= 0.9, na.rm = TRUE)
 
 # create supplementum data.frame
-suppl = df[,c('LOCUS_COUNT','trait','LEAD_SNP', 'CHR','BP','id','LEAD_SNP_R2',
+suppl = df[,c('LOCUS_COUNT','trait','leadsnp', 'CHR','BP','id',
               'RSID','gene_id','hgnc_symbol','X.STUDY','X.SIGN',
               'BETA_FE','STD_FE','PVALUE_FE','STAT1_RE2','STAT2_RE2','PVALUE_RE2',
               names(df)[grep('mval_',names(df))])]

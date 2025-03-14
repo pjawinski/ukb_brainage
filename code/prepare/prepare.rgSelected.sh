@@ -1076,13 +1076,13 @@ files=$(ls data/sumstats/harmonized/*.gz)
 
 # loop over files
 for i in ${files}; do
-    outFile=$(echo ${i} | sed 's%.*/%%g' | sed 's/.gz//g')
+    outFile=$(echo "${i}" | sed 's%.*/%%g' | sed 's/.gz//g')
     munge_sumstats.py \
-        --sumstats ${i} \
+        --sumstats "${i}" \
         --merge-alleles "${LDsnplist}" \
         --snp ID \
-        --out "${targetDir}/${outFile}"
-    chmod -R 750 ${targetDir}/${outFile}*
+        --out "${targetDir}"/"${outFile}"
+    chmod -R 750 "${targetDir}"/"${outFile}"*
 done
 
 

@@ -23,7 +23,7 @@ Train_Samples = data(u(:,j)~= v(i,j),:);
 Validation_Samples = data(u(:,j)==v(i,j),:);
 
 % run pca
-[Train_Samples_pca_coeff,Train_Samples_pca_score] = pca(Train_Samples);
+[Train_Samples_pca_coeff,Train_Samples_pca_score,latent] = pca(Train_Samples);
 
 % get pca scores of the first 500 principal components
 Train_Samples_pca_score = Train_Samples_pca_score(:,1:500);
@@ -35,10 +35,18 @@ Validation_Samples_centered = Validation_Samples-repmat(Train_Samples_means,size
 Validation_Samples_pca_score = Validation_Samples_centered/Train_Samples_pca_coeff';
 
 % save data
-dlmwrite('Train_Samples_pca.txt', Train_Samples_pca_score, 'delimiter', '\t', 'precision', 16);
-dlmwrite('Validation_Samples_pca.txt', Validation_Samples_pca_score, 'delimiter', '\t', 'precision', 16);
+dlmwrite(sprintf('xgb_%s_train_samples_pca.txt', tissue), Train_Samples_pca_score, 'delimiter', '\t', 'precision', 16);
+dlmwrite(sprintf('xgb_%s_validation_samples_pca.txt', tissue), Validation_Samples_pca_score, 'delimiter', '\t', 'precision', 16);
 save(sprintf('xgb_%s_pca_training.mat', tissue), 'Train_Samples_means', 'Train_Samples_pca_coeff')
-	
+
+% save eigenvalues
+eigen = latent/sum(latent);
+eigen = eigen(1:500);
+eigenFormatted = arrayfun(@(x) sprintf('%.12f', x), eigen, 'UniformOutput', false);
+eigenTable = table(eigenFormatted, 'VariableNames', {'Eigenvalues'});
+writetable(eigenTable, sprintf('xgb_%s_eigenvalues.txt', tissue), ...
+    'Delimiter', '\t', 'WriteVariableNames', true, 'FileType', 'text');
+
 % exit
 fprintf(' - matlab pca took %d seconds.\n', round(toc,0))
 exit

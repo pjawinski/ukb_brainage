@@ -41,26 +41,6 @@ kgpFiles='data/1kgp/v5a/ALL.chr\$chr.phase3_shapeit2_mvncall_integrated_v5a.2013
 keepKGPfreq=TRUE
 Rscript code/genetics/sumstats.harmonize.R ${sumstats} ${outFile} ${skipLines} ${sep} ${colsIn} ${colsOut} ${halveNeff} ${setNca} ${setNco} ${setN} ${compNeff_half} ${compN} ${compMAF} ${invertCol} ${rmDuplicatesCol} ${or2beta} ${compBetaSe} ${stdize} ${addRSID} ${kgpFiles} ${keepKGPfreq}
 
-# sumstats="data/sumstats/raw/mr_edu_okbay_2016/EduYears_Main.txt"
-# outFile="data/sumstats/harmonized/mr_edu_okbay_2016"
-# skipLines=0
-# sep="auto"
-# colsIn="CHR,POS,MarkerName,A1,A2,EAF,Beta,SE,Pval"
-# colsOut="CHR,BP,ID,A1,A2,A1_FREQ,BETA,SE,P"
-# halveNeff=FALSE
-# setN=328917 # 217,568 (Discovery without 23andMe) + 111,349 UK Biobank (suppl. Table S1.1)
-# setNca=-1
-# setNco=-1
-# compNeff_half=FALSE
-# compN=FALSE
-# compMAF=TRUE
-# invertCol=FALSE
-# rmDuplicatesCol=FALSE
-# addRSID=FALSE
-# kgpFiles=FALSE
-# keepKGPfreq=FALSE
-# Rscript code/genetics/sumstats.harmonize.R ${sumstats} ${outFile} ${skipLines} ${sep} ${colsIn} ${colsOut} ${halveNeff} ${setNca} ${setNco} ${setN} ${compNeff_half} ${compN} ${compMAF} ${invertCol} ${rmDuplicatesCol} ${or2beta} ${compBetaSe} ${stdize} ${addRSID} ${kgpFiles} ${keepKGPfreq}
-
 # BMI (Locke et al. 2015, https://doi.org/10.1038/nature14177), data: http://portals.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium_data_files
 mkdir -p data/sumstats/raw/mr_bmi_locke_2015 && cd data/sumstats/raw/mr_bmi_locke_2015
 wget "http://portals.broadinstitute.org/collaboration/giant/images/1/15/SNP_gwas_mc_merge_nogc.tbl.uniq.gz"
@@ -476,15 +456,15 @@ keepKGPfreq=FALSE
 
 # loop over files
 for i in ${files}; do
-    outFile=$(echo $targetDir/$(echo ${i} | sed 's%.*/%%g' | sed 's/.gz//g'))
-	Rscript code/genetics/sumstats.harmonize.R ${i} ${outFile} ${skipLines} ${sep} ${colsIn} ${colsOut} ${halveNeff} ${setNca} ${setNco} ${setN} ${compNeff_half} ${compN} ${compMAF} ${invertCol} ${rmDuplicatesCol} ${or2beta} ${compBetaSe} ${stdize} ${addRSID} ${kgpFiles} ${keepKGPfreq}
-    chmod -R 750 ${outFile}*
+    outFile=$(echo "${targetDir}"/$(echo "${i}" | sed 's%.*/%%g' | sed 's/.gz//g'))
+	Rscript code/genetics/sumstats.harmonize.R "${i}" "${outFile}" "${skipLines}" "${sep}" "${colsIn}" "${colsOut}" "${halveNeff}" "${setNca}" "${setNco}" "${setN}" "${compNeff_half}" "${compN}" "${compMAF}" "${invertCol}" "${rmDuplicatesCol}" "${or2beta}" "${compBetaSe}" "${stdize}" "${addRSID}" "${kgpFiles}" "${keepKGPfreq}"
+    chmod -R 750 "${outFile}"*
 done
 
 # use 1kgp frequency column
 i=data/sumstats/harmonized/mr_t2d_scott_2017.gz
 colsIn="ID,A1,A2,KGP_A1_FREQ,BETA,SE,P,N"
 outFile=$(echo $targetDir/$(echo ${i} | sed 's%.*/%%g' | sed 's/.gz//g'))
-Rscript code/genetics/sumstats.harmonize.R ${i} ${outFile} ${skipLines} ${sep} ${colsIn} ${colsOut} ${halveNeff} ${setNca} ${setNco} ${setN} ${compNeff_half} ${compN} ${compMAF} ${invertCol} ${rmDuplicatesCol} ${or2beta} ${compBetaSe} ${stdize} ${addRSID} ${kgpFiles} ${keepKGPfreq}
-chmod -R 750 ${outFile}*
+Rscript code/genetics/sumstats.harmonize.R "${i}" "${outFile}" "${skipLines}" "${sep}" "${colsIn}" "${colsOut}" "${halveNeff}" "${setNca}" "${setNco}" "${setN}" "${compNeff_half}" "${compN}" "${compMAF}" "${invertCol}" "${rmDuplicatesCol}" "${or2beta}" "${compBetaSe}" "${stdize}" "${addRSID}" "${kgpFiles}" "${keepKGPfreq}"
+chmod -R 750 "${outFile}"*
 

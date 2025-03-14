@@ -1,0 +1,7 @@
+
+--- get stats of genetic effect size distribution analysis ---
+traits: gap_gm,gap_wm,gap_gwm,height,neur
+traitLabels: Grey_matter_brain_age_gap,White_matter_brain_age_gap,Grey_and_white_matter_brain_age_gap,Height_(Wood_et_al._2014),Neuroticism_(Baselmans_et_al._2019)
+genesisFit: results/gap_gm/gwama/eur/genesis/genesis.fit3.Rds,results/gap_wm/gwama/eur/genesis/genesis.fit3.Rds,results/gap_gwm/gwama/eur/genesis/genesis.fit3.Rds,data/sumstats/genesis/mr_height_wood_2014/genesis.fit3.Rds,data/sumstats/genesis/04_neur_baselmans_2019/genesis.fit3.Rds
+outFile: results/combined/gwama.eur.genesis.stats
+

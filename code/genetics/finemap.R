@@ -11,17 +11,17 @@ if (length(args) != 11) {
 }
 
 # get arguments from command line
-finemapCred = args[1] # finemapCred='results/gap_gm/credibleSet/2_201147317/finemap.cred2'
-finemapSNP = args[2] # finemapSNP='results/gap_gm/credibleSet/2_201147317/finemap.snp'
-indexLD = args[3] # indexLD='results/gap_gm/credibleSet/2_201147317/flankingSNPs.ld'
-snpTotal = as.numeric(args[4]) # snpTotal=1382
-snpCausal = as.numeric(args[5]) # snpCausal=2.03
-bestK = as.numeric(args[6]) # bestK=1
-regionalh2 = args[7] # regionalh2="0.00179 [0.00098,0.00279]"
-minBP = as.numeric(args[8]) # minBP=200724582
-maxBP = as.numeric(args[9]) # maxBP=201253956
-outputDF = args[10] # outputDF = 'results/gap_gm/credibleSet/2_201147317/credibleDF.txt'
-outputLS = args[11] # outputLS = 'results/gap_gm/credibleSet/2_201147317/credibleLS.txt'
+finemapCred = args[1] # finemapCred='1_215139887/finemap.cred2'
+finemapSNP = args[2] # finemapSNP='1_215139887/finemap.snp'
+indexLD = args[3] # indexLD='1_215139887/flankingSNPs.ld'
+snpTotal = as.numeric(args[4]) # snpTotal=618
+snpCausal = as.numeric(args[5]) # snpCausal=2.24
+bestK = as.numeric(args[6]) # bestK=2
+regionalh2 = args[7] # regionalh2="0.00204 [0.00136,0.00284]"
+minBP = as.numeric(args[8]) # minBP=215134041
+maxBP = as.numeric(args[9]) # maxBP=215289079
+outputDF = args[10] # outputDF = '1_215139887/credibleDF.txt'
+outputLS = args[11] # outputLS = '1_215139887/credibleLS.txt'
 
 message(paste0('\n--- Creating credible set output files ---',
                '\nfinemapCred: ', finemapCred,
@@ -70,6 +70,13 @@ ld = ld[,-which(names(ld) %in% c('CHR_B'))]
 names(ld) = c('chromosome', 'index_bp', 'index_rsid', 'bp', 'rsid', 'index_r2')
 df = left_join(df, ld, by = 'rsid')
 
+# add size of credible set
+df$cs.size = 0
+setSize = as.data.frame(table(df$signalCount))
+for (i in 1:nrow(df)) { 
+  df$cs.size[i] = setSize$Freq[setSize$Var == df$signalCount[i]]
+}
+
 # add snpTotal, snpCausal, regionalh2, minBP, maxBP
 df$snpTotal = snpTotal
 df$snpCausal = snpCausal
@@ -84,14 +91,22 @@ snp = snp[,-which(names(snp) %in% c('index', 'chromosome', 'position'))]
 names(snp)[which(names(snp)=='prob')] = 'marginal_prob'
 df = left_join(df, snp, by = 'rsid')
 
+# get strings of concatenated credible set sizes, and credible snps
+cssize = paste(df$cs.size[!duplicated(df$signalCount)],collapse = ' | ')
+cssnps = df %>%
+  group_by(signalCount) %>%
+  summarise(y = paste0(rsid, collapse = ",")) %>%
+  summarise(y = paste(y, collapse = " | ")) %>%
+  pull(y)
+
 # sort columns
-df = df[,c('index_rsid', 'chromosome', 'index_bp',  
+DF = df[,c('index_rsid', 'chromosome', 'index_bp',  
            'regionalh2', 'minBP', 'maxBP', 'rangeBP', 'snpTotal', 'snpCausal', 'bestK',
-           'signalCount', 'rsid', 'bp', 'allele1', 'allele2', 'maf', 'beta', 'se', 'z', 'prob', 'cumprob',
-           'marginal_prob', 'log10bf', 'mean', 'sd', 'mean_incl', 'sd_incl')]
+           'signalCount', 'cs.size', 'rsid', 'bp', 'allele1', 'allele2', 'maf', 'beta', 'se', 'z', 'prob', 'cumprob',
+           'marginal_prob', 'log10bf', 'mean', 'sd', 'mean_incl', 'sd_incl', 'index_r2')]
+LS = cbind(df[1,c('index_rsid','chromosome','index_bp','regionalh2', 'minBP','maxBP','rangeBP','snpTotal','snpCausal','bestK')], data.frame(cssize = cssize, cssnps = cssnps))
 
 # output
-write.table(df, outputDF, sep = "\t", row.names = F, col.names = T, quote = F)
-LS = cbind(df[1,c('index_rsid','chromosome','index_bp','regionalh2', 'minBP','maxBP','rangeBP','snpTotal','snpCausal','bestK')], data.frame(credibleSet_size = nrow(df)), data.frame(credibleSet = paste(df$rsid, collapse = ', ')))
+write.table(DF, outputDF, sep = "\t", row.names = F, col.names = T, quote = F)
 write.table(LS, outputLS, sep = "\t", row.names = F, col.names = T, quote = F)
 message(paste0('--- Creating credible set output files completed ---\n'))

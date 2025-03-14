@@ -1,6 +1,6 @@
 
 --- Compute replication power ---
-discoveryFile: results/combined/snplevel.novelty.txt
+discoveryFile: results/combined/discovery.snplevel/snplevel.gws.txt
 traits: gap_gm,gap_wm,gap_gwm
 traitNames: grey matter,white matter,grey and white matter
 colTrait: TRAIT
@@ -11,14 +11,14 @@ colFREQ: A1_FREQ
 cols2keep: LOCUS_COUNT,TRAIT,CHR,BP,ID,NEAREST_GENE,A1,A2,A1_FREQ,BETA,SE,Z,P,N
 filterCol: DISCOV_COUNT
 filterVal: 1
-replicationN: 7259
+replicationN: 22256
 replicationP: 0.1
 outFile: results/combined/replication.power
 
 --- calculations ---
 discoveries: 25
-minimum replication power: 0.104956248123914
-maximum replication power: 0.99999999050734
-average replication power (mean): 0.660561363322484
-average replication power (median): 0.84036351754004
-expected replications: 16.5140340830621
+minimum replication power: 0.115171840382658
+maximum replication power: 1
+average replication power (mean): 0.76039496295932
+average replication power (median): 0.998554624981007
+expected replications: 19.009874073983

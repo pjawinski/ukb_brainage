@@ -6,8 +6,8 @@
 
 # get arguments
 args = commandArgs(trailingOnly=TRUE)
-if (length(args)!=6) {
-  stop(paste0('expected 6 arguments, but ', length(args), ' argument(s) provided.'), call.=FALSE)
+if (length(args)!=7) {
+  stop(paste0('expected 7 arguments, but ', length(args), ' argument(s) provided.'), call.=FALSE)
 }
 # set arguments
 gsmrFile = args[1] # gsmrFile="results/gap_gm/gsmr/gsmr.eff_plot.gz"
@@ -15,7 +15,8 @@ exposure_levels = args[2] # exposure_levels="mr_als_vanRheenen_2021,mr_bip_mulli
 exposure_labels = args[3] # exposure_labels="Amyotrophic_Lateral_Sclerosis,Bipolar_Disorder,Body-Mass-Index_(BMI),Cannabis Use Disorder,Educational Attainment,Educational Attainment (pruned),HDL-C,Height,LDL-C,Major Depression,Schizophrenia,Triglyceride,Waist-Hip-Ratio"
 outcome_levels = args[4] # outcome_levels="gap_gm"
 outcome_labels = args[5] # outcome_labels="Grey matter brain age gap"
-targetDir = args[6] # targetDir="results/gap_gm/gsmr/"
+titles = args[6] # titles="Amyotrophic_Lateral_Sclerosis,Bipolar_Disorder,Body-Mass-Index_(BMI),Cannabis Use Disorder,Educational Attainment,Educational Attainment (pruned),HDL-C,Height,LDL-C,Major Depression,Schizophrenia,Triglyceride,Waist-Hip-Ratio"
+outFile = args[7] # targetDir="results/gap_gm/gsmr/gsmr.outcome"
 
 message(paste0('\n--- Creating GSMR plots | Settings ---',
                '\ngsmrFile: ', gsmrFile,
@@ -23,7 +24,8 @@ message(paste0('\n--- Creating GSMR plots | Settings ---',
                '\nexposure_labels: ', exposure_labels,
                '\noutcome_levels: ', outcome_levels,
                '\noutcome_labels: ', outcome_labels,
-               '\ntargetDir: ', targetDir,'\n'))
+               '\ntitles: ', titles,
+               '\noutFile: ', outFile,'\n'))
 
 # attach packages to current R session
 for (pkg in c('cowplot', 'dplyr', 'ggplot2','magick','patchwork','stringr')) {
@@ -43,6 +45,8 @@ exposure_labels = str_split(exposure_labels, ',')[[1]]
 outcome_levels = str_split(outcome_levels, ',')[[1]]
 outcome_labels = str_replace_all(outcome_labels, "_", " ")
 outcome_labels = str_split(outcome_labels, ',')[[1]]
+titles = str_replace_all(titles, "_", " ")
+titles = str_split(titles, ',')[[1]]
 
 # replace levels with labels
 message(' - replacing levels with labels.')
@@ -60,8 +64,10 @@ for (i in 1:length(outcome_levels)) {
 # create individual plots
 message(' - creating individual plots.')
 gsmrSummary = gsmr_summary(gsmr_data)
+k = 0
 for (i in 1:length(exposure_levels)) {
   for (j in 1:length(outcome_levels)) {
+    k = k + 1
     
     # get statistics
     idx = gsmrSummary$Exposure == exposure_labels[i] & gsmrSummary$Outcome == outcome_labels[j]
@@ -71,10 +77,10 @@ for (i in 1:length(exposure_levels)) {
     if (bxy == 'NaN') { next }
     
     # create plot and add title
-    pdf(file = sprintf('%s/gsmr.exposure.%d.outcome.%d.pdf',targetDir,i,j), width=5.84, height=5.42) # png(filename = 'code/figures/power.png', width=5.98, height=4.48, units = "in", res = 600)
+    pdf(file = sprintf('%s.exposure.%d.outcome.%d.pdf',outFile,i,j), width=5.84, height=5.42) # png(filename = 'code/figures/power.png', width=5.98, height=4.48, units = "in", res = 600)
     par(mar = c(4,4,3,2), mgp = c(2.5, 0.7, 0), lwd=1)
     plot_gsmr_effect(gsmr_data, exposure_labels[i], outcome_labels[j], colors()[75])
-    title(main = bquote(atop(bold(.(exposure_labels[i])), atop('',''))))
+    title(main = bquote(atop(bold(.(titles[k])), atop('',''))))
     
     # add statistics
     if (p >= 0.001) { p = sprintf('%.3f', p) } else { p = sprintf('%.1e', p) }
@@ -91,10 +97,10 @@ for (i in 1:length(exposure_levels)) {
   for (j in 1:length(outcome_levels)) {
     
     # get plots with available .pdf file
-    if (file.exists(sprintf('%s/gsmr.exposure.%d.outcome.%d.pdf',targetDir,i,j))) {  
+    if (file.exists(sprintf('%s.exposure.%d.outcome.%d.pdf',outFile,i,j))) {  
       plotCount = plotCount + 1
       pl.temp = ggdraw() + 
-        draw_image(magick::image_read_pdf(path = sprintf('%s/gsmr.exposure.%d.outcome.%d.pdf',targetDir,i,j), density = 300), scale = 1)
+        draw_image(magick::image_read_pdf(path = sprintf('%s.exposure.%d.outcome.%d.pdf',outFile,i,j), density = 300), scale = 1)
       assign(paste0('pl.',plotCount), pl.temp) 
     }
     
@@ -110,16 +116,16 @@ for (i in 1:length(exposure_levels)) {
     if (i*j == length(exposure_levels)*length(outcome_levels) | plotCount == 12) {
       plotCount = 0
       pageCount = pageCount + 1
-      message(sprintf(' - writing %s/gsmr.exposure.page%s.png',targetDir,pageCount))
-      png(file = sprintf('%s/gsmr.exposure.page%s.png',targetDir,pageCount), width=9.6, height=13.3, units = 'in', res = 300)
+      message(sprintf(' - writing %s.page%s.png',outFile,pageCount))
+      png(file = sprintf('%s.page%s.png',outFile,pageCount), width=9.6, height=13.3, units = 'in', res = 300)
       print({
         pl.1 + pl.2 + pl.3 + pl.4 + pl.5 + pl.6 + pl.7 + pl.8 + pl.9 + pl.10 + pl.11 + pl.12 + plot_layout(ncol = 3)
       })
       dev.off()    
-      system(sprintf('chmod 770 %s/gsmr.exposure.page%s.png',targetDir,pageCount))
+      system(sprintf('chmod 770 %s.page%s.png',outFile,pageCount))
     }
   }
 }
-system(sprintf('rm -f %s/*.pdf',targetDir))
+system(sprintf('rm -f %s*.pdf',outFile))
 message('-- Completed: Creating GSMR Plots ---\n')
 

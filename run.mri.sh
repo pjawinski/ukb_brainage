@@ -11,13 +11,13 @@ conda activate envs/default
 # r2020: create dataset of cat12-preprocessed MRI scans released until Feb 2020 (discovery and some replication individuals)
 /opt/matlab/bin/matlab -nodesktop -nodisplay -r "scanDir = {'data/t1w/r2020/'}; outfile = 'results/mri/cat12.r2020'; spmPath = '/fast/software/matlab/spm12/'; ncores = 50; run code/mri/cat12collect.m"
 
-# r2021: create dataset of cat12-preprocessed MRI scans released until Feb 2021 (discovery and replication)
-/opt/matlab/bin/matlab -nodesktop -nodisplay -r "scanDir = {'data/t1w/r2020/','data/t1w/r2021/'}; outfile = 'results/mri/cat12.r2021'; spmPath = '/fast/software/matlab/spm12/'; ncores = 50; run code/mri/cat12collect.m"
+# r2024: create dataset of cat12-preprocessed MRI scans released until Feb 2024 (discovery and replication)
+/opt/matlab/bin/matlab -nodesktop -nodisplay -r "scanDir = {'data/t1w/r2020/','data/t1w/r2021/','data/t1w/r2024/'}; outfile = 'results/mri/cat12.r2024'; spmPath = '/fast/software/matlab/spm12/'; ncores = 50; run code/mri/cat12collect.m"
 
-# r2022.retest: create dataset with all cat12-preprocessed retest MRI scans
-/opt/matlab/bin/matlab -nodesktop -nodisplay -r "scanDir = {'data/t1w/r2022_retest/'}; outfile = 'results/mri/cat12.r2022.retest'; spmPath = '/fast/software/matlab/spm12/'; ncores = 50; run code/mri/cat12collect.m"
+# r2024.retest: create dataset with all cat12-preprocessed retest MRI scans
+/opt/matlab/bin/matlab -nodesktop -nodisplay -r "scanDir = {'data/t1w/r2022_retest/','data/t1w/r2024_retest/'}; outfile = 'results/mri/cat12.r2024.retest'; spmPath = '/fast/software/matlab/spm12/'; ncores = 50; run code/mri/cat12collect.m"
 
-# run sample filtering (divide into discovery and replication, select unrelated individualds)
+# run sample filtering (divide into discovery and replication, select unrelated individuals)
 Rscript code/mri/sampleFiltering.R
 
 # prepare datasets with filtered samples for machine learning in MATLAB and R
@@ -49,6 +49,27 @@ for tissue in gm wm; do
     targetDir="results/mri/ml.xgb/singlemodel/"
     Rscript code/mri/ml.xgboost.singlemodel.R "${tissue}" "${targetDir}" "${Rfile}" "${matFile}" "${matlabpath}" "${threads}"
 done
+
+# benchmark single-model (single model from full discovery) vs. multi-model approach (models from cross-validation)
+/opt/matlab/bin/matlab -nodesktop -nodisplay -r "workingDir = pwd; run code/mri/singlemodel_benchmark.m"
+
+# extract feature importances for XGBoost models with tree booster
+conda activate envs/xgb
+width=7.7
+height=3.0
+for tissue in gm wm; do
+    modelFile="results/mri/ml.xgb/singlemodel/xgb_${tissue}_models.RData"
+    outFile="results/mri/ml.xgb/singlemodel/xgb_${tissue}_importance.png"
+    ./code/mri/singlemodel.importance.R ${modelFile} ${outFile} ${width} ${height}
+done
+
+# merge single-model plots
+conda activate envs/default
+benchmark="results/mri/singlemodel.benchmark.png"
+gmImportance="results/mri/ml.xgb/singlemodel/xgb_gm_importance.png"
+wmImportance="results/mri/ml.xgb/singlemodel/xgb_wm_importance.png"
+outFile="results/combined/singlemodel.composite.png"
+./code/mri/singlemodel.combine.R "${benchmark}" "${gmImportance}" "${wmImportance}" "${outFile}"
 
 # discovery cohort: collect and stack brain age estimates
 /opt/matlab/bin/matlab -nodesktop -nodisplay -r "workingDir = pwd; run code/mri/brainageDiscovery.m"

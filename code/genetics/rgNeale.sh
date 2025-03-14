@@ -16,14 +16,14 @@ threads=$8 # threads=50
 
 # echo settings
 echo $'\n'"--- Genetic Correlation Analysis Settings ---"
-echo "trait: "${trait}
-echo "targetDir: "${targetDir}
-echo "sumstats: "${sumstats}
-echo "nealeDir: "${nealeDir}
-echo "nealeManifest: "${nealeManifest}
-echo "showcaseCategories: "${showcaseCategories}
-echo "LDchr: "${LDchr}
-echo "threads: "${threads}$'\n'
+echo "trait: ${trait}"
+echo "targetDir: ${targetDir}"
+echo "sumstats: ${sumstats}"
+echo "nealeDir: ${nealeDir}"
+echo "nealeManifest: ${nealeManifest}"
+echo "showcaseCategories: ${showcaseCategories}"
+echo "LDchr: ${LDchr}"
+echo "threads: ${threads}"$'\n'
 
 # set targetdir and make folder
 mkdir -p "${targetDir}"
@@ -47,10 +47,10 @@ wait
 # collect results
 echo "Collecting results."
 echo p1$'\t'p2$'\t'rg$'\t'se$'\t'z$'\t'p$'\t'h2_obs$'\t'h2_obs_se$'\t'h2_int$'\t'h2_int_se$'\t'gcov_int$'\t'gcov_int_se > "${targetDir}/rg.results"
-logFiles=$(ls ${targetDir}/rg.output/*.log)
+logFiles=$(ls "${targetDir}"/rg.output/*.log)
 for i in $logFiles; do
-    summary="$(grep -m1 -A 2 "Summary of Genetic Correlation Results" $i | awk 'NR==3 { print }' OFS='\t')"
-    echo "$summary" | awk '{sub(".*/","",$1); sub(".*/","",$2); print}' OFS='\t' >> "${targetDir}/rg.results"
+    summary="$(grep -m1 -A 2 "Summary of Genetic Correlation Results" "${i}" | awk 'NR==3 { print }' OFS='\t')"
+    echo "${summary}" | awk '{sub(".*/","",$1); sub(".*/","",$2); print}' OFS='\t' >> "${targetDir}/rg.results"
 done
 
 # add trait description and ukb showcase link

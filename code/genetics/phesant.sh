@@ -17,15 +17,15 @@ standardise="$9" # standardise="FALSE"
 
 # echo settings
 echo $'\n'"--- PHESANT analysis Settings ---"
-echo "trait: "${trait}
-echo "traitFile: "${traitFile}
-echo "covsFile: "${covsFile}
-echo "covs: "${covs}
-echo "targetDir: "${targetDir}
-echo "phenoFile: "${phenoFile}
-echo "phesantDir: "${phesantDir}
-echo "nparts: "${nparts}
-echo "standardise: "${standardise}$'\n'
+echo "trait: ${trait}"
+echo "traitFile: ${traitFile}"
+echo "covsFile: ${covsFile}"
+echo "covs: ${covs}"
+echo "targetDir: ${targetDir}"
+echo "phenoFile: ${phenoFile}"
+echo "phesantDir: ${phesantDir}"
+echo "nparts: ${nparts}"
+echo "standardise: ${standardise}"$'\n'
 
 # set targetdir and make folder
 mkdir -p "${targetDir}"
@@ -33,32 +33,32 @@ targetDir="$(readlink -f "${targetDir}")"
 
 # get exposure file
 echo "Creating exposure file."
-awk -F '\t' -v trait="${trait}" 'BEGIN { print "eid,"trait } NR > 1 { print $1, $3}' OFS=',' "${traitFile}" > "${targetDir}/phesant.exposure.csv"
+awk -F '\t' -v trait="${trait}" 'BEGIN { print "eid,"trait } NR > 1 { print $1, $3}' OFS=',' "${traitFile}" > "${targetDir}"/phesant.exposure.csv
 
 # get confounder file
 echo "Creating confounder file."
 header="eid,${covs}" 
 awk -F '\t' -v header="${header}" -v covs="${covs}" 'BEGIN { print header; ncovs=split(covs,covnames,",") }
 	NR==1 { for(i=1;i<=ncovs;++i) { for(j=2;j<=NF;++j) { if($j==covnames[i]) { colnums[i]=j } } } }
-	NR>1 { output=$1; for(i=1;i<=ncovs;++i) { output=output","$colnums[i] }; print output}' "${covsFile}" > "${targetDir}/phesant.confounder.csv"
+	NR>1 { output=$1; for(i=1;i<=ncovs;++i) { output=output","$colnums[i] }; print output}' "${covsFile}" > "${targetDir}"/phesant.confounder.csv
 
 # run analysis
 echo "Running phenome-wide scan."$'\n'
-mkdir -p "${targetDir}/phesant.output"
-cd "${phesantDir}/WAS"
+mkdir -p "${targetDir}"/phesant.output
+cd "${phesantDir}"/WAS
 
 for ((i = 1; i <= nparts; i++)); do (
 Rscript phenomeScan.r \
 --phenofile="${phenoFile}" \
---traitofinterestfile="${targetDir}/phesant.exposure.csv" \
---variablelistfile="${phesantDir}/variable-info/outcome-info.tsv" \
---datacodingfile="${phesantDir}/variable-info/data-coding-ordinal-info.txt" \
+--traitofinterestfile="${targetDir}"/phesant.exposure.csv \
+--variablelistfile="${phesantDir}"/variable-info/outcome-info.tsv \
+--datacodingfile="${phesantDir}"/variable-info/data-coding-ordinal-info.txt \
 --traitofinterest="${trait}" \
---resDir="${targetDir}/phesant.output/" \
+--resDir="${targetDir}"/phesant.output/ \
 --userId="eid" \
---partIdx=${i} \
---numParts=${nparts} \
---confounderfile="${targetDir}/phesant.confounder.csv" \
+--partIdx="${i}" \
+--numParts="${nparts}" \
+--confounderfile="${targetDir}"/phesant.confounder.csv \
 --standardise="${standardise}" \
 --genetic="FALSE" \
 ) &
@@ -67,11 +67,11 @@ wait
 echo "Finished."
 
 # post phenome scan results processing
-cd ${phesantDir}/resultsProcessing/
+cd "${phesantDir}"/resultsProcessing/
 Rscript mainCombineResults.r \
---resDir="${targetDir}/phesant.output/" \
---variablelistfile="${phesantDir}/variable-info/outcome-info.tsv" \
---numParts=${nparts}
+--resDir="${targetDir}"/phesant.output/ \
+--variablelistfile="${phesantDir}"/variable-info/outcome-info.tsv \
+--numParts="${nparts}"
 
 # create visualization
 # mkdir -p "${targetDir}/results/web"

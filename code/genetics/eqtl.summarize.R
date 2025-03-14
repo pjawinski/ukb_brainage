@@ -6,17 +6,21 @@
 
 # get arguments
 args = commandArgs(trailingOnly=TRUE)
-if (length(args)!=3) {
-  stop(paste0('expected 3 arguments, but ', length(args), ' argument(s) provided.'), call.=FALSE)
+if (length(args)!=5) {
+  stop(paste0('expected 5 arguments, but ', length(args), ' argument(s) provided.'), call.=FALSE)
 }
 
 # set arguments
-singleTissueFile=args[1] # singleTissueFile="results/gap_gm/eqtl/eqtl.singleTissue.txt"
-multiTissueFile=args[2] # multiTissueFile="results/gap_gm/eqtl/eqtl.multiTissue.txt"
-outputFile=args[3] # outputFile="results/gap_gm/eqtl/eqtl.summary.txt"
+singleTissueFile=args[1] # singleTissueFile="results/pleiofdr/combined/pleio.crosstrait.eqtl.singleTissue.txt"
+multiTissueFile=args[2] # multiTissueFile="results/pleiofdr/combined/pleio.crosstrait.eqtl.multiTissue.txt"
+locusCol=args[3] # locusCol="locusnum"
+leadsnpCol=args[4] # leadsnpCol="leadsnp"
+outputFile=args[5] # outputFile="results/pleiofdr/combined/pleio.crosstrait.eqtl.summary.txt"
 message(paste0('\n--- Summarize GTEx single- and multi-tissue eQTL hits | Settings ---',
                '\nsingleTissueFile: ', singleTissueFile,
                '\nmultiTissueFile: ', multiTissueFile,
+               '\nlocusCol: ', locusCol,
+               '\nleadsnpCol: ', leadsnpCol,
                '\noutputFile: ', outputFile, '\n'))
 
 # attach packages to current R session
@@ -28,12 +32,12 @@ df = read.delim(singleTissueFile, sep = '\t', header = T)
 
 # get singleTissue locus summary
 message('Creating singleTissue locus summary.')
-locus.summary = data.frame(matrix(NA, nrow = length(unique(df$LEAD_SNP)), ncol = 3))
-names(locus.summary) = c('LOCUS_COUNT', 'LEAD_SNP', 'GTEx_singleTissue')
+locus.summary = data.frame(matrix(NA, nrow = length(unique(df[[leadsnpCol]])), ncol = 3))
+names(locus.summary) = c('locusnum', 'leadsnp', 'gtex_singleTissue')
 i = 0
-for (leadsnp in unique(df$LEAD_SNP)) {
+for (leadsnp in unique(df[[leadsnpCol]])) {
   i = i + 1
-  df.tmp = df[df$LEAD_SNP == leadsnp,]
+  df.tmp = df[df[[leadsnpCol]] == leadsnp,]
   df.tmp = df.tmp[order(df.tmp$gene_id),]
   df.tmp$gene = df.tmp$hgnc_symbol; df.tmp$gene[df.tmp$gene == ""] = df.tmp$ensembl_gene_id[df.tmp$gene == ""]; df.tmp = df.tmp[order(df.tmp$gene),]
   
@@ -48,7 +52,7 @@ for (leadsnp in unique(df$LEAD_SNP)) {
     gene.tmp[j,4] = paste0(gene.tmp[j,1], ' (', gene.tmp[j,2], ';', formatC(gene.tmp[j,3], format = "e", digits = 0), ')')
   }
   gene.tmp = gene.tmp[order(gene.tmp$ntissue, gene.tmp$minp, decreasing = c(T,F)),]
-  locus.summary[i,1:2] = df[df$LEAD_SNP == leadsnp & !duplicated(df$LEAD_SNP), c('LOCUS_COUNT', 'LEAD_SNP')]
+  locus.summary[i,1:2] = df[df[[leadsnpCol]] == leadsnp & !duplicated(df[[leadsnpCol]]), c(locusCol, leadsnpCol)]
   locus.summary[i,3] = paste(gene.tmp$concat, collapse = ' | ')
 }
 singleTissue.summary = locus.summary
@@ -59,12 +63,12 @@ df = read.delim(multiTissueFile, sep = '\t', header = T)
 
 # get multiTissue locus summary
 message('Creating multiTissue locus summary.')
-locus.summary = data.frame(matrix(NA, nrow = length(unique(df$LEAD_SNP)), ncol = 3))
-names(locus.summary) = c('LOCUS_COUNT', 'LEAD_SNP', 'GTEx_multiTissue')
+locus.summary = data.frame(matrix(NA, nrow = length(unique(df[[leadsnpCol]])), ncol = 3))
+names(locus.summary) = c('locusnum', 'leadsnp', 'gtex_multiTissue')
 i = 0
-for (leadsnp in unique(df$LEAD_SNP)) {
+for (leadsnp in unique(df[[leadsnpCol]])) {
   i = i + 1
-  df.tmp = df[df$LEAD_SNP == leadsnp,]
+  df.tmp = df[df[[leadsnpCol]] == leadsnp,]
   df.tmp = df.tmp[order(df.tmp$gene_id),]
   df.tmp$gene = df.tmp$hgnc_symbol; df.tmp$gene[df.tmp$gene == ""] = df.tmp$ensembl_gene_id[df.tmp$gene == ""]; df.tmp = df.tmp[order(df.tmp$gene),]
   
@@ -80,15 +84,15 @@ for (leadsnp in unique(df$LEAD_SNP)) {
     gene.tmp[j,5] = paste0(gene.tmp[j,1], ' (', gene.tmp[j,2], '/', gene.tmp[j,3], ';', formatC(gene.tmp[j,4], format = "e", digits = 0), ')')
   }
   gene.tmp = gene.tmp[order(gene.tmp$mval0.9/gene.tmp$ntissue, gene.tmp$mval0.9, gene.tmp$PVALUE_RE2, decreasing = c(T,T,F)),]
-  locus.summary[i,1:2] = df[df$LEAD_SNP == leadsnp & !duplicated(df$LEAD_SNP), c('LOCUS_COUNT', 'LEAD_SNP')]
+  locus.summary[i,1:2] = df[df[[leadsnpCol]] == leadsnp & !duplicated(df[[leadsnpCol]]), c(locusCol, leadsnpCol)]
   locus.summary[i,3] = paste(gene.tmp$concat, collapse = ' | ')
 }
 multiTissue.summary = locus.summary
 
 # write results
 message('Writing summary file.')
-output = full_join(singleTissue.summary, multiTissue.summary, by = 'LEAD_SNP')
-output$LOCUS_COUNT = output$LOCUS_COUNT.x; output$LOCUS_COUNT[is.na(output$LOCUS_COUNT)] = output$LOCUS_COUNT.y[is.na(output$LOCUS_COUNT)]
-output = output[,c('LOCUS_COUNT', 'LEAD_SNP', 'GTEx_singleTissue', 'GTEx_multiTissue')]
-output = output[order(output$LOCUS_COUNT),]
+output = full_join(singleTissue.summary, multiTissue.summary, by = leadsnpCol)
+output$locusnum = output$locusnum.x; output$locusnum[is.na(output$locusnum)] = output$locusnum.y[is.na(output$locusnum)]
+output = output[,c('locusnum', 'leadsnp', 'gtex_singleTissue', 'gtex_multiTissue')]
+output = output[order(output$locusnum),]
 write.table(output, file = outputFile, row.names = F, quote = F, sep = '\t', na = "NA")

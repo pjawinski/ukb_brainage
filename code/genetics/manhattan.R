@@ -11,18 +11,18 @@ if (length(args)!=12) {
 }
 
 # get arguments from command line
-trait = args[1] # trait="gap_gwm"
-targetDir = args[2] # targetDir="results/gap_gwm/replicate/"
-sumstats = args[3] # sumstats="results/gap_gwm/replicate/metal.ivweight.qc.gz"
+trait = args[1] # trait="gap_gm"
+targetDir = args[2] # targetDir="results/gap_gm/replicate/mrmega.all"
+sumstats = args[3] # sumstats="results/gap_gm/replicate/mrmega.all/mrmega.weights.gz"
 nCriterion = args[4] # nCriterion = FALSE | LDSC-like method to exclude snps with N < quantile(N, 0.9) / 1.5 
-annotationFile = args[5] # annotationFile="results/gap_gwm/replicate/conditional/conditional.cleaned.tophits.annovar.txt"
-annotationThresh = as.numeric(args[6]) # annotationThresh=5E-8
+annotationFile = args[5] # annotationFile="results/gap_gm/replicate/mrmega.all/manhattan.annotation.txt"
+annotationThresh = as.numeric(args[6]) # annotationThresh=1E-100
 sig = as.numeric(args[7]) # sig=5E-8
 yend = as.numeric(args[8]) # yend=12
 ysteps = as.numeric(args[9]) # ysteps=4
 width = as.numeric(args[10]) # width = 10.67
 height = as.numeric(args[11]) # height = 4
-preview = args[12] # preview = TRUE
+preview = args[12] # preview = FALSE
 
 logInfo = paste0('\n--- Manhatten plot settings ---',
                '\ntrait: ', trait,
@@ -51,9 +51,9 @@ GWAS_raw = data.frame(fread(cmd=paste0("gzip -dc ", sumstats), tmpdir = getwd(),
 if (annotationFile != "") {
   GWAS_annot = data.frame(fread(paste0(annotationFile), tmpdir = getwd(), sep='\t', header=T, stringsAsFactors=FALSE))
     if ('prioritized' %in% names(GWAS_annot)) {
-      GWAS_annot = GWAS_annot[GWAS_annot$TRAIT == trait & GWAS_annot$COJO_pJ < annotationThresh,c('ID','prioritized')]
+      GWAS_annot = GWAS_annot[GWAS_annot$TRAIT == trait & GWAS_annot$COJO_pJ < sig,c('ID','prioritized')]
       } else {
-      GWAS_annot = GWAS_annot[GWAS_annot$SNP_CNT == 1 & GWAS_annot$P < annotationThresh & GWAS_annot$LEAD_SNP_pJ < annotationThresh,c("ID", "NEAREST_GENE")]
+      GWAS_annot = GWAS_annot[GWAS_annot$SNP_CNT == 1 & GWAS_annot$P < sig & GWAS_annot$LEAD_SNP_pJ < sig, c("ID", "NEAREST_GENE")]
       }
       names(GWAS_annot) = c('ID','GENE_ANNOT')
 }
@@ -95,7 +95,7 @@ GWAS = GWAS[idx,]
 
 # get cumulative base pair positions and center positions
 # credits to Daniël Roelfs (http://www.danielroelfs.com/coding/manhattan_plots/)
-message(paste0('Geting cumulative base pair positions.'))
+message(paste0('Getting cumulative base pair positions.'))
 nCHR = length(unique(GWAS$CHR))
 GWAS$BPcum = NA
 s = 0
@@ -136,7 +136,7 @@ message(paste0('Creating manhattan plot.'))
 set.seed(8245)
 
 manhplot = ggplot(data = subset(GWAS, P >= 10^-yend)) +
-  geom_point(aes(x=BPcum, y=-log10(P), color=as.factor(CHR)), alpha = 1, size = 0.7, stroke = 0, shape = 16) +
+  geom_point(aes(x=BPcum, y=-log10(P), color=as.factor(CHR)), alpha = 1, size = 0.8, stroke = 0, shape = 16) +
   geom_point(data=subset(GWAS, !is.na(GENE_ANNOT) & P < sig & P >= 10^-yend), aes(x=BPcum, y=-log10(P)), color="black", shape=5, size=3) +
   scale_color_manual(values = rep(c("#282873", "#6e90ca"), nCHR)) +
   scale_x_continuous(expand = expansion(mult = c(0.03,0.03), add = c(0,0)), label = label, breaks = axis.set$center) + # label = axis.set$CHR % as.character(as.factor(axis.set$CHR, levels = c(1:25), labels = c(1:22,'X','Y','M'))) % label = c(1:22, 'X', 'Y MT', '') label = c(1:18,'', 20, '', 22, 'X', 'Y MT', '')
@@ -146,7 +146,7 @@ manhplot = ggplot(data = subset(GWAS, P >= 10^-yend)) +
   geom_segment(aes(x=min(axis.set$center),xend=max(axis.set$center),y=-Inf,yend=-Inf), colour = "black", size = 0.25)+
   geom_segment(aes(y=0,yend=yend,x=-Inf,xend=-Inf), colour = "black", size = 0.25) +
   geom_text_repel(
-    data          = subset(GWAS, !is.na(GENE_ANNOT) & P < sig & P >= 10^-yend),
+    data          = subset(GWAS, !is.na(GENE_ANNOT) & P < annotationThresh & P >= 10^-yend),
     aes(x=BPcum, y=-log10(P), label=GENE_ANNOT),
     size          = 3.5,# 1.5
     segment.size  = 0.2 , # 0.2
@@ -155,7 +155,7 @@ manhplot = ggplot(data = subset(GWAS, P >= 10^-yend)) +
     nudge_y = 1.7
   ) +
   geom_text_repel(
-    data          = subset(GWAS, !is.na(GENE_ANNOT) & P < 10^-yend),
+    data          = subset(GWAS, !is.na(GENE_ANNOT) & P < annotationThresh & P < 10^-yend),
     aes(x=BPcum_exceeding, y=-log10(P_exceeding), label=GENE_ANNOT_exceeding),
     size          = 3.5,# 1.5
     segment.size  = 0.2 , # 0.2

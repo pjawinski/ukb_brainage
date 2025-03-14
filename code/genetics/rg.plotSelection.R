@@ -131,11 +131,11 @@ corrplot(rg, method = 'color', addgrid.col="grey95",
     text(xleft, 35, 'Psychiatric', cex = 0.6, srt = 90, col = '#183E60')
     text(xleft, 29, 'Substance use', cex = 0.6, srt = 90, col = '#900000')
     text(xleft, 24, 'Neurological', cex = 0.6, srt = 90, col = '#183E60')
-    text(xleft, 19.5, 'Personality', cex = 0.6, srt = 90, col = '#900000')
+    text(xleft, 19.5, 'Psycholog.', cex = 0.6, srt = 90, col = '#900000')
     text(xleft, 15.5, 'Sleep', cex = 0.6, srt = 90, col = '#183E60')
     text(xleft, 11, 'Cognition', cex = 0.6, srt = 90, col = '#900000')
     text(xleft, 7, 'Anthrop.', cex = 0.6, srt = 90, col = '#183E60')
-    text(xleft, 3, 'Cardiovascular', cex = 0.6, srt = 90, col = '#183E60')
+    text(xleft, 3, 'Cardiometabolic', cex = 0.6, srt = 90, col = '#183E60')
     
     # add color legend and labels
     colorlegend(colbar = rev(COL2('RdBu', 200)), cex = 0.5, xlim=c(-8,length(traits)+1), ylim=c(-1.75,-0.5),  labels = c('',''), vertical=FALSE)

@@ -1,0 +1,12 @@
+
+--- Calculating credible set overlap between SbayesRC, SusieR, and FINEMAP ---
+sbayesfile: results/combined/gwama.eur.credible.sbayesrc.suppl.txt
+susieRfile: results/combined/gwama.eur.credible.susieR.suppl.txt
+finemapfile: results/combined/gwama.eur.credible.finemap.suppl.txt
+topsetsize: 10
+topsetoverlap: 0
+outputfile: results/combined/gwama.eur.credible.overlap
+
+Median credible set overlap between SusieR and FINEMAP: 0.972
+Median proportion of SBayesRC credible variants in SusieR credible sets: 0.750
+Median proportion of SBayesRC credible variants and FINEMAP credible sets: 0.800

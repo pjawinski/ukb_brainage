@@ -53,9 +53,9 @@ df = df[order(df$LOCUS_COUNT, df$DISCOV_COUNT, df$P),]
 
 # create supplementum data.frame
 suppl = df[,c('LOCUS_COUNT','trait','LEAD_SNP','LEAD_SNP_CHR','LEAD_SNP_BP','LEAD_SNP_RSQ',
-              'ID','BP','TYPED','INFO','A1','A2','A1_FREQ','BETA','SE','Z','P','ETA2','N',
+              'ID','BP','A1','A2','A1_FREQ','BETA','SE','P','N',
               'REGION','NEAREST_GENE','NEAREST_GENE_DESCRIPTION','NEAREST_GENE_BIOTYPE',
-              'CATALOG_DISEASE.TRAIT','CATALOG_PUBMEDID','CATALOG_FIRST_AUTHOR','CATALOG_DATE','CATALOG_RISK_ALLELE','CATALOG_P.VALUE')]
+              'catalog_trait','catalog_pubmedid','catalog_author','catalog_trait','catalog_a1','catalog_pval')]
 
 # write results
 message('Writing output file.')

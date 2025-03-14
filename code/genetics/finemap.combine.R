@@ -47,14 +47,18 @@ for (i in 1:length(finemapFiles)) {
 }
 
 # combine
+message('Assign finemap to snplevel results.')
 df = left_join(finemap, snplevel, by = 'key')
 df = df[order(df$LOCUS_COUNT, df$DISCOV_COUNT, df$signalCount, df$cumprob),]
 df$credibleSet_size = 0
-for (i in 1:nrow(df)) { df$credibleSet_size[i] = sum(paste0(df$trait,df$index_rsid) %in% paste0(df$trait[i],df$index_rsid[i]))}
+setSize = as.data.frame(table(paste0(df$trait,df$index_rsid)))
+for (i in 1:nrow(df)) { 
+  df$credibleSet_size[i] = setSize$Freq[setSize$Var == paste0(df$trait[i],df$index_rsid[i])]
+}
 
 # create supplementum data.frame
 suppl = df[,c('LOCUS_COUNT','trait','index_rsid','chromosome',
-              'index_bp','regionalh2','minBP','maxBP','rangeBP','snpTotal','snpCausal','bestK','signalCount','credibleSet_size',
+              'index_bp','regionalh2','minBP','maxBP','rangeBP','snpTotal','snpCausal','bestK','signalCount','cs.size',
               'rsid','bp','allele1','allele2','maf','beta','se','z','prob','cumprob',
               'marginal_prob','log10bf','mean','sd','mean_incl','sd_incl','REGION','NEAREST_GENE','DISTANCE')]
 

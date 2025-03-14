@@ -55,23 +55,25 @@ done
 wait)
 
 # create imp_mri .pgen files with selected MRI cases
-subjects="${projectDir}/results/mri/iid.r2021.unrelated.txt"
-N=2; (for i in {1..22} X XY; do 
-   ((j=j%N)); ((j++==0)) && wait (
-      sampleFile=$(ls chr${i}/imp/*.sample)
+subjects="${projectDir}/results/mri/iid.r2024.unrelated.txt"
+N=2; (for i in {1..20} X XY; do 
+   ((j=j%N)); ((j++==0)) && wait
+      (sampleFile=$(ls chr${i}/imp/*.sample)
       mkdir -p chr${i}/imp_mri
       plink2 --bgen chr${i}/imp/ukb_imp_chr${i}_v3.bgen \
       --sample ${sampleFile} \
       --keep ${subjects} \
       --make-pgen \
       --out chr${i}/imp_mri/chr${i}_mri
-   ) &
+      ) &
 done
 wait)
 
 for i in Y MT; do
    mkdir -p chr${i}/imp_mri
-   plink2 --bfile chr${i}/cal/ukb_cal_chr${i}_v2 \
+   plink2 --bed chr${i}/cal/ukb_cal_chr${i}_v2.bed \
+   --bim chr${i}/cal/ukb_cal_chr${i}_v2.bim \
+   --fam $(ls chr${i}/cal/ukb*s4*.fam) \
    --keep ${subjects} \
    --make-pgen \
    --out chr${i}/imp_mri/chr${i}_mri
@@ -170,8 +172,8 @@ awk '$1=="XY" {$1=23; print}' OFS='\t' chrXY/imp_mri_qc/bed/chrXY_mri_qc_origina
 # create bgen-1.2 for PRSice
 snps="qc_snplist/ukb_info_09_nodups.snplist"
 N=2; (for i in {1..22} X XY; do 
-   ((j=j%N)); ((j++==0)) && wait (
-      mkdir -p chr${i}/imp_mri_qc/bgen
+   ((j=j%N)); ((j++==0)) && wait
+      (mkdir -p chr${i}/imp_mri_qc/bgen
       plink2 \
       --pfile chr${i}/imp_mri_qc/chr${i}_mri_qc \
       --export bgen-1.2 \
@@ -195,7 +197,7 @@ done
 snps="qc_snplist/ukb_info_08_nodups.snplist" 
 for anc in AFR AMR CSA EAS EUR MID; do
    subjects="$projectDir/results/mri/iid.replication.${anc}.txt"
-   N=2; (for i in {1..22} X XY; do
+   N=2; (for i in {1..22} X XY; do 
       ((j=j%N)); ((j++==0)) && wait
          (mkdir -p chr${i}/imp_mri_qc_${anc}
          plink2 --pfile chr${i}/imp_mri/chr${i}_mri \
@@ -254,6 +256,81 @@ for anc in AFR AMR CSA EAS EUR MID; do
    done
 done
 
+# =====================================================================
+# === create files for joined EUR discovery and replication dataset ===
+# =====================================================================
+
+# create imp_mri_qc .pgen files
+snps="qc_snplist/ukb_info_08_nodups.snplist" 
+subjects="$projectDir/results/mri/iid.EURjoined.txt"
+N=2; (for i in {1..22} X XY; do 
+   ((j=j%N)); ((j++==0)) && wait
+      (mkdir -p chr${i}/imp_mri_qc_EURjoined
+      plink2 --pfile chr${i}/imp_mri/chr${i}_mri \
+      --keep ${subjects} \
+      --extract ${snps} \
+      --maf 0.001 \
+      --make-pgen \
+      --out chr${i}/imp_mri_qc_EURjoined/chr${i}_mri_qc
+      ) &
+done
+wait)
+
+for i in Y MT; do
+   mkdir -p chr${i}/imp_mri_qc_EURjoined
+   plink2 \
+   --pfile chr${i}/imp_mri/chr${i}_mri \
+   --keep ${subjects} \
+   --rm-dup exclude-all \
+   --maf 0.001 \
+   --geno 0.05 \
+   --make-pgen \
+   --out chr${i}/imp_mri_qc_EURjoined/chr${i}_mri_qc
+done
+
+# convert to .bed files
+N=2; (for i in {1..22} X XY Y MT; do
+   ((j=j%N)); ((j++==0)) && wait
+      (mkdir -p chr${i}/imp_mri_qc_EURjoined/bed
+      plink2 \
+      --pfile chr${i}/imp_mri_qc_EURjoined/chr${i}_mri_qc \
+      --make-bed \
+      --out chr${i}/imp_mri_qc_EURjoined/bed/chr${i}_mri_qc
+      ) &
+done
+wait)
+
+# create bgen-1.2 with maf 0.01 for PRSice2
+N=2; (for i in {1..22} X XY Y MT; do 
+   ((j=j%N)); ((j++==0)) && wait
+      (mkdir -p chr${i}/imp_mri_qc_EURjoined/bgen
+      plink2 \
+      --pfile chr${i}/imp_mri_qc_EURjoined/chr${i}_mri_qc \
+      --export bgen-1.2 \
+      --out chr${i}/imp_mri_qc_EURjoined/bgen/chr${i}_mri_qc
+      ) &
+done
+wait)
+
+# get .bgi files
+N=2; (for i in {1..22} X XY Y MT; do 
+   ((j=j%N)); ((j++==0)) && wait
+   bgenix -index -g chr${i}/imp_mri_qc_EURjoined/bgen/chr${i}_mri_qc.bgen &
+done
+wait)
+
+# for gcta software: create alternative .bim files with X, Y, XY, and MT converted to numeric values
+for i in X Y XY MT; do
+   \cp chr${i}/imp_mri_qc_EURjoined/bed/chr${i}_mri_qc.bim chr${i}/imp_mri_qc_EURjoined/bed/chr${i}_mri_qc_original.bim
+   awk '$1=="X" {$1=23; print}
+        $1=="Y" {$1=24; print}
+        $1=="XY" {$1=25; print}
+        $1=="MT" {$1=26; print}' OFS='\t' chr${i}/imp_mri_qc_EURjoined/bed/chr${i}_mri_qc.bim > chr${i}/imp_mri_qc_EURjoined/bed/chr${i}_mri_qc_numeric.bim
+done
+
+# XY must be 23 for fastBAT gene-based analysis
+awk '$1=="XY" {$1=23; print}' OFS='\t' chrXY/imp_mri_qc_EURjoined/bed/chrXY_mri_qc_original.bim > chrXY/imp_mri_qc_EURjoined/bed/chrXY_mri_qc_numeric_23.bim
+
 
 # ===================================================================
 # === calculate genetic principal components for discovery sample ===
@@ -301,65 +378,7 @@ plink2 \
 
 # add principal components to vars file
 mkdir -p ${projectDir}/results/genetics
-header=$(head -1 ${projectDir}/results/mri/r2022.vars.txt)
-header=$(echo "$header"$'\t'"$(head -1 pca/results/pca.eigenvec | awk 'BEGIN { ORS="\t" } { for(i=2;i<=NF;i++) { print $i } }')")
-awk -v header="$header" '
-   BEGIN { print header } 
-   NR==1 { numPC=NF-1 }
-   FNR==1 { next }
-   NR==FNR { sub(/[_].*/,"",$1); id[$1]=$2; for(i=3;i<=NF;i++) { id[$1]=id[$1]"\t"$i }; next }
-   $1 in id { print $0, id[$1]; next }
-   { output=$0; for(i=1;i<=numPC;i++) { output=output"\tNA" }; print output }
-   ' pca/results/pca.eigenvec ${projectDir}/results/mri/r2022.vars.txt \
-   > ${projectDir}/results/genetics/r2022.vars.pca.txt
-
-# ===================================================================
-# === calculate genetic principal components for discovery sample ===
-# ===================================================================
-
-# select same snps used for PCA in UK Biobank (Bycroft et al.)
-# [make sure you're in data/genetics/ folder]
-mkdir -p pca
-awk '$118==1 { print $1 }' meta/ukb_snp_qc.txt > pca/pca.snplist
-
-# extract PCA snps
-pcaSNPs="pca/pca.snplist"
-subjects="${projectDir}/results/mri/iid.discovery.txt"
-
-for i in {1..22}; do
-   mkdir -p pca/chr
-   plink2 \
-   --pfile chr${i}/imp_mri/chr${i}_mri \
-   --keep $subjects \
-   --extract $pcaSNPs \
-   --export bgen-1.2 \
-   --out pca/chr/chr${i}
-done
-
-# Create single file with pca snps
-mkdir -p pca/bgen
-cat-bgen -g $(for i in {1..22}; do echo pca/chr/chr${i}.bgen; done) -og pca/bgen/merged.bgen
-cp pca/chr/chr1.sample pca/bgen/merged.sample
-bgenix -g pca/bgen/merged.bgen -index
-
-# convert bgen to pgen
-mkdir -p pca/pgen/
-plink2 \
---bgen pca/bgen/merged.bgen \
---make-pgen \
---out pca/pgen/merged
-
-# perform pca
-mkdir -p pca/results
-plink2 \
---pfile pca/pgen/merged \
---seed 1585839423 \
---pca 20 approx var-wts \
---out pca/results/pca
-
-# add principal components to vars file
-mkdir -p ${projectDir}/results/genetics
-header=$(head -1 ${projectDir}/results/mri/r2022.vars.txt)
+header=$(head -1 ${projectDir}/results/mri/r2024.vars.txt)
 header=$(echo "$header"$'\t'"$(head -1 pca/results/pca.eigenvec | awk '{ output = $2; for(i=3;i<=NF;i++) { output = output"\t"$i }; print output }')")
 awk -v header="$header" '
    BEGIN { print header } 
@@ -368,8 +387,8 @@ awk -v header="$header" '
    NR==FNR { sub(/[_].*/,"",$1); id[$1]=$2; for(i=3;i<=NF;i++) { id[$1]=id[$1]"\t"$i }; next }
    $1 in id { print $0, id[$1]; next }
    { output=$0; for(i=1;i<=numPC;i++) { output=output"\tNA" }; print output }
-   ' OFS='\t' pca/results/pca.eigenvec ${projectDir}/results/mri/r2022.vars.txt \
-   > ${projectDir}/results/genetics/r2022.vars.pca.txt
+   ' OFS='\t' pca/results/pca.eigenvec ${projectDir}/results/mri/r2024.vars.txt \
+   > ${projectDir}/results/genetics/r2024.vars.pca.txt
 
 # =========================================
 # === create genetic relatedness matrix ===

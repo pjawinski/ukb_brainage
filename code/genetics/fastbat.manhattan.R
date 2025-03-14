@@ -77,12 +77,12 @@ axis.set = GWAS %>%
 GWAS$P_exceeding = GWAS$P
 GWAS$BPcum_exceeding = GWAS$BPcum
 GWAS$Gene_exceeding = GWAS$Gene
-
 if (sum(!is.na(GWAS$Gene) & GWAS$P < 10^-ylim) > 0) {
   GWAS[!is.na(GWAS$Gene) & GWAS$P < 10^-ylim,]$P_exceeding = 10^-ylim
   GWAS[!is.na(GWAS$Gene) & GWAS$P < 10^-ylim,]$BPcum_exceeding = GWAS[!is.na(GWAS$Gene) & GWAS$P < 10^-ylim,]$BPcum + 60000000
   GWAS[!is.na(GWAS$Gene) & GWAS$P < 10^-ylim,]$Gene_exceeding = paste0(GWAS[!is.na(GWAS$Gene) & GWAS$P < 10^-ylim,]$Gene, '\n(p = ', sprintf('%0.e',GWAS[!is.na(GWAS$Gene) & GWAS$P < 10^-ylim,]$P), ')')
 }
+GWAS$P[GWAS$P < 10^-ylim] = 10^-ylim
 
 # set ylim significance threshold
 sigFDR = max(GWAS$P[GWAS$FDR < 0.05])
@@ -93,18 +93,23 @@ if (annotationThresh == 'fdr') {
   GWAS$annotation[GWAS$P < sigFDR & GWAS$GENE_COUNT == 1] = 1
 } else if (annotationThresh == 'bonferroni') {
   GWAS$annotation[GWAS$P < sigBonf & GWAS$GENE_COUNT == 1] = 1
+} else {
+  annotationThresh = as.numeric(annotationThresh)
+  GWAS$annotation[GWAS$P < annotationThresh & GWAS$GENE_COUNT == 1] = 1
 }
 
 # create manhattan plot
 message('Creating manhattan plot.')
 set.seed(8245)
-manhplot = ggplot(data = subset(GWAS, P >= 10^-ylim)) +
-  geom_point(aes(x=BPcum, y=-log10(P), color=as.factor(CHR)), alpha = 1, size = 0.7, stroke = 0, shape = 16) +
+manhplot = ggplot(data = subset(GWAS, P >= 10^-ylim)) + # 
+  geom_point(aes(x=BPcum, y=-log10(P), color=as.factor(CHR)), alpha = 1, size = 0.8, stroke = 0, shape = 16) +
   geom_point(data=subset(GWAS, GENE_COUNT == 1 & P <= sigFDR & P > sigBonf), aes(x=BPcum, y=-log10(P)), color='black', shape=1, size=1.5) +
-  geom_point(data=subset(GWAS, GENE_COUNT == 1 & P <= sigBonf & P >= 10^-ylim), aes(x=BPcum, y=-log10(P)), color='black', shape=5, size=2) +
+  geom_point(data=subset(GWAS, GENE_COUNT == 1 & P <= sigBonf & P >= 10^-ylim), aes(x=BPcum, y=-log10(P)), color='black', shape=5, size=3) +
+  geom_point(data=subset(GWAS, GENE_COUNT == 1 & P <= 10^-ylim), aes(x=BPcum, y=-log10(P_exceeding)), color='red', shape=5, size=3) +
   scale_color_manual(values = rep(c('#282873', '#6e90ca'), nCHR)) +
   scale_x_continuous(expand = c(0.03,0), label = c(1:18,'', 20, '', 22, 'X', 'Y MT', ''), breaks = axis.set$center) + # label = axis.set$CHR % label = c(1:22, 'X', 'Y MT', '') label = c(1:18,'', 20, '', 22, 'X', 'Y MT', '')
   scale_y_continuous(expand = c(0,0), limits = c(0,ylim), breaks = seq(0,ylim,ysteps)) +
+  coord_cartesian(clip = 'off') +
   geom_hline(yintercept = -log10(sigBonf), color = 'black', linetype = 'solid', size = 0.25) +
   geom_hline(yintercept = -log10(sigFDR), color = 'black', linetype = 'dashed', size = 0.25) + 
   labs(x = 'Chromosome', y = expression('-log'[10]*'('*italic(p)*')')) + 

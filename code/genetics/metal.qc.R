@@ -32,12 +32,12 @@ df = data.frame(fread(cmd=paste0("gzip -dc ", sumstats), tmpdir = getwd(), heade
 
 # exclude snps that do not meet N criterion
 if (nCriterion == TRUE) {
-  message(' - excluding variants that do not meet N criterion (except for Y).')
+  message(' - excluding variants that do not meet N criterion (except for Y and MT).')
   maxN = max(df$N)
   minN = quantile(df$N, probs = 0.9)[[1]] / 1.5
-  nExcl = sum(df$N < minN & df$CHR != "Y")
-  nIncl = sum(df$N >= minN | df$CHR == "Y")
-  df = df[df$N >= minN | df$CHR == "Y",]
+  nExcl = sum(df$N < minN & df$CHR != "Y" & df$CHR != "MT")
+  nIncl = sum(df$N >= minN | df$CHR == "Y" | df$CHR == "MT")
+  df = df[df$N >= minN | df$CHR == "Y" | df$CHR == "MT",]
   logInfo = paste0(logInfo,
     '\n--- calculations ---',
     '\nmaxN: ', maxN,
@@ -57,6 +57,20 @@ if (nCriterion == TRUE) {
       '\nminNY: ', minNY,
       '\nnExclY: ', nExclY,
       '\nnInclY: ', nInclY)
+  }
+
+  message(' - excluding variants that do not meet N criterion (MT chromosome).')
+  if (sum(df$CHR=="MT") > 0) {
+    maxNMT = max(df$N[df$CHR=="MT"])
+    minNMT = quantile(df$N[df$CHR=="MT"], probs = 0.9)[[1]] / 1.5
+    nExclMT = sum(df$N[df$CHR=="MT"] < minNMT)
+    nInclMT = sum(df$N[df$CHR=="MT"] >= minNMT)
+    df = df[(df$CHR == "MT" & df$N >= minNMT) | df$CHR != "MT",]
+    logInfo = paste0(logInfo,
+      '\nmaxNY: ', maxNMT,
+      '\nminNY: ', minNMT,
+      '\nnExclY: ', nExclMT,
+      '\nnInclY: ', nInclMT)
   }
 }
 

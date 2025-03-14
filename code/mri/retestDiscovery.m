@@ -22,6 +22,16 @@ discovery = load('results/mri/brainage.discovery.mat');
 clearvars gwm
 load('results/mri/prepML.retest.mat');
 
+% select individuals with retest IQR < 3
+% remove individuals who have withdrawn
+idx = covs.table.t2_IQR < 3; % NaNs also return FALSE (0)
+meta.IID = meta.IID(idx,:);
+meta.ratings = meta.ratings(idx,:);
+meta.files = meta.files(idx,:);
+covs.table = covs.table(idx,:);
+gm = gm(idx,:);
+wm = wm(idx,:);
+
 % align with discovery dataset - white-British subjects only!
 member_logical = ismember(meta.IID, discovery.meta.IID);
 meta.IID = meta.IID(member_logical,:);
@@ -73,7 +83,7 @@ saveProfile(myCluster);
 parpool('local',threads);
 
 % apply models to discovery test samples (now containing retest-data)
-fprintf(' - applying rvm models.\n')
+fprintf(' - applying xgb models.\n')
 
 pred_xgb_cell = {};
 tic
@@ -337,13 +347,6 @@ meta.ratings = meta.ratings(indices,:);
 meta.IID = meta.IID(indices,:);
 covs.table = covs.table(indices,:);
 
-% select individualds with IQR < 3
-idx = meta.ratings(:,9) < 3;
-brainage.data = brainage.data(idx,:);
-meta.ratings = meta.ratings(idx,:);
-meta.IID = meta.IID(idx,:);
-covs.table = covs.table(idx,:);
-
 % calculate brainage gap
 age = covs.table.t2_age;
 for i = 1:12
@@ -380,4 +383,4 @@ colNames = [meta.ratings_varnames, brainage.varnames];
 brainage_table = [covs.table array2table([meta.ratings, brainage.data],'VariableNames',colNames)];
 writetable(brainage_table, 'results/mri/brainage.discovery.retest.txt', 'Delimiter', '\t', 'WriteRowNames', 0)
 fprintf('\n--- Completed: Collect & stack brain age estimates for repeat-imaging visit: discovery cohort ---\n')
-
+exit

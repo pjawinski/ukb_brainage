@@ -51,11 +51,14 @@ df = df[!is.na(df$pvalue),]
 # remove quotes in 'description'
 df$description = gsub('"' , '', df$description, fixed = TRUE)
 
-# calculate z-value
+# calculate z-value (and se)
 df$z = qnorm(df$p/2)*-sign(df$beta)
 df$z[df$pvalue==0] = df[df$pvalue==0,] %>% 
                      mutate(z = beta/(abs(lower-upper)/(qnorm(1-(0.05/2))*2))) %>%
                      pull(., var = 'z')
+df$se = abs(df$lower-df$upper)/(qnorm(1-(0.05/2))*2)
+df$se[is.na(df$se)] = df$beta[is.na(df$se)]/df$z[is.na(df$se)]
+df$se[df$beta==-999]=-999
 
 # determine total sample size per phenotype
 df$ntotal = df$n %>%
@@ -66,7 +69,7 @@ df$ntotal = df$n %>%
 
 # calculate rho and absolute value of rho
 df = df %>%
-  mutate(rho = sqrt(z^2/(z^2 + (ntotal-2-7)))*sign(beta)) %>%
+  mutate(rho = sqrt(z^2/(z^2 + (ntotal-2-0)))*sign(beta)) %>%
   mutate(rho_abs = abs(rho))
 
 # set pvalue to 3e-308 if 0
@@ -189,7 +192,7 @@ phewas_plot = ggplot2::ggplot(data = dfplot[dfplot$pvalue >= sig,], aes(textvari
     axis.text.y = element_text(angle = 0, size = 9, vjust = 0.5, margin = margin(t = 0, r = 3, b = 0, l = 0)),
     axis.title.y = element_text(size = 14, margin = margin(t = 0, r = 5, b = 0, l = 5)),
     axis.title.x = element_text(size = 14, margin = margin(t = 10, r = 0, b = 0, l = 0)),
-    plot.margin=unit(c(0.25,1,-0.5,0),"cm"))
+    plot.margin=unit(c(0.25,1.0,-0.5,0),"cm"))
 
 # add fdr line
 if (multipleTesting == 'both') {
@@ -201,7 +204,7 @@ phewas_ggplot = phewas_plot +
     labs(x = "", y = expression("-log"[10]*"("*italic(p)*")")) + 
     geom_text_repel(data = top, aes(x=pos, y=-log10(pvalue), label=description),
                     max.time = 5,
-                    max.iter = 100000,
+                    max.iter = 1000000,
                     box.padding = 0.5,
                     nudge_x = 0.5,
                     nudge_y = repel_nudge_y, # 10
@@ -215,7 +218,8 @@ phewas_ggplot = phewas_plot +
                     segment.squareShape  = 1,
                     segment.angle     = -90,
                     segment.curvature = 1,
-                    segment.ncp = 1)
+                    segment.ncp = 1,
+                    segment.inflect = FALSE)
 
 # draw plotly
 phewas_plotly = plotly::ggplotly(phewas_plot + labs(x = ""), tooltip = c("textvariable", "textfield", "textn", "textr", "textp"), dynamicTicks = FALSE, width = width*100, height = height*100)
@@ -242,7 +246,7 @@ system(paste0('rm -rf ',targetDir,'/phesant_files'))
       
 # export result table
 message('(3/3) Saving plain text file with results summary.')
-output = df[,c('description', 'varName', 'custom_category', 'Path', 'varType', 'resType', 'n',  'beta', 'lower', 'upper', 'pvalue', 'fdr', 'z', 'ntotal', 'rho')]
+output = df[,c('description', 'varName', 'custom_category', 'Path', 'varType', 'resType', 'n',  'beta', 'lower', 'upper', 'se', 'pvalue', 'fdr', 'z', 'ntotal', 'rho')]
 write.table(output, file = paste0(targetDir,'/phesant.summary.txt'), sep = '\t', quote = F, row.names = F, col.names = T)
 system(paste0('chmod 770 ', targetDir,'/phesant.summary.txt'))
 message('-- Creating PHESANT output table and figure completed. ---')

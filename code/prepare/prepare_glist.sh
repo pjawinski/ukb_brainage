@@ -18,16 +18,16 @@ awk '$1=="X" { print 23, $2, $3, $4; next} $1=="Y" { print 24, $2, $3, $4; next}
 
 # create symbolic link
 cd /slow/projects/ukb_brainage/data
-ln -s /home/groups/markett/software/glist_hg19/ glist_hg19 
+ln -s /fast/software/glist_hg19/ glist_hg19 
 
 # make glist-hg19.txt tab-delimited
-cd /home/groups/markett/ukb_brainage
+cd /slow/projects/ukb_brainage/
 awk '{ print $1, $2, $3, $4 }' OFS='\t' data/glist_hg19/glist-hg19-gcta.txt > data/glist_hg19/glist-hg19-gcta.tsv
 
 # how many matches between glist-hg19-gcta.tsv and GRCh37_latest_genomic.edit.gff?
 # - 22968 out of 26292
 awk -F'\t' 'NR==FNR { gene[$4]=$0; next } $10 in gene { print gene[$10], $3, $9, $4, $5, $10, $11, $12}' OFS='\t' data/glist_hg19/glist-hg19-gcta.tsv <(gzip -dc data/refseq/GRCh37_latest_genomic.edit.gff.gz) | wc -l
-cat data/glist_hg19/glist-hg19-gcta.tsv | wc -l
+wc -l data/glist_hg19/glist-hg19-gcta.tsv
 
 # reason for not finding gene? - gene synonym used in some cases
 awk -F'\t' 'NR==FNR { gene[$10]; next } !($4 in gene) { print }' OFS='\t' <(gzip -dc data/refseq/GRCh37_latest_genomic.edit.gff.gz) data/glist_hg19/glist-hg19-gcta.tsv | head
@@ -78,8 +78,8 @@ chr_select=$(for i in {1..22} X Y XY M; do echo "$i"; done)
 awk -F'\t' 'NR==FNR { chr[$1]=$1; next } { gsub(/[_].*/,"",$9) } ($9 in chr) && $3=="gene" && $11=="protein_coding" { print chr[$9], $4, $5, $10 }' <(echo "${chr_select}") <(gzip -dc data/refseq/GRCh37_latest_genomic.edit.gff.gz) > data/glist_hg19/glist-hg19-refseq.txt
 
 # duplicate genes? - nope.
-cat data/glist_hg19/glist-hg19-refseq.txt | wc -l
-cat data/glist_hg19/glist-hg19-refseq.txt | awk '{print $4}' | sort -u | wc -l
+wc -l data/glist_hg19/glist-hg19-refseq.txt 
+awk '{print $4}' data/glist_hg19/glist-hg19-refseq.txt | sort -u | wc -l
 
 # recode X, Y, and M
 awk '{print $1}' data/glist_hg19/glist-hg19-refseq.txt | sort -g | uniq -c 

@@ -6,19 +6,21 @@
 
 # get arguments
 args = commandArgs(trailingOnly=TRUE)
-if (length(args) != 6) {
-  stop(paste0('expected 6 arguments, but ', length(args), ' arguments provided.'), call.=FALSE)
+if (length(args) != 7) {
+  stop(paste0('expected 7 arguments, but ', length(args), ' arguments provided.'), call.=FALSE)
 }
 
 # get arguments from command line
-ldscFile = args[1] # ldscFile="results/gap_gm/ldsc/ldsc.partitioned.results"
-ymin = as.numeric(args[2]) # ymin=-10
-ymax = as.numeric(args[3]) # ymax=25
-ysteps = as.numeric(args[4]) # ysteps=10
-width = as.numeric(args[5]) # width=8.1
-height = as.numeric(args[6]) # height=3.7
+ldscFile = args[1] # ldscFile="results/pwr_cz_alpha/ldsc/ldsc.partitioned.results"
+oneTailed = args[2] # oneTailed=TRUE
+ymin = as.numeric(args[3]) # ymin=-10
+ymax = as.numeric(args[4]) # ymax=25
+ysteps = as.numeric(args[5]) # ysteps=10
+width = as.numeric(args[6]) # width=8.1
+height = as.numeric(args[7]) # height=3.7
 message(paste0('\n--- Plot partitioned heritability results ---',
                '\nldscFile: ', ldscFile,
+               '\noneTailed: ', oneTailed,
                '\nymin: ', ymin,
                '\nymax: ', ymax,
                '\nysteps: ', ysteps,
@@ -29,10 +31,11 @@ message(paste0('\n--- Plot partitioned heritability results ---',
 for (pkg in c('dplyr','ggplot2')) { eval(bquote(suppressWarnings(suppressPackageStartupMessages(require(.(pkg)))))) }
 
 # load data
-message(sprintf('(1/4) Loading %s...',ldscFile))
+message(sprintf(' - loading %s...',ldscFile))
 df = read.delim(ldscFile, sep = '\t', head = TRUE)
 
 # define relevant categories (in accordance with Gazal et al. 2018, suppl. Table S1)
+message(' - selecting categories reported by Gazal et al. 2018')
 main = data.frame(matrix(ncol = 2, byrow = TRUE, data = c(
   'Coding_UCSCL2_0', 'Coding', 
   'Intron_UCSCL2_0', 'Intron', 
@@ -67,18 +70,34 @@ main = data.frame(matrix(ncol = 2, byrow = TRUE, data = c(
   'Conserved_Primate_phastCons46wayL2_0', 'Conserved (Primate)')))
 names(main) = c('Category', 'annotation')
 
-# merge main with df set annotation variable as factor
+# merge main with df and set annotation variable as factor
 main = left_join(main, df, 'Category')
 main$annotation = sprintf('%s: %0.1f', main$annotation, main$Prop._SNPs*100)
 main = main[order(main$Prop._SNPs),]
 main$annotation = factor(main$annotation, levels = main$annotation)
+
+# One-tailed test: test for enrichment only (avoid low p-values for negative enrichment estimates)
+# Note that Enrichment_std_error is calculated from Prop._h2_std_error, which is not used for statistical testing:
+#   https://github.com/bulik/ldsc/blob/aa33296abac9569a6422ee6ba7eb4b902422cc74/ldscore/regressions.py#L409: enrichment_se = prop_hsq_overlap_se / prop_M_overlap 
+# Finucale et al. (https://www.nature.com/articles/ng.3404): "[...] we can estimate its standard error using the covariance matrix for the coefficient estimates and then compute a z score to test for significance. 
+#   [..] We also report the jackknife standard errors of the proportion of heritability, even though this is not what we use to assess significance. For the cell type–specific analyses, we use the z score of the coefficient directly." 
+# Thus, p-values are based on covariance matrices of coefficient estimates: https://github.com/bulik/ldsc/blob/aa33296abac9569a6422ee6ba7eb4b902422cc74/ldscore/regressions.py#L419
+# Also see this thread on the role of enrichment and coefficient estimates: https://groups.google.com/g/ldsc_users/c/RI2b24aIM_Q/m/mD0N8tW9CwAJ
+if (oneTailed == TRUE) {
+  message(' - converting two-tailed to one-tailed p-values (avoiding low p-values for negative Enrichment estimates)')
+  main$Enrichment_z = qnorm(main$Enrichment_p/2)*sign(main$Coefficient)
+  main$Enrichment_p = pnorm(main$Enrichment_z)
+}
+
+# correct for multiple testing
+message(' - correcting for multiple testing')
 main$Enrichment_FDR = p.adjust(main$Enrichment_p, method = 'BH')
 main$significance = 0
 main$significance[main$Enrichment_FDR < 0.05] = 1
 main$significance = factor(main$significance, levels = c(0,1), labels = c('n.s.', 'FDR < 0.05'))
 
 # plot enrichment
-message('(2/4) Make partitioned heritability plot...')
+message(' - make partitioned heritability plot...')
 
 enrich = ggplot(main, aes(x = annotation, y = Enrichment, color = significance, shape = significance)) + # abs(tvalue)
   geom_errorbar(aes(x = annotation, ymin = Enrichment - Enrichment_std_error, ymax = Enrichment + Enrichment_std_error),
@@ -114,14 +133,14 @@ enrich = ggplot(main, aes(x = annotation, y = Enrichment, color = significance, 
         legend.position = c(0.92, 0.85))
 
 # save plot
-message(sprintf('(3/4) Saving  %s.png...',ldscFile))
+message(sprintf(' - saving  %s.png...',ldscFile))
 png(filename = paste0(ldscFile, '.png'), width=8.1, height=3.7, units = "in", res = 600)
 enrich
 invisible(dev.off())
 system(paste0('chmod 770 ', ldscFile, '.png'))
 
 # save results
-message(sprintf('(4/4) Saving  %s.summary.txt...',ldscFile))
+message(sprintf(' - saving  %s.summary.txt...',ldscFile))
 output = data.frame(annotation = sub(':.*','', main$annotation),
     Prop._SNPs = main$Prop._SNPs,
     Prop._h2 = main$Prop._h2,

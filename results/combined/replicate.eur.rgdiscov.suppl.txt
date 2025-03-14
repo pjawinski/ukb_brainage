@@ -1,0 +1,4 @@
+trait		discovery.snp_count	discovery.h2	discovery.h2_se	discovery.lambda_GC	discovery.chi2	discovery.intercept	discovery.intercept_se	discovery.ratio	discovery.ratio_se		replication.snp_count	replication.h2	replication.h2_se	replication.lambda_GC	replication.chi2	replication.intercept	replication.intercept_se	replication.ratio	replication.ratio_se		rg	se	z	p	gcov_int	gcov_int_se
+gap_gm		1168666	0.2618	0.0252	1.1333	1.1794	1.0075	0.0079	0.0417	0.0441		1168996	0.2063	0.0277	1.0957	1.1042	1.0115	0.0077	0.1106	0.0744		0.9659	0.0768	12.5754	2.8846e-36	-0.0003	0.0058
+gap_wm		1168666	0.2855	0.03	1.1428	1.2021	1.0142	0.0071	0.0702	0.0352		1168996	0.3122	0.0334	1.1113	1.14	0.9986	0.008				1.0441	0.0535	19.5066	9.6545e-85	-0.0087	0.0071
+gap_gwm		1168666	0.286	0.0289	1.1428	1.1998	1.0116	0.0073	0.0579	0.0367		1168996	0.2833	0.0298	1.1175	1.1297	1.0017	0.0077	0.013	0.0597		1.0146	0.0584	17.3791	1.1888e-67	-0.0075	0.0065

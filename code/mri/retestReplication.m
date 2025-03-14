@@ -2,7 +2,7 @@
 % === collect and stack brain age estimates for repeat-imaging visit (cross-validation + singlemodel) ===
 % =======================================================================================================
 % /opt/matlab/bin/matlab -nodesktop -nodisplay -r "workingDir = pwd; threads = 100; spmPath = '/fast/software/matlab/spm12/'; rvmPath = '/fast/software/matlab/RVM/'; sbPath = '/fast/software/matlab/RVM/SB2_Release_200/'; run code/mri/brainageRetest.m"
-fprintf('\n--- Collect & stack brain age estimates for repeat-imaging visit: discovery cohort ---\n')
+fprintf('\n--- Collect & stack brain age estimates for repeat-imaging visit: replication cohort ---\n')
 
 % set working directory
 cd(workingDir)
@@ -22,6 +22,16 @@ replication = load('results/mri/brainage.replication.mat');
 clearvars gwm
 load('results/mri/prepML.retest.mat');
 
+% select individuals with retest IQR < 3
+% remove individuals who have withdrawn
+idx = covs.table.t2_IQR < 3; % NaNs also return FALSE (0)
+meta.IID = meta.IID(idx,:);
+meta.ratings = meta.ratings(idx,:);
+meta.files = meta.files(idx,:);
+covs.table = covs.table(idx,:);
+gm = gm(idx,:);
+wm = wm(idx,:);
+
 % select replication dataset
 member_logical = ismember(meta.IID, replication.meta.IID);
 meta.IID = meta.IID(member_logical,:);
@@ -30,13 +40,6 @@ meta.files = meta.files(member_logical,:);
 covs.table = covs.table(member_logical,:);
 gm = gm(member_logical,:);
 wm = wm(member_logical,:);
-
-% select individualds with IQR < 3
-idx = meta.ratings(:,9) < 3;
-brainage.data = brainage.data(idx,:);
-meta.ratings = meta.ratings(idx,:);
-meta.IID = meta.IID(idx,:);
-covs.table = covs.table(idx,:);
 
 % ----------------------------------------------------------
 % ------------------------ xgboost ------------------------

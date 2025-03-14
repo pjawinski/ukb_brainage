@@ -147,7 +147,7 @@ write.table(tblfit, file = sprintf('%s.stats.txt',outFile), row.names = F, quote
 message(sprintf(' - writing %s.fit2.Rds',outFile))
 saveRDS(file = sprintf('%s.fit2.Rds',outFile),fit2)
 if (compFit3 == TRUE) { 
-  message(sprintf(' - writing %s.fit2.Rds',outFile))
+  message(sprintf(' - writing %s.fit3.Rds',outFile))
   saveRDS(file = sprintf('%s.fit3.Rds',outFile),fit3)
 }
 system(sprintf('chmod 770 %s*', outFile))

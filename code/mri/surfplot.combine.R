@@ -6,18 +6,18 @@
 
 # get arguments
 args = commandArgs(trailingOnly=TRUE)
-if (length(args)!=6) {
-  stop(paste0('expected 6 arguments, but ', length(args), ' argument(s) provided.'), call.=FALSE)
+if (length(args)!=5) {
+  stop(paste0('expected 5 arguments, but ', length(args), ' argument(s) provided.'), call.=FALSE)
 }
 
 # set arguments
 traits = args[1] # traits="gap_gm,gap_wm,gap_gwm"
 surfPlots = args[2] # surfPlots="results/gap_gm/surfplot/surfplot.png,results/gap_wm/surfplot/surfplot.png,results/gap_gwm/surfplot/surfplot.png"
 outFile = args[3] # outFile="results/combined/surfplot.png"
-width = as.numeric(args[5]) # width = 10
-height = as.numeric(args[6]) # height = 8.85
+width = as.numeric(args[4]) # width = 10
+height = as.numeric(args[5]) # height = 8.85
 
-message(paste0('\n--- Completed: Combine surface plots ---',
+message(paste0('\n--- Settings: Combine surface plots ---',
                '\ntraits: ', traits,
                '\nsurfPlots: ', surfPlots,
                '\noutFile: ', outFile,
@@ -55,7 +55,7 @@ for (i in 1:length(traits)) {
   
   # collect plots
   tmp = surfplot + plot_layout(widths = c(surfplot.width))
-  if (i == 1) { pl = tmp } else if { pl = pl + tmp }
+  if (i == 1) { pl = tmp } else { pl = pl + tmp }
 }
 
 # set layout

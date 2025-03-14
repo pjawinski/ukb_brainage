@@ -59,8 +59,8 @@ Train_Targets = data.frame(y[u[,j]!=v[i,j],1])
 Validation_Targets = data.frame(y[u[,j]==v[i,j],1])
 
 # x variable: import results from matlab pca
-Train_Samples_pca = data.frame(fread(sprintf('%s/Train_Samples_pca.txt', targetDir), sep = "\t", header = F))
-Validation_Samples_pca = data.frame(fread(sprintf('%s/Validation_Samples_pca.txt', targetDir), sep = "\t", header = F))
+Train_Samples_pca = data.frame(fread(sprintf('%s/xgb_%s_train_samples_pca.txt', targetDir, tissue), sep = "\t", header = F))
+Validation_Samples_pca = data.frame(fread(sprintf('%s/xgb_%s_validation_samples_pca.txt', targetDir, tissue), sep = "\t", header = F))
 
 # convert do xgb dmatrix
 dtrain = xgb.DMatrix(data = as.matrix(Train_Samples_pca), label=as.matrix(Train_Targets))
@@ -92,9 +92,10 @@ model_linear = xgb.train(data = dtrain,
                           early_stopping_rounds = 50,
                           verbose = 0,
                           objective = "reg:linear")
-# delete .m and .txt files
+# delete .m and gzip .txt files
 system(sprintf('rm -f %s/*.m', targetDir))
-system(sprintf('rm -f %s/*_pca.txt', targetDir))   
+system(sprintf('gzip -dc %s/xgb_%s_train_samples_pca.txt', targetDir, tissue))   
+system(sprintf('gzip -dc %s/xgb_%s_validation_samples_pca.txt', targetDir, tissue))   
 
 # save models
 message(' - saving models.')

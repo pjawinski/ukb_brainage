@@ -9,7 +9,6 @@ mkdir -p /fast/software/gwas_catalog
 cd /fast/software/gwas_catalog
 
 # download most recent GWAS catalog
-# wget -P data/ --content-disposition https://www.ebi.ac.uk/gwas/api/search/downloads/full
 wget --content-disposition https://www.ebi.ac.uk/gwas/api/search/downloads/full
 
 # create symbolic link in project folder

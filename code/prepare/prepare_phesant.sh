@@ -71,25 +71,3 @@ awk -F',' 'NR==FNR { id[$1]; next } FNR==1 { print } $1 in id { print }' OFS='\t
 awk -F',' 'NR==1 { gsub(/-/,"."); gsub(/[.]/,"_"); gsub(/,"/,",\"x"); print; next} NR > 1 { print }' ukb45233_imaging.csv > ukb45233_imaging_phesant.csv
 
 
-# ================================
-# === deprecated code snippets ===
-# ================================
-
-# R packages
-R -e ' packageurls = c("https://cran.r-project.org/src/contrib/Archive/getopt/getopt_1.20.0.tar.gz",
-"https://cran.r-project.org/src/contrib/Archive/optparse/optparse_1.3.2.tar.gz",
-"https://cran.r-project.org/src/contrib/Archive/MASS/MASS_7.3-45.tar.gz",
-"https://cran.r-project.org/src/contrib/Archive/lattice/lattice_0.20-31.tar.gz",
-"https://cran.r-project.org/src/contrib/Archive/zoo/zoo_1.7-13.tar.gz",
-"https://cran.r-project.org/src/contrib/Archive/lmtest/lmtest_0.9-34.tar.gz",
-"https://cran.r-project.org/src/contrib/Archive/nnet/nnet_7.3-12.tar.gz",
-"https://cran.r-project.org/src/contrib/Archive/magrittr/magrittr_1.5.tar.gz",
-"https://cran.r-project.org/src/contrib/Archive/backports/backports_1.1.0.tar.gz",
-"https://cran.r-project.org/src/contrib/Archive/checkmate/checkmate_1.8.2.tar.gz",
-"https://cran.r-project.org/src/contrib/Archive/forestplot/forestplot_1.7.tar.gz"
-"https://cran.r-project.org/src/contrib/Archive/data.table/data.table_1.10.4.tar.gz")
-for (url in packageurls) { 
-install.packages(url, repos=NULL, type="source")
-}
-'
-

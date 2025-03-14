@@ -6,8 +6,8 @@
 
 # get arguments
 args = commandArgs(trailingOnly=TRUE)
-if (length(args)!=5) {
-  stop(paste0('expected 5 arguments, but ', length(args), ' argument(s) provided.'), call.=FALSE)
+if (length(args)!=7) {
+  stop(paste0('expected 7 arguments, but ', length(args), ' argument(s) provided.'), call.=FALSE)
 }
 
 # set arguments
@@ -16,13 +16,17 @@ nsynFiles=args[2] # nsynFiles="results/gap_gm/credibleSet/credibleSet.df.annot.n
 outputFile=args[3] # outputFile="results/combined/nonsynonymous.suppl.txt"
 traits=args[4] # traits="gap_gm,gap_wm,gap_gwm"
 traitNames=args[5] # traitNames="grey matter,white matter,grey and white matter"
+matchcol=args[6] # matchcol="LEAD_SNP"
+outcols=args[7] # outcols="LOCUS_COUNT,trait,LEAD_SNP,LEAD_SNP_CHR,LEAD_SNP_BP,Name,Position,A1,A2,A1Frq,A1Effect,SE,PIP,REGION,NEAREST_GENE,NEAREST_GENE_DESCRIPTION,NEAREST_GENE_BIOTYPE,EXONIC_FUNCTION,TRANSCRIPT_CONSEQUENCE,CADD_PHRED,CADD_RAW,CADD_RANK,DANN,DANN_RANK,REVEL,REVEL_RANK"
 
 message(paste0('\n--- Create table of exonic non-synonymous variants for supplementum ---',
                '\nsnplevelFile: ', snplevelFile,
                '\nnsynFiles: ', nsynFiles,
                '\noutputFile: ', outputFile,
                '\ntraits: ', traits,
-               '\ntraitNames: ', traitNames, '\n'))
+               '\ntraitNames: ', traitNames,
+               '\nmatchcol: ', matchcol,
+               '\noutcols: ', outcols, '\n'))
 
 # attach packages to current R session
 for (pkg in c('dplyr', 'stringr')) { eval(bquote(suppressPackageStartupMessages(require(.(pkg))))) }
@@ -31,6 +35,7 @@ for (pkg in c('dplyr', 'stringr')) { eval(bquote(suppressPackageStartupMessages(
 traits = str_split(traits, ',')[[1]]
 traitNames = str_split(traitNames, ',')[[1]]
 nsynFiles = str_split(nsynFiles, ',')[[1]]
+outcols = str_split(outcols, ',')[[1]]
 
 # load data
 message('Loading Files.')
@@ -43,21 +48,17 @@ names(snplevel) = c('LOCUS_COUNT','DISCOV_COUNT','LEAD_SNP_CHR', 'LEAD_SNP_BP','
 for (i in 1:length(nsynFiles)) {
   tmp = read.table(nsynFiles[i], sep = '\t', head = T)
   tmp$trait = traitNames[i]
-  tmp$key = paste0(traits[i],"_", tmp$index_rsid)
+  tmp$key = paste0(traits[i],"_", tmp[[matchcol]])
   if (i == 1) { nsyn = tmp } else { nsyn = rbind(nsyn, tmp)}
 }
 
 # calculate p
-nsyn$p = pnorm(abs(nsyn$beta/nsyn$se), lower.tail = F)*2
+# nsyn$p = pnorm(abs(nsyn$beta/nsyn$se), lower.tail = F)*2
 
 # combine
 df = inner_join(nsyn, snplevel, by = 'key')
 df = df[order(df$LOCUS_COUNT, df$DISCOV_COUNT),]
-suppl = df[,c('LOCUS_COUNT','trait','index_rsid','chromosome','index_bp',
-              'rsid','bp','allele1','allele2','maf','beta','se','z', 'p',
-              'REGION','NEAREST_GENE','NEAREST_GENE_DESCRIPTION','NEAREST_GENE_BIOTYPE',
-              'EXONIC_FUNCTION','TRANSCRIPT_CONSEQUENCE','CADD_PHRED','CADD_RAW','CADD_RANK','DANN','DANN_RANK','REVEL','REVEL_RANK')]
-
+suppl = df[,outcols]
 
 # write results
 message(sprintf('Writing %s',outputFile))

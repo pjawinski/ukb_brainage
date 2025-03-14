@@ -1,0 +1,4 @@
+p1	p2	rg	se	z	p	h2_obs	h2_obs_se	h2_int	h2_int_se	gcov_int	gcov_int_se
+discovery.gap_gm	replication.gap_gm	0.9659	0.0768	12.5754	2.8846e-36	0.2092	0.0286	1.0103	0.0077	-0.0003	0.0058
+discovery.gap_wm	replication.gap_wm	1.0441	0.0535	19.5066	9.6545e-85	0.3189	0.0373	0.996	0.0085	-0.0087	0.0071
+discovery.gap_gwm	replication.gap_gwm	1.0146	0.0584	17.3791	1.1888e-67	0.2886	0.0332	0.9996	0.008	-0.0075	0.0065

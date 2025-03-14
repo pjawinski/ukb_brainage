@@ -35,7 +35,7 @@ for (i in names(table(df$CHR))) {
   df_sub = df[df$CHR==i,]
   df_sub = df_sub[order(df_sub$P),]
   
-  for (j in 1:500) {
+  for (j in 1:nrow(df_sub)) {
     if (df_sub$INDEX_CLUMP[j]==999) {
       gene1 = df_sub[j,]
       df_sub$INDEX_CLUMP[j] = clump
@@ -59,7 +59,7 @@ for (i in names(table(df$CHR))) {
       clump = clump + 1  
     }
   }
-  index = as.vector(lapply(df_sub$GENE, function(x) which(x == df$GENE)))
+  index = as.vector(unlist(lapply(df_sub$GENE, function(x) which(x == df$GENE))))
   df$INDEX_CLUMP[index] = df_sub$INDEX_CLUMP
   df$INDEX_GENE[index] = df_sub$INDEX_GENE
   df$INDEX_GENE_PVAL[index] = df_sub$INDEX_GENE_PVAL

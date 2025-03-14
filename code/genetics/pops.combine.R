@@ -1,8 +1,8 @@
 #!/usr/bin/env Rscript
 
-# ==================================================
-# === Combine GCTA-fastBAT results across traits ===
-# ==================================================
+# ====================================================
+# === Combine MAGMA and PoPS results across traits ===
+# ====================================================
 
 # get arguments
 args = commandArgs(trailingOnly=TRUE)
@@ -62,7 +62,7 @@ for (i in 1:length(traits)) {
 }
   
 # get top p-value and top |rho|
-df$topPvalue =  df[,grep('_P',names(df))] %>% apply(1, FUN = min)
+df$topPvalue =  df[,grep('_P$',names(df))] %>% apply(1, FUN = min)
 df$topFDR = df[,grep('_FDR',names(df))] %>% apply(1, FUN = min)
 
 # define function for clumping

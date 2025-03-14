@@ -38,15 +38,15 @@ for (i in 1:length(traits)) {
   # open datasets and keep relevant variables
   tmp = read.delim(phesantSummary[i], sep = '\t', header = T)
   if (i ==1) {
-    tmp = tmp[,c('description', 'varName', 'custom_category', 'Path', 'varType', 'resType', 'n', 'ntotal', 'beta', 'lower', 'upper', 'pvalue', 'fdr', 'z', 'rho')]
+    tmp = tmp[,c('description', 'varName', 'custom_category', 'Path', 'varType', 'resType', 'n', 'ntotal', 'beta', 'lower', 'upper', 'se', 'pvalue', 'fdr', 'z', 'rho')]
   } else { 
-    tmp = tmp[,c('varName', 'beta', 'lower', 'upper', 'pvalue', 'fdr', 'z', 'rho')]
+    tmp = tmp[,c('varName', 'beta', 'lower', 'upper', 'se', 'pvalue', 'fdr', 'z', 'rho')]
   }
   tmp$rhoAbs = abs(tmp$rho)
   
   # create unique variable names
-  names(tmp)[which(names(tmp) %in% c('beta', 'lower', 'upper', 'pvalue', 'fdr', 'z', 'rho', 'rhoAbs'))] = 
-    paste0(traits[i],c('_beta', '_lower', '_upper', '_pvalue', '_fdr', '_z', '_rho', '_rhoAbs'))
+  names(tmp)[which(names(tmp) %in% c('beta', 'lower', 'upper', 'se', 'pvalue', 'fdr', 'z', 'rho', 'rhoAbs'))] = 
+    paste0(traits[i],c('_beta', '_lower', '_upper', '_se', '_pvalue', '_fdr', '_z', '_rho', '_rhoAbs'))
   
   # merge datasets
   if (i ==1) { df = tmp } else { df = left_join(df,tmp, by = 'varName') }
@@ -62,7 +62,7 @@ message('Writing txt file.')
 df$`NA` = ""
 cols = c('varName', 'description', 'ntotal', 'top_rhoAbs','top_pvalue','top_fdr')
 for (i in 1:length(traits)) {
-  cols = c(cols,'NA',paste0(traits[i],c('_beta', '_lower', '_upper', '_pvalue', '_fdr', '_z', '_rho')))
+  cols = c(cols,'NA',paste0(traits[i],c('_beta', '_se', '_rho', '_pvalue', '_fdr')))
 }
 cols = c(cols, c('NA', 'n', 'varType', 'resType', 'custom_category', 'Path'))
 output = df[,cols]

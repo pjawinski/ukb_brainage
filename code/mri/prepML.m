@@ -2,7 +2,7 @@
 % === prepare for machine learning / age prediction ===
 % =====================================================
 % /opt/matlab/bin/matlab -nodesktop -nodisplay -r "run code/mri/prepML.m"
-fprintf('\n--- Preparing datasets for machine learning / prediction. ---\n')
+fprintf('\n--- Preparing datasets for machine learning / age prediction. ---\n')
 
 % set working directory
 cd(workingDir)
@@ -11,9 +11,9 @@ cd(workingDir)
 % load data
 fprintf('Processing discovery dataset.\n')
 fprintf(' - loading data.\n')
-load('results/mri/cat12.r2021.mat')
+load('results/mri/cat12.r2024.mat')
 covs = struct();
-covs.table = readtable('results/mri/r2022.vars.txt','TreatAsMissing', 'NA'); % covs = importdata('/volumes/psymol/projects/UK_Biobank/04_data_genetics_linux/00_script/release_feb2020/02_covs.txt', '\t', 1);
+covs.table = readtable('results/mri/r2024.vars.txt','TreatAsMissing', 'NA'); % covs = importdata('/volumes/psymol/projects/UK_Biobank/04_data_genetics_linux/00_script/release_feb2020/02_covs.txt', '\t', 1);
 covs.colheaders = covs.table.Properties.VariableNames;
 
 % select discovery cohort (r2020 white-British ancestry)
@@ -85,9 +85,9 @@ writetable(T, 'results/mri/prepML.discovery.meta.txt', 'Delimiter', '\t', 'Write
 % load
 fprintf('Processing replication dataset.\n')
 fprintf(' - loading data.\n')
-load('results/mri/cat12.r2021.mat')
+load('results/mri/cat12.r2024.mat')
 covs = struct();
-covs.table = readtable('results/mri/r2022.vars.txt','TreatAsMissing', 'NA'); % covs = importdata('/volumes/psymol/projects/UK_Biobank/04_data_genetics_linux/00_script/release_feb2020/02_covs.txt', '\t', 1);
+covs.table = readtable('results/mri/r2024.vars.txt','TreatAsMissing', 'NA'); % covs = importdata('/volumes/psymol/projects/UK_Biobank/04_data_genetics_linux/00_script/release_feb2020/02_covs.txt', '\t', 1);
 covs.colheaders = covs.table.Properties.VariableNames;
 
 % select replication cohort (r2021 multi-ancestry)
@@ -133,10 +133,12 @@ writetable(T, 'results/mri/prepML.replication.meta.txt', 'Delimiter', '\t', 'Wri
 % load
 fprintf('Processing retest dataset.\n')
 fprintf(' - loading data.\n')
-load('results/mri/cat12.r2022.retest.mat')
+load('results/mri/cat12.r2024.retest.mat')
 covs = struct();
-covs.table = readtable('results/mri/r2022.vars.txt','TreatAsMissing', 'NA'); % covs = importdata('/volumes/psymol/projects/UK_Biobank/04_data_genetics_linux/00_script/release_feb2020/02_covs.txt', '\t', 1);
+covs.table = readtable('results/mri/r2024.vars.txt','TreatAsMissing', 'NA'); % covs = importdata('/volumes/psymol/projects/UK_Biobank/04_data_genetics_linux/00_script/release_feb2020/02_covs.txt', '\t', 1);
 covs.colheaders = covs.table.Properties.VariableNames;
+
+% only keep valid retest
 
 % align covs and cat12 data
 fprintf(' - aligning covs and cat12 data.\n')

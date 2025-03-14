@@ -19,26 +19,26 @@ threads=${11} # threads=50
 
 # echo settings
 echo $'\n'"--- Replicate GWAS discoveries ---"
-echo "trait: "${trait}
-echo "targetDir: "${targetDir}
-echo "chrFileHandle: "${chrFileHandle}
-echo "data: "${data}
-echo "covs: "${covs}
-echo "ancestries: "${ancestries}
-echo "ancestriesCol: "${ancestriesCol}
-echo "snpQC: "${snpQC}
-echo "impMFI: "${impMFI}
-echo "maf: "${maf}
-echo "threads: "${threads}$'\n'
+echo "trait: ${trait}"
+echo "targetDir: ${targetDir}"
+echo "chrFileHandle: ${chrFileHandle}"
+echo "data: ${data}"
+echo "covs: ${covs}"
+echo "ancestries: ${ancestries}"
+echo "ancestriesCol: ${ancestriesCol}"
+echo "snpQC: ${snpQC}"
+echo "impMFI: ${impMFI}"
+echo "maf: ${maf}"
+echo "threads: ${threads}"$'\n'
 
 # covs: replace PanC{1..n} with PanC1,PanC2,..,PanCn
-PCshort=$(echo ${covs} | awk -F',' '$NF ~ /../ { print $NF }')
+PCshort=$(echo "${covs}" | awk -F',' '$NF ~ /../ { print $NF }')
 PClong=$(eval "echo $PCshort" | awk '{ gsub(/ /,","); print }')
-tmp=$(echo ${covs} | sed -e "s/$PCshort/$PClong/g")
-covs=$tmp
+tmp=$(echo "${covs}" | sed -e "s/$PCshort/$PClong/g")
+covs=${tmp}
 
 # loop over ancestries
-ancestries=$(echo ${ancestries} | sed 's/,/ /g')
+ancestries=$(echo "${ancestries}" | sed 's/,/ /g')
 for ancestry in ${ancestries}; do
 
 	# create folder
@@ -46,14 +46,14 @@ for ancestry in ${ancestries}; do
 
 	# prepare covsFile and traitFile
 	scriptDir=$(dirname "$0")
-	Rscript ${scriptDir}/replicate.R "${trait}" "${targetDir}/${ancestry}" "${data}" "${covs}" "${ancestry}" "${ancestriesCol}"
+	Rscript "${scriptDir}"/replicate.R "${trait}" "${targetDir}/${ancestry}" "${data}" "${covs}" "${ancestry}" "${ancestriesCol}"
 
 	# run gwas
-	${scriptDir}/gwas.sh ${trait} ${targetDir}/${ancestry}/trait.txt ${targetDir}/${ancestry}/covs.txt ${targetDir}/${ancestry} ${chrFileHandle} ${snpQC} ${impMFI} ${maf} ${threads} ${ancestry}
+	"${scriptDir}"/gwas.sh "${trait}" "${targetDir}/${ancestry}/trait.txt" "${targetDir}/${ancestry}/covs.txt" "${targetDir}/${ancestry}" "${chrFileHandle}" "${snpQC}" "${impMFI}" "${maf}" "${threads}" "${ancestry}"
 
 	# clean destination folder
-	rm -f ${targetDir}/${ancestry}/trait.txt
-	rm -f ${targetDir}/${ancestry}/covs.txt
+	rm -f "${targetDir}"/"${ancestry}"/trait.txt
+	rm -f "${targetDir}"/"${ancestry}"/covs.txt
 
 # end loop over ancestries
 done

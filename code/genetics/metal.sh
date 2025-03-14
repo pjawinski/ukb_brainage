@@ -16,14 +16,17 @@ leaveOneOut="${8}" # leaveOneOut=0
 
 # echo settings
 echo $'\n'"--- Running METAL ---"
-echo "trait: "${trait}
-echo "targetDir: "${targetDir}
-echo "cohorts: "${cohorts}
-echo "sumstats: "${sumstats}$'\n'
+echo "trait: ${trait}"
+echo "targetDir: ${targetDir}"
+echo "cohorts: ${cohorts}"
+echo "type: ${type}"
+echo "idCol: ${idCol}"
+echo "carryOver: ${carryOver}"
+echo "leaveOneOut ${leaveOneOut}"$'\n'
 
 # get space-delimited list of cohorts and sumstats
-cohorts=$(echo ${cohorts} | sed 's/,/ /g'); cohorts=($cohorts)
-sumstats=$(echo ${sumstats} | sed 's/,/ /g'); sumstats=($sumstats)
+cohorts=$(echo "${cohorts}" | sed 's/,/ /g'); cohorts=($cohorts)
+sumstats=$(echo "${sumstats}" | sed 's/,/ /g'); sumstats=($sumstats)
 
 # ===== define function for getting metal command ====
 createMETAL(){
@@ -40,6 +43,8 @@ read -r -d '' metalCMD <<- eof
 SCHEME ${scheme}
 AVERAGEFREQ ON
 MINMAXFREQ ON
+EFFECT_PRINT_PRECISION 8
+STDERR_PRINT_PRECISION 8
 
 # custom variables
 CUSTOMVARIABLE Ntotal
@@ -59,15 +64,15 @@ eof
 
 # add files to be processed
 for i in ${inputFiles}; do 
-metalCMD=$(echo "${metalCMD}"$'\n'PROCESS $i)
+metalCMD=$(echo "${metalCMD}"$'\n'PROCESS "${i}")
 done
 
 # add output file and analyze commands
 metalCMD=$(echo "${metalCMD}"$'\n'$'\n'\# run analysis)
 if [ "${type}" == "ivweight" ]; then
-	metalCMD=$(echo "${metalCMD}"$'\n'OUTFILE ${targetDir}/metal.ivweight.${leaveOut} .txt)
+	metalCMD=$(echo "${metalCMD}"$'\n'OUTFILE "${targetDir}"/metal.ivweight."${leaveOut}" .txt)
 elif [ "${type}" == "nweight" ]; then
-	metalCMD=$(echo "${metalCMD}"$'\n'OUTFILE ${targetDir}/metal.nweight.${leaveOut} .txt)
+	metalCMD=$(echo "${metalCMD}"$'\n'OUTFILE "${targetDir}"/metal.nweight."${leaveOut}" .txt)
 fi
 metalCMD=$(echo "${metalCMD}"$'\n'ANALYZE HETEROGENEITY$'\n'QUIT)
 }
@@ -79,10 +84,10 @@ inputFiles=${sumstats[@]}
 createMETAL
 
 # run metal without/with leave-one-out method
-if [[ $leaveOneOut = 0 ]]; then
+if [[ ${leaveOneOut} = 0 ]]; then
 	echo "Run METAL over all samples."
 	metal <(echo "$metalCMD")
-elif [[ $leaveOneOut = 1 ]]; then
+elif [[ ${leaveOneOut} = 1 ]]; then
 	echo "Run METAL with leave-one-out method."
 	(echo " - over all samples."
 	metal <(echo "$metalCMD") &
@@ -91,28 +96,28 @@ elif [[ $leaveOneOut = 1 ]]; then
 		leaveOut="loo.${cohorts[j]}."
 		inputFiles=${sumstats[@]}; inputFiles=($inputFiles); unset 'inputFiles[j]'; inputFiles=${inputFiles[@]}
 		createMETAL
-		metal <(echo "$metalCMD") ) &
+		metal <(echo "${metalCMD}") ) &
 	done
 	wait)
 fi
 
 # add variables from metal input sumstats
 metalInput=$(echo ${sumstats[@]} | sed 's/ /,/g')
-if [[ $leaveOneOut = 0 ]]; then
+if [[ ${leaveOneOut} = 0 ]]; then
 	metalOutput="${targetDir}/metal.${type}.1.txt"
-elif [[ $leaveOneOut = 1 ]]; then
-	metalOutput=$(echo "${targetDir}/metal.${type}.1.txt" $(for i in ${cohorts[@]}; do echo ${targetDir}/metal.${type}.loo.${i}.1.txt; done) | sed 's/ /,/g')
+elif [[ ${leaveOneOut} = 1 ]]; then
+	metalOutput=$(echo "${targetDir}"/metal."${type}".1.txt $(for i in ${cohorts[@]}; do echo "${targetDir}"/metal."${type}".loo."${i}".1.txt; done) | sed 's/ /,/g')
 fi
 scriptDir=$(dirname "$0")
-${scriptDir}/metal.carryOver.sh "${targetDir}" "${metalInput}" "${metalOutput}" "${idCol}" "${carryOver}"
+"${scriptDir}"/metal.carryOver.sh "${targetDir}" "${metalInput}" "${metalOutput}" "${idCol}" "${carryOver}"
 
 # clean up
 echo "Cleaning up target directory."
-metalOutput=$(echo ${metalOutput} | sed 's/,/ /g')
+metalOutput=$(echo "${metalOutput}" | sed 's/,/ /g')
 rm -f ${metalOutput}
 for file in ${metalOutput}; do
-    newFileName=$(echo ${file} | sed 's/.1.txt/.info/g')
-    mv ${file}.info $newFileName
-    chmod 770 ${newFileName} 
+    newFileName=$(echo "${file}" | sed 's/.1.txt/.info/g')
+    mv "${file}".info "${newFileName}"
+    chmod 770 "${newFileName}" 
 done
 echo "--- Completed: Running Metal ---"

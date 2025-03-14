@@ -11,12 +11,12 @@ if (length(args)!=6) {
 }
 
 # set arguments
-traitName = args[1] # traitName = 'gap_wm'
-traitFile = args[2] # traitFile = 'data/gap_wm/gap_wm.txt'
-covsFile = args[3] # covsFile = 'data/gap_wm/covs.txt'
+traitName = args[1] # traitName = 'gap_gm'
+traitFile = args[2] # traitFile = 'data/traits/gap_gm.txt'
+covsFile = args[3] # covsFile = 'data/traits/covs.txt'
 covNames = args[4] # covNames = 'sex,age,age2,ac1,ac2,TIV'
 freesurferFile = args[5] # freesurferFile = 'results/mri/freesurfer.tsv.gz'
-targetDir = args[6] # targetDir = 'results/gap_wm/surfplot'
+targetDir = args[6] # targetDir = 'results/gap_gm/discovery/surfplot'
 
 message(paste0('\n--- Calculate aparc surface correlations ---',
 	           '\ntraitName: ', traitName,
@@ -38,7 +38,7 @@ covs = read.delim(covsFile, sep = '\t', header = T)
 covNames = str_split(covNames, ',')[[1]]
 
 # merge trait, freesurfer, and covs information
-df = trait %>% left_join(freesurfer, by = 'IID') %>% left_join(covs[,c('IID',covNames)], by = 'IID')
+df = trait %>% inner_join(freesurfer, by = 'IID') %>% inner_join(covs[,c('IID',covNames)], by = 'IID')
 
 # define function to compute correlation matrix
 makecorr = function(df, x = NULL, xlabels = x, covNames = NULL, colvars = NULL, type = 'pearson', cluster = F) {  
@@ -73,12 +73,12 @@ makecorr = function(df, x = NULL, xlabels = x, covNames = NULL, colvars = NULL, 
 
   # calculate p
   message('Calculating p-values.')
-  corrs = corr.p(as.matrix(rho),as.matrix(n)-length(covNames),ci = F)
+  corrs = corr.p(as.matrix(rho),as.matrix(n)-length(covNames),ci = F,adjust="none")
 
   # convert to data.frame
   df.rho = data.frame(corrs$r)
   df.pval = data.frame(corrs$p)
-  df.n = data.frame(corrs$n)
+  df.n = data.frame(corrs$n)+length(covNames)
   for (i in 1:(length(df))) {
     df.rho[i,i] = 1 
     df.pval[i,i] = 0
@@ -116,4 +116,3 @@ names(output) = c('id','rho','pval','n')
 system(paste0('mkdir -p ', targetDir))
 write.table(output, sprintf('%s/surfcorr.txt',targetDir), sep = '\t', quote = F, col.names = T, row.names = F)
 message('\n--- Completed: calculate aparc surface correlations ---')
-

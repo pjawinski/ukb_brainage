@@ -111,29 +111,30 @@ vp = ggplot(data=dfvolc, aes(x=rg, y=p_log10)) +
 # ---------------------------
 
 # define example phenotypes
-traits = data.frame(trait_description = c('Average total household income before tax',
-                                          'Maternal smoking around birth',
+traits = data.frame(trait_description = c('Overall health rating',
+                                          'Average total household income before tax',
                                           'Number of treatments/medications taken',
+                                          'Number of self-reported non-cancer illnesses',
+                                          'Neutrophill count',
+                                          'Vascular/heart problems diagnosed by doctor: None of the above',
+                                          'White blood cell (leukocyte) count',
+                                          'Diastolic blood pressure, automated reading',
+                                          'Recent restlessness',
+                                          'Frequency of depressed mood in last 2 weeks',
+                                          'Frequency of tiredness / lethargy in last 2 weeks',
+                                          'Frequency of unenthusiasm / disinterest in last 2 weeks',
+                                          'Drive faster than motorway speed limit',
+                                          'Forced expiratory volume in 1-second (FEV1)',
                                           'Mother\'s age at death',
                                           'Father\'s age at death',
-                                          'Frequency of tiredness / lethargy in last 2 weeks',
-                                          'Number of self-reported non-cancer illnesses',
                                           'Hearing difficulty/problems with background noise',
-                                          'Drive faster than motorway speed limit',
                                           'Medication for cholesterol, blood pressure or diabetes: None of the above',
-                                          'Townsend deprivation index at recruitment',
-                                          'Neutrophill count',
                                           'Heel bone mineral density (BMD)',
-                                          'Vascular/heart problems diagnosed by doctor: None of the above',
-                                          'Long-standing illness, disability or infirmity',
-                                          'Qualifications: None of the above',
+                                          'Townsend deprivation index at recruitment',
+                                          'Exposure to tobacco smoke outside home',
+                                          'COPD differential diagnosis',
                                           'Age completed full time education',
-                                          'Types of transport used (excluding work): Public transport',
-                                          'Particulate matter air pollution (pm2.5); 2010',
-                                          'White blood cell (leukocyte) count',
-                                          'Frequency of unenthusiasm / disinterest in last 2 weeks',
-                                          'Frequency of tenseness / restlessness in last 2 weeks',
-                                          'Recent restlessness'))
+                                          'Diabetes diagnosed by doctor'))
 
 # create data.frame with selected traits
 dfforest = left_join(traits, df, by = "trait_description")

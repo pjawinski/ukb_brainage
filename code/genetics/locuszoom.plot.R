@@ -39,8 +39,9 @@ df.lz = df.lz %>% mutate(CHR_num = replace(CHR, CHR=='X', 23)) %>%
 		  arrange(CHR_num, BP) %>%
 		  select(-CHR_num)
 
-# replace A1_FREQ by MAF
+# get MAF
 message('Replacing A1_FREQ by MAF.')
+df.lz$MAF = df.lz$A1_FREQ
 df.lz$MAF[df.lz$MAF > 0.5] = 1 - df.lz$MAF[df.lz$MAF > 0.5] 
 
 # print 2x3 plots on a page
@@ -51,8 +52,7 @@ for (i in seq(1,nrow(df.lz),6)) {
          lz.temp = ggdraw() + 
               draw_image(magick::image_read_pdf(path = paste0(targetDir, '/lz.output/', df.lz$pdf[i+j]), density = 300), scale = 1) +
               draw_label(paste0(traitDescription, '\n', df.lz$ID[i+j],
-              	' (MAF = ',  format(round(df.lz$A1_FREQ[i+j], 2), nsmall = 2), 
-              	', INFO = ', format(round(df.lz$INFO[i+j], 2), nsmall = 2),
+              	' (MAF = ',  format(round(df.lz$MAF[i+j], 2), nsmall = 2), 
               	', Gene: ', df.lz$NEAREST_GENE[i+j], ')'),
               	 y = 0.97, size = 8, lineheight = 1.1)
       } else {

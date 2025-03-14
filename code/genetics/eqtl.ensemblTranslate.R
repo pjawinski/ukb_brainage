@@ -11,8 +11,8 @@ if (length(args)==0) {
 }
 
 # set arguments
-inputFile=args[1] # inputFile="results/gap_gm/eqtl/eqtl.multiTissue.txt" # inputFile="results/gap_gm/eqtl/eqtl.singleTissue.txt"
-outputFile=args[2] # outputFile="results/gap_gm/eqtl/eqtl.multiTissue.hgnc.txt" # outputFile="results/gap_gm/eqtl/eqtl.singleTissue.transl.txt"
+inputFile=args[1] # inputFile="results/pleiofdr/combined/pleio.crosstrait.eqtl.singleTissue.txt"
+outputFile=args[2] # outputFile="results/pleiofdr/combined/pleio.crosstrait.eqtl.singleTissue.txt.tmp"
 columnName=args[3] # columnName="gene_id"
 message(paste0('\n--- Translate Ensembl to HGNC IDs | Settings ---',
                '\ninputFile: ', inputFile,
@@ -62,45 +62,8 @@ transl.part2 = transl.part2 %>%
 message('Writing results.')
 output = df %>% left_join(transl.part1, by = 'ensembl_gene_id') %>%
                 left_join(transl.part2, by = 'ensembl_gene_id')
+output$hgnc_id[is.na(output$hgnc_id)]=""
+output$hgnc_symbol[is.na(output$hgnc_symbol)]=""
+output$entrezgene_id[is.na(output$entrezgene_id)]=""
+output$entrezgene_description[is.na(output$entrezgene_description)]=""
 write.table(output, file = outputFile, row.names = F, quote = F, sep = '\t')
-
-# # --------------------------
-# # --- summarize ---
-# # --------------------------
-# 
-# # how many loci show associations
-# loci = unique(df$LOCUS_CNT[!is.na(df$CATALOG_DISEASE.TRAIT)])
-# nloci = length(loci)
-# 
-# # show loci with associated traits
-# meta_loci = data.frame(matrix(NA, nrow = nloci, ncol = 4))
-# names(meta_loci) = c('LOCUS_CNT', 'CYTOBAND', 'LEAD_SNP', 'CATALOG_TRAITS')
-# k = 0
-# for (locus in loci) { 
-#  k = k + 1
-#  cytoband = unique(df$CYTOBAND[df$LOCUS_CNT == locus])
-#  lead_snp = unique(df$LEAD_SNP[df$LOCUS_CNT == locus])
-#  catalog_traits = unique(df$CATALOG_DISEASE.TRAIT[df$LOCUS_CNT == locus & !is.na(df$CATALOG_DISEASE.TRAIT)])
-#  catalog_traits = paste(catalog_traits[order(catalog_traits)], collapse = ' | ')
-#  meta_loci[k,] = cbind(locus,cytoband,lead_snp,catalog_traits)
-# }
-# 
-# # show traits with associated loci
-# traits = unique(df$CATALOG_DISEASE.TRAIT[!is.na(df$CATALOG_DISEASE.TRAIT)])
-# traits = traits[order(traits)]
-# ntraits = length(traits)
-# 
-# meta_traits = data.frame(matrix(NA, nrow = ntraits, ncol = 2))
-# names(meta_traits) = c('CATALOG_TRAITS', 'LOCI')
-# k = 0
-# for (trait in traits) { 
-#   k = k + 1
-#   loci = unique(df$CYTOBAND[df$CATALOG_DISEASE.TRAIT == trait & !is.na(df$CATALOG_DISEASE.TRAIT)])
-#   loci = paste(loci[order(loci)], collapse = ' | ')
-#   meta_traits[k,] = cbind(trait,loci)
-# }
-# 
-# # save meta info
-# targetDir = sub("/[^/]+$", "", filepath)
-# write.table(meta_loci, file = paste0(targetDir,'/catalog.by.locus.txt'), row.names = F, quote = F, sep = '\t')
-# write.table(meta_traits, file = paste0(targetDir,'/catalog.by.trait.txt'), row.names = F, quote = F, sep = '\t')

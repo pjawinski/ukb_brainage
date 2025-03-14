@@ -5,7 +5,7 @@
 # =======================================================
 
 # set working directory
-cd /Users/philippe/Desktop/projects/ukb_brainage
+cd /slow/projects/ukb_brainage
 
 # create refseq folder
 mkdir data/refseq
@@ -40,9 +40,9 @@ awk -F'\t' '$3=="gene" { count1++ } $3=="pseudogene" { count2++ } END { print co
 
 # sort by name, start, and stop coordinate and remove duplicate genes
 # 43,682 rows left
-cat GRCh37_latest_genomic.edit.gff | wc -l
-cat GRCh37_latest_genomic.edit.gff | awk -F'\t' '{print $10}' | sort -u | wc -l
-cat GRCh37_latest_genomic.edit.gff | sort -k10,10 -k1,1 -k4,4n -k5,5n > GRCh37_latest_genomic.edit.tmp.gff
+wc -l GRCh37_latest_genomic.edit.gff
+awk -F'\t' '{print $10}' GRCh37_latest_genomic.edit.gff | sort -u | wc -l
+sort -k10,10 -k1,1 -k4,4n -k5,5n GRCh37_latest_genomic.edit.gff > GRCh37_latest_genomic.edit.tmp.gff
 \mv GRCh37_latest_genomic.edit.tmp.gff GRCh37_latest_genomic.edit.gff
 awk -F'\t' '!($10 in gene) { print; gene[$10]; next}' OFS='\t' GRCh37_latest_genomic.edit.gff > GRCh37_latest_genomic.edit.tmp.gff
 \mv GRCh37_latest_genomic.edit.tmp.gff GRCh37_latest_genomic.edit.gff

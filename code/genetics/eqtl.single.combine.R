@@ -11,9 +11,9 @@ if (length(args)!=5) {
 }
 
 # set arguments
-snplevelFile=args[1] # snplevelFile="results/combined/snplevel.txt"
-eqtlFiles=args[2] # eqtlFiles="results/gap_gm/eqtl/eqtl.singleTissue.txt,results/gap_wm/eqtl/eqtl.singleTissue.txt,results/gap_gwm/eqtl/eqtl.singleTissue.txt"
-outputFile=args[3] # outputFile="results/combined/gtex.singletissue.txt"
+snplevelFile=args[1] # snplevelFile="results/combined/gwama.eur.snplevel/snplevel.gws.txt"
+eqtlFiles=args[2] # eqtlFiles="results/gap_gm/gwama/eur/eqtl/eqtl.singleTissue.txt,results/gap_wm/gwama/eur/eqtl/eqtl.singleTissue.txt,results/gap_gwm/gwama/eur/eqtl/eqtl.singleTissue.txt"
+outputFile=args[3] # outputFile="results/combined/gwama.eur.gtex.singletissue.txt"
 traits=args[4] # traits="gap_gm,gap_wm,gap_gwm"
 traitNames=args[5] # traitNames="grey matter,white matter,grey and white matter"
 
@@ -40,10 +40,10 @@ snplevel = snplevel[,c('LOCUS_COUNT','DISCOV_COUNT','CHR', 'BP','key')]
 
 # load eqtl files
 for (i in 1:length(eqtlFiles)) {
-  tmp = read.table(eqtlFiles[i], sep = '\t', head = T)
-  tmp = tmp[,-which(names(tmp) == "LOCUS_COUNT")]
+  tmp = read.table(eqtlFiles[i], sep = '\t', head = T, quote = "")
+  tmp = tmp[,-which(names(tmp) == "locusnum")]
   tmp$trait = traitNames[i]
-  tmp$key = paste0(traits[i],"_", tmp$LEAD_SNP)
+  tmp$key = paste0(traits[i],"_", tmp$leadsnp)
   if (i == 1) { eqtl = tmp } else { eqtl = rbind(eqtl, tmp)}
 }
 
@@ -52,7 +52,7 @@ df = inner_join(eqtl, snplevel, by = 'key')
 df = df[order(df$LOCUS_COUNT, df$DISCOV_COUNT, df$gene_id, df$tissue),]
 
 # create supplementum data.frame
-suppl = df[,c('LOCUS_COUNT','trait','LEAD_SNP', 'CHR','BP','id','LEAD_SNP_R2',
+suppl = df[,c('LOCUS_COUNT','trait','leadsnp', 'CHR','BP','id',
               'variant_id','gene_id','hgnc_symbol','tissue','tss_distance','ma_samples','ma_count','maf',
               'slope','slope_se', 'pval_nominal','pval_nominal_threshold', 'min_pval_nominal', 'pval_beta')]
 

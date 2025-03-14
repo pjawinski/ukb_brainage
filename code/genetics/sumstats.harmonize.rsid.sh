@@ -10,14 +10,14 @@ kgp=$2 # kgp="data/1kgp/v5a/ALL.chr\${chr}.phase3_shapeit2_mvncall_integrated_v5
 
 # echo settings
 echo $'\n'"--- Adding 1KGP RSID, CHR, BP, REF, ALT, EUR_AF ---"
-echo "sumstats: "$sumstats
-echo "1kgp: "$kgp$'\n'
+echo "sumstats: ${sumstats}"
+echo "1kgp: ${kgp}"$'\n'
 
 # use 1kgp to determine REF, ALT, RSID, and EUR_AF
 echo "Matching variants with 1kgp entries."
 (
 for chr in {1..22}; do (
-mawk -v sumstats="${sumstats}" -v chr=${chr} '
+mawk -v sumstats="${sumstats}" -v chr="${chr}" '
 
     # Skip header line
     NR==1 { next }
@@ -49,7 +49,7 @@ mawk -v sumstats="${sumstats}" -v chr=${chr} '
 
     # print status
     END { printf(" - chr: %d | variants processed: %d | 1kgp matched: %d\n", chr, nvariants, matchCount) }
-    ' OFS='\t' ${sumstats} <(eval zcat $kgp)
+    ' OFS='\t' "${sumstats}" <(eval zcat "${kgp}")
 ) &
 done
 wait
@@ -57,11 +57,11 @@ wait
 
 # save matched variants in a single file
 echo "Saving matched variants in a single file."
-echo CHR$'\t'BP$'\t'A1$'\t'A2$'\t'KGP_REF$'\t'KGP_ALT$'\t'KGP_EUR_AF$'\t'KGP_RSID > ${sumstats}
-cat ${sumstats}.chr{1..22}.txt >> ${sumstats}
+echo CHR$'\t'BP$'\t'A1$'\t'A2$'\t'KGP_REF$'\t'KGP_ALT$'\t'KGP_EUR_AF$'\t'KGP_RSID > "${sumstats}"
+cat "${sumstats}".chr{1..22}.txt >> "${sumstats}"
 
 # clean up
 echo "Cleaning up target directory."
-rm -f ${sumstats}.chr*
+rm -f "${sumstats}".chr*
 echo "--- completed: Adding 1KGP RSID, CHR, BP, REF, ALT, EUR_AF ---"
 

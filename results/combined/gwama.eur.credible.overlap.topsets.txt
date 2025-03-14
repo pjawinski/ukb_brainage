@@ -1,0 +1,12 @@
+locus	trait	sbayes_count	susieR_count	finemap_count	susieR_finemap_overlap	prop_sbayes_in_susieR	prop_sbayes_in_finemap
+2	white matter	6	6	5	0.833333333333333	0.166666666666667	0.166666666666667
+2	grey and white matter	9	4	4	1	0.222222222222222	0.222222222222222
+5	grey matter	7	4	2	0.5	0.571428571428571	0.285714285714286
+5	white matter	6	10	9	0.9	0.666666666666667	0.666666666666667
+14	white matter	7	7	7	1	0.857142857142857	0.857142857142857
+14	grey and white matter	5	6	7	0.857142857142857	0.6	0.8
+40	white matter	1	1	1	1	1	1
+40	grey and white matter	1	1	1	1	1	1
+42	white matter	8	5	5	1	0.375	0.375
+53	grey and white matter	4	4	4	1	0.75	0.75
+53	white matter	4	4	6	0.666666666666667	0.5	0.75

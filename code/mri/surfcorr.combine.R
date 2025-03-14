@@ -1,3 +1,4 @@
+#!/usr/bin/env Rscript
 # ===========================================================================
 # === create phesant summary text file and combined plot for supplementum ===
 # ===========================================================================
@@ -31,9 +32,9 @@ surfcorrFiles= str_split(surfcorrFiles, ',')[[1]]
 for (i in 1:length(traits)) {
   
   # open datasets and keep relevant variables
-  # set p to 1E-307 if observed is 0
+  # set p to 1E-307 if observed is lower
   tmp = read.delim(surfcorrFiles[i], sep = '\t', header = T)
-  tmp$pval[tmp$pval==0] = 1E-307
+  tmp$pval[tmp$pval < 1E-307] = 1E-307
   tmp$fdr = p.adjust(tmp$pval, method = 'BH')
   tmp$rhoabs = abs(tmp$rho)
   if (i == 1) {

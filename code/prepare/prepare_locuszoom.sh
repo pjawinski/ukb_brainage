@@ -5,7 +5,7 @@
 # ============================================
 
 # set working directory
-cd /home/groups/markett/ukb_brainage
+cd /slow/projects/ukb_brainage
 
 # create conda environment for locuszoom
 conda create -p envs/locuszoom -c conda-forge python=2.7 r-base=4.1.1 r-gridExtra r-lattice r-cowplot r-dplyr r-ggplot2 r-magick r-patchwork r-pdftools
@@ -18,54 +18,54 @@ conda env export --no-builds -p envs/locuszoom > envs/locuszoom.yml
 awk 'NR==1 { print "name: locuszoom"; next } $1=="prefix:" { $2="locuszoom"; print; next} { print }' envs/locuszoom.yml > envs/locuszoom.yml.tmp; \mv envs/locuszoom.yml.tmp envs/locuszoom.yml
 
 # install tabix
-cd /home/groups/markett/software
+cd /fast/software
 wget -O https://sourceforge.net/projects/samtools/files/tabix/tabix-0.2.6.tar.bz2
 chmod 770 tabix-0.2.6.tar.bz2
 tar jxvf tabix-0.2.6.tar.bz2
 cd tabix-0.2.6
 make
-ln -s /home/groups/markett/software/tabix-0.2.6/tabix /home/groups/markett/software/bin/tabix
-ln -s /home/groups/markett/software/tabix-0.2.6/bgzip /home/groups/markett/software/bin/bgzip
+ln -s /fast/software/tabix-0.2.6/tabix /fast/software/bin/tabix
+ln -s /fast/software/tabix-0.2.6/bgzip /fast/software/bin/bgzip
 
 # create chromosome .vcf files
-cd /home/groups/markett/ukb_brainage
-geneticsDir="data/genetics"
+cd /slow/projects/ukb_brainage
+geneticsDir="data/genetics/"
 
-for i in {1..22} X XY Y MT; do
-	mkdir -p "${geneticsDir}/chr${i}/imp_mri_qc/vcf"
-	plink --bfile "${geneticsDir}/chr${i}/imp_mri_qc/bed/chr${i}_mri_qc" \
+for i in {1..21} X XY Y MT; do
+	mkdir -p "${geneticsDir}/chr${i}/imp_mri_qc_EURjoined/vcf"
+	plink --bfile "${geneticsDir}/chr${i}/imp_mri_qc_EURjoined/bed/chr${i}_mri_qc" \
 	--recode vcf bgz tabx \
-	--out "${geneticsDir}/chr${i}/imp_mri_qc/vcf/chr${i}_mri_qc"
-chmod 770 *
+	--out "${geneticsDir}/chr${i}/imp_mri_qc_EURjoined/vcf/chr${i}_mri_qc"
+chmod 770 "${geneticsDir}/chr${i}/imp_mri_qc_EURjoined/vcf/chr${i}_mri_qc"*
 done
 
 # create tabix file
 task () {
 echo "Starting with chr$i ..."
-cd "${geneticsDir}/chr${i}/imp_mri_qc/vcf"
+cd "${geneticsDir}/chr${i}/imp_mri_qc_EURjoined/vcf"
 tabix -f "chr${i}_mri_qc.vcf.gz"
 echo "Finished chr$i."
 }
 
-N=24; (
-for i in {1..20} X XY Y MT; do
+N=26; (
+for i in {1..22} X XY Y MT; do
    ((j=j%N)); ((j++==0)) && wait
    task "$i" &
 done
 )
 
 # download locuszoom and create symbolic links in bin folder
-cd /home/groups/markett/software
+cd /fast/software
 wget https://statgen.sph.umich.edu/locuszoom/download/locuszoom_1.4.tgz
 tar -xvzf locuszoom_1.4.tgz
-ln -s /home/groups/markett/software/locuszoom/bin/locuszoom /home/groups/markett/software/bin/locuszoom
-ln -s /home/groups/markett/software/locuszoom/bin/lzupdate.py /home/groups/markett/software/bin/lzupdate.py
-ln -s /home/groups/markett/software/locuszoom/bin/locuszoom.R /home/groups/markett/software/bin/locuszoom.R
+ln -s /fast/software/locuszoom/bin/locuszoom /fast/software/bin/locuszoom
+ln -s /fast/software/locuszoom/bin/lzupdate.py /fast/software/bin/lzupdate.py
+ln -s /fast/software/locuszoom/bin/locuszoom.R /fast/software/bin/locuszoom.R
 
 # update locuszoom
-mkdir /home/groups/markett/software/locuszoom/data/database/deprecated
-mv /home/groups/markett/software/locuszoom/data/database/* /home/groups/markett/software/locuszoom/data/database/deprecated/
-cd /home/groups/markett/software/locuszoom/
+mkdir /fast/software/locuszoom/data/database/deprecated
+mv /fast/software/locuszoom/data/database/* /fast/software/locuszoom/data/database/deprecated/
+cd /fast/software/locuszoom/
 
 	# change RS_MERGE_ARCH_URL = "ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606/database/data/organism_data/RsMergeArch.bcp.gz" 
 	# into   RS_MERGE_ARCH_URL = "ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606/database/organism_data/RsMergeArch.bcp.gz"
@@ -88,25 +88,16 @@ cd /home/groups/markett/software/locuszoom/
 	bin/dbmeister.py --db db.backup/locuszoom_hg19.db --recomb_rate data/build/hg19/recomb_rate/recomb_rate.tab
 
 # Change positions of XY variations from X coordinates to Y coordinates
-cd /home/groups/markett/software/locuszoom/data/database
+cd /fast/software/locuszoom/data/database
 sqlite3 -separator $'\t' locuszoom_hg19.db "select * from snp_pos;" > locuszoom_hg19_snp_pos.txt
-src="/home/groups/markett/UK_Biobank/04_data_genetics_linux"
-cd $src/chrXY/imp_mri_qc/vcf
+cd ${geneticsDir}/chrXY/imp_mri_qc_EURjoined/vcf
 mkdir original
 cp chrXY* original/
-zcat chrXY_mri_qc.vcf.gz | awk 'NR = 7 { print } NR > 7 {sub(25,24,$1); print}' OFS='\t' > chrXY_mri_qc.vcf
-awk 'NR==FNR && $2==24 { snp[$1]=$3; next } NR==FNR { next } FNR <=7 { print; next} $3 in snp { sub(25,24,$1); $2=snp[$3]; print $0; next } { print $0; next }' OFS="\t" /home/jawinskp/locuszoom_mac/data/database/locuszoom_hg19_snp_pos.txt <(gzip -dc chrXY_mri_qc.vcf.gz) > chrXY_mri_qc.vcf 
-
-rm -f chrXY_mri_qc.tmp.vcf
+awk 'NR==FNR && $2==24 { snp[$1]=$3; next } NR==FNR { next } FNR <=7 { print; next} $3 in snp { sub(23,24,$1); $2=snp[$3]; print $0; next } { print $0; next }' OFS="\t" /fast/software/locuszoom/data/database/locuszoom_hg19_snp_pos.txt <(gzip -dc chrXY_mri_qc.vcf.gz) > chrXY_mri_qc.vcf 
 awk 'NR <= 7 { print }' OFS="\t" chrXY_mri_qc.vcf > chrXY_mri_qc.tmp.vcf
 awk 'NR > 7 { print }' OFS="\t" chrXY_mri_qc.vcf | sort -k1,1 -k2,2n >> chrXY_mri_qc.tmp.vcf
 \mv chrXY_mri_qc.tmp.vcf chrXY_mri_qc.vcf
-
 rm -f chrXY_mri_qc.vcf.gz; bgzip chrXY_mri_qc.vcf
 rm -f *.tbi; tabix -f "chrXY_mri_qc.vcf.gz"
-#rsync -avP jawinskp@cluster1.psychologie.hu-berlin.de:/home/groups/markett/UK_Biobank/04_data_genetics_linux/chrXY/imp_mri_qc/vcf/ /Volumes/psymol/projects/UK_Biobank/04_data_genetics_linux/chrXY/imp_mri_qc/vcf/
-
-# sync with network folder
-rsync -avP --exclude '99_genetics_20k' jawinskp@cluster1.psychologie.hu-berlin.de:/home/groups/markett/UK_Biobank/04_data_genetics_linux/ /Volumes/psymol/projects/UK_Biobank/04_data_genetics_linux/
-
+chmod -R 770 *
 

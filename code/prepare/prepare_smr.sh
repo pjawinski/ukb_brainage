@@ -58,9 +58,6 @@ rm -f eqtl*
 ls -l *.besd | awk '{ print $NF}' | sed 's/.besd//g' > eqtl.besd.list 
 smr --besd-flist eqtl.besd.list --mecs --thread-num 100 --out eqtl.mecs
 
-smr eQTL_besd_lite/
-
-
 # change access rights
 chmod -R 770 *
 

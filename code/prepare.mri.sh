@@ -38,7 +38,7 @@ ntotal=$(cat t1w.bulk | wc -l)
 N=8
 (for i in $(eval echo "{1..$ntotal..500}"); do 
    ((j=j%N)); ((j++==0)) && wait
-   ./ukbfetch -a${key} -bt1w.bulk -s${i} -m500 -ot1w.${i} &
+   ./ukbfetch -a"${key}" -bt1w.bulk -s"${i}" -m500 -ot1w."${i}" &
 done)
 
 # have all files been downloaded?
@@ -49,10 +49,10 @@ awk 'NR==FNR { file[$1]; ndownloaded++; next } { ntotal++ } !($1 in file) { prin
 # move t1w files into subject folders
 shopt -s nullglob
 for filename in *.zip; do
-    curfile=$(basename $filename)
+    curfile=$(basename "${filename}")
     curfile_first=${curfile:0:7}
-    mkdir -p $curfile_first
-    mv $filename $curfile_first
+    mkdir -p "${curfile_first}"
+    mv "${filename}" "${curfile_first}"
 done
 
 # run cat12 preprocessing
@@ -71,10 +71,10 @@ echo ${subs[@]}
 # check whether files are "unusable"
 > data/t1w/r2020/unusable.txt
 for i in ${subs[@]}; do
-    if [ $(unzip -l data/t1w/r2020/${i}/${i}_20252_2_0.zip | grep unusable | wc -l) == 1 ]; then
-        echo "$i is unusable"; echo $i >> data/t1w/r2020/unusable.txt
+    if [ $(unzip -l data/t1w/r2020/"${i}"/"${i}"_20252_2_0.zip | grep unusable | wc -l) == 1 ]; then
+        echo "${i} is unusable"; echo "${i}" >> data/t1w/r2020/unusable.txt
     else
-        echo "$i is usable"
+        echo "${i} is usable"
     fi
 done
 
@@ -127,7 +127,7 @@ ntotal=$(cat t1w.incremental.bulk | wc -l)
 N=8
 (for i in $(eval echo "{1..$ntotal..500}"); do 
    ((j=j%N)); ((j++==0)) && wait
-   ./ukbfetch -a${key} -bt1w.incremental.bulk -s${i} -m500 -ot1w.${i} &
+   ./ukbfetch -a"${key}" -bt1w.incremental.bulk -s"${i}" -m500 -ot1w."${i}" &
 done)
 
 # have all files been downloaded?
@@ -138,10 +138,10 @@ awk 'NR==FNR { file[$1]; ndownloaded++; next } { ntotal++ } ($1 in file) { print
 # move t1w files into subject folders
 shopt -s nullglob
 for filename in *.zip; do
-    curfile=$(basename $filename)
+    curfile=$(basename "${filename}")
     curfile_first=${curfile:0:7}
-    mkdir -p $curfile_first
-    mv $filename $curfile_first
+    mkdir -p "${curfile_first}"
+    mv "${filename}" "${curfile_first}"
 done
 
 # run cat12 preprocessing
@@ -160,10 +160,10 @@ echo ${subs[@]}
 # check whether files are "unusable"
 > data/t1w/r2021/unusable.txt
 for i in ${subs[@]}; do
-    if [ $(unzip -l data/t1w/r2021/${i}/${i}_20252_2_0.zip | grep unusable | wc -l) == 1 ]; then
-        echo "$i is unusable"; echo $i >> data/t1w/r2021/unusable.txt
+    if [ $(unzip -l data/t1w/r2021/"${i}"/"${i}"_20252_2_0.zip | grep unusable | wc -l) == 1 ]; then
+        echo "${i} is unusable"; echo "${i}" >> data/t1w/r2021/unusable.txt
     else
-        echo "$i is usable"
+        echo "${i} is usable"
     fi
 done
 
@@ -197,6 +197,97 @@ r2021=$(find data/t1w/r2020/* data/t1w/r2021/* -name "*_20252_2_0.zip" | sed "s%
 cd data/basket/20220914_2016290/data/
 awk 'NR==FNR { file[$1]; next } !($1 in file) && $2=="20252_2_0" { print }' <(echo "${r2021}") t1w.bulk # no additional files
 
+
+# =======================================================================
+# ======= 2024 release: get additional T1 files in basket 4017567 =======
+# =======================================================================
+# !! no additional files for the initial imaging visit
+
+# set working directory
+cd /slow/projects/ukb_brainage/
+
+# descend into basket directory and create file with .bulk data links
+cd data/basket/20240307_4017567/data/
+./ukbconv ukb678162.enc_ukb bulk -o"t1w" -i<(echo '20252')
+
+# get some stats
+cat t1w.bulk | wc -l # how many files listed? - 49121
+awk '{ print $1}' t1w.bulk | sort | uniq | wc -l # how many files of different people? - 44181
+awk '$2=="20252_2_0" { count++; next} END { print count}' t1w.bulk # how many files of field 20252_2_0? - 44165
+awk 'NR==FNR && $2=="20252_2_0" { ID[$1]; next} NR==FNR { next } $2=="20252_3_0" && !($1 in ID) { print }' t1w.bulk t1w.bulk # four subjects only have repeat-imaging visit (20252_3_0)
+
+# get list of incremental files
+cd -
+r2021=$(find -L data/t1w/r2020/* data/t1w/r2021/* -name "*_20252_2_0.zip" | sed "s%.*/%%g" | sed "s%_20252_2_0.zip%%g") # r2021=$(find data/t1w/00_T1w_wave1/* data/t1w/00_T1w_wave2/* data/t1w/00_T1w_wave2_suppl/* data/t1w/00_T1w_wave3/* -name "*_20252_2_0.zip" | sed "s%.*/%%g" | sed "s%_20252_2_0.zip%%g")
+cd data/basket/20240307_4017567/data/
+awk 'NR==FNR { file[$1]; next } !($1 in file) && $2=="20252_2_0" { print }' <(echo "${r2021}") t1w.bulk > t1w.incremental.bulk
+
+# create destination folder, extract file links for initial imaging visit, and copy download key
+cd - 
+mkdir -p data/t1w/r2024
+\cp data/basket/20240307_4017567/data/t1w.incremental.bulk data/t1w/r2024/
+\cp data/basket/20240307_4017567/data/*.key data/t1w/r2024/
+
+# descend into download folder and prepare download
+cd data/t1w/r2024/
+wget -O ukbfetch -nd biobank.ndph.ox.ac.uk/showcase/util/ukbfetch
+chmod 700 ukbfetch
+key=$(ls *.key)
+ntotal=$(cat t1w.incremental.bulk | wc -l)
+
+# download data
+# load files in line x to x+500 (8 instances in parallel)
+# -s Flag for starting line in t1w.bulk
+# -o Flag for out log file name
+N=8
+(for i in $(eval echo "{1..$ntotal..500}"); do 
+   ((j=j%N)); ((j++==0)) && wait
+   ./ukbfetch -a"${key}" -bt1w.incremental.bulk -s"${i}" -m500 -ot1w."${i}" &
+done)
+
+# have all files been downloaded?
+# yep! - otherwise store missing files in new .bulk file and repeat download
+awk 'NR==FNR { file[$1]; ndownloaded++; next } { ntotal++ } !($1 in file) { print }  END { print ntotal, ndownloaded }
+    ' <(ls -lh *_20252_2_0.zip | sed "s%_20252_2_0.zip%%g") t1w.incremental.bulk
+
+# move t1w files into subject folders
+shopt -s nullglob
+for filename in *.zip; do
+    curfile=$(basename "${filename}")
+    curfile_first=${curfile:0:7}
+    mkdir -p "${curfile_first}"
+    mv "${filename}" "${curfile_first}"
+done
+
+# run cat12 preprocessing
+cd -
+/opt/matlab/bin/matlab -nodesktop -nodisplay -r "scanDir = 'data/t1w/r2024/'; filetype = '_20252_2_0.zip'; spmPath = '/fast/software/matlab/spm12/'; ncores = 100; run code/mri/cat12.m"
+
+# have all files been successfully processed? - Nope
+find -L data/t1w/r2024 -name "*20252_2_0.zip" | wc -l
+find -L data/t1w/r2024 -name "*cat12.zip" | wc -l
+
+# which files have not been processed successfully? 
+subs=$(find data/t1w/r2024 -mindepth 1 -maxdepth 1 -type d -not -exec sh -c 'ls -1 "{}"|egrep -i -q ".*cat12.zip"' ';' -print | sed "s%.*/%%g")
+subs=($subs)
+echo ${subs[@]}
+
+# check whether files are "unusable"
+> data/t1w/r2024/unusable.txt
+for i in ${subs[@]}; do
+    if [ $(unzip -l data/t1w/r2024/"${i}"/"${i}"_20252_2_0.zip | grep unusable | wc -l) == 1 ]; then
+        echo "${i} is unusable"; echo "${i}" >> data/t1w/r2024/unusable.txt
+    else
+        echo "${i} is usable"
+    fi
+done
+
+# run Matlab script once again
+/opt/matlab/bin/matlab -nodesktop -nodisplay -r "scanDir = 'data/t1w/r2024/'; filetype = '_20252_2_0.zip'; spmPath = '/fast/software/matlab/spm12/'; ncores = 100; run code/mri/cat12.m"
+
+# change access rights
+chmod 770 */*cat12.zip
+
 # ====================================================================================
 # ======= 2022 release: get T1 files of repeat-imaging-visit in basket 2016290 =======
 # ====================================================================================
@@ -228,7 +319,7 @@ ntotal=$(cat t1w.bulk | wc -l)
 N=8
 (for i in $(eval echo "{1..$ntotal..500}"); do 
    ((j=j%N)); ((j++==0)) && wait
-   ./ukbfetch -a${key} -bt1w.bulk -s${i} -m500 -ot1w.${i} &
+   ./ukbfetch -a"${key}" -bt1w.bulk -s"${i}" -m500 -ot1w."${i}" &
 done)
 
 # have all files been downloaded?
@@ -239,10 +330,10 @@ awk 'NR==FNR { file[$1]; ndownloaded++; next } { ntotal++ } ($1 in file) { print
 # move t1w files into subject folders
 shopt -s nullglob
 for filename in *.zip; do
-    curfile=$(basename $filename)
+    curfile=$(basename "${filename}")
     curfile_first=${curfile:0:7}
-    mkdir -p $curfile_first
-    mv $filename $curfile_first
+    mkdir -p "${curfile_first}"
+    mv "${filename}" "${curfile_first}"
 done
 
 # run cat12 preprocessing
@@ -261,8 +352,8 @@ echo ${subs[@]}
 # check whether files are "unusable"
 > data/t1w/r2022_retest/unusable.txt
 for i in ${subs[@]}; do
-    if [ $(unzip -l data/t1w/r2022_retest/${i}/${i}_20252_2_0.zip | grep unusable | wc -l) == 1 ]; then
-        echo "$i is unusable"; echo $i >> data/t1w/r2022_retest/unusable.txt
+    if [ $(unzip -l data/t1w/r2022_retest/"${i}"/"${i}"_20252_2_0.zip | grep unusable | wc -l) == 1 ]; then
+        echo "$i is unusable"; echo "${i}" >> data/t1w/r2022_retest/unusable.txt
     else
         echo "$i is usable"
     fi
@@ -273,6 +364,88 @@ done
 
 # change access rights
 chmod 770 data/t1w/r2022_retest/*/*cat12.zip
+
+
+# ====================================================================================
+# ======= 2024 release: get T1 files of repeat-imaging-visit in basket 4017567 =======
+# ====================================================================================
+
+# set working directory
+cd /slow/projects/ukb_brainage/
+
+# count repeat imaging files
+awk '$2=="20252_3_0" { count++; next} END { print count}' data/basket/20240307_4017567/data/t1w.bulk # - 5214
+
+# get list of incremental files - 259 additional files
+r2022=$(find -L data/t1w/r2022_retest/* -name "*_20252_3_0.zip" | sed "s%.*/%%g" | sed "s%_20252_3_0.zip%%g") # r2021=$(find data/t1w/00_T1w_wave1/* data/t1w/00_T1w_wave2/* data/t1w/00_T1w_wave2_suppl/* data/t1w/00_T1w_wave3/* -name "*_20252_2_0.zip" | sed "s%.*/%%g" | sed "s%_20252_2_0.zip%%g")
+awk 'NR==FNR { file[$1]; next } !($1 in file) && $2=="20252_3_0" { print }' <(echo "${r2022}") data/basket/20240307_4017567/data/t1w.bulk  > data/basket/20240307_4017567/data/t1w.retest.incremental.bulk
+cat data/basket/20240307_4017567/data/t1w.retest.incremental.bulk | wc -l
+
+# have any files been removed since 2022? - Nope.
+awk 'NR==FNR { file[$1]; next } !($1 in file) && $2=="20252_3_0" { print }' data/basket/20240307_4017567/data/t1w.bulk <(echo "${r2022}") 
+
+# create destination folder, extract file links for initial imaging visit, and copy download key
+mkdir -p data/t1w/r2024_retest
+\cp data/basket/20240307_4017567/data/t1w.retest.incremental.bulk data/t1w/r2024_retest/
+\cp data/basket/20240307_4017567/data/*.key data/t1w/r2024_retest/
+
+# descend into download folder and prepare download
+cd data/t1w/r2024_retest/
+wget -O ukbfetch -nd biobank.ndph.ox.ac.uk/showcase/util/ukbfetch
+chmod 700 ukbfetch
+key=$(ls *.key)
+ntotal=$(cat t1w.retest.incremental.bulk | wc -l)
+
+# download data
+# load files in line x to x+500 (8 instances in parallel)
+# -s Flag for starting line in t1w.bulk
+# -o Flag for out log file name
+N=8
+(for i in $(eval echo "{1..$ntotal..500}"); do 
+   ((j=j%N)); ((j++==0)) && wait
+   ./ukbfetch -a"${key}" -bt1w.retest.incremental.bulk -s"${i}" -m500 -ot1w."${i}" &
+done)
+
+# have all files been downloaded?
+# yep! - otherwise store missing files in new .bulk file and repeat download
+awk 'NR==FNR { file[$1]; ndownloaded++; next } { ntotal++ } !($1 in file) { print }  END { print ntotal, ndownloaded }
+    ' <(ls *.zip | sed "s%_20252_3_0.zip%%g") t1w.retest.incremental.bulk 
+chmod 750 *.zip
+
+# move t1w files into subject folders
+shopt -s nullglob
+for filename in *.zip; do
+    curfile=$(basename "${filename}")
+    curfile_first=${curfile:0:7}
+    mkdir -p "${curfile_first}"
+    mv "${filename}" "${curfile_first}"
+done
+
+# run cat12 preprocessing
+cd -
+/opt/matlab/bin/matlab -nodesktop -nodisplay -r "scanDir = 'data/t1w/r2024_retest/'; filetype = '_20252_3_0.zip'; spmPath = '/fast/software/matlab/spm12/'; ncores = 100; run code/mri/cat12.m"
+
+# have all files been successfully processed? - Nope
+find data/t1w/r2024_retest -name "*20252_3_0.zip" | wc -l
+find data/t1w/r2024_retest -name "*cat12.zip" | wc -l
+
+# which files have not been processed successfully? 
+subs=$(find data/t1w/r2024_retest -mindepth 1 -maxdepth 1 -type d -not -exec sh -c 'ls -1 "{}"|egrep -i -q ".*cat12.zip"' ';' -print | sed "s%.*/%%g")
+subs=($subs)
+echo ${subs[@]}
+
+# check whether files are "unusable"
+> data/t1w/r2024_retest/unusable.txt
+for i in ${subs[@]}; do
+    if [ $(unzip -l data/t1w/r2024_retest/"${i}"/"${i}"_20252_3_0.zip | grep unusable | wc -l) == 1 ]; then
+        echo "$i is unusable"; echo "${i}" >> data/t1w/r2024_retest/unusable.txt
+    else
+        echo "$i is usable"
+    fi
+done
+
+# change access rights
+chmod 770 data/t1w/r2024_retest/*/*cat12.zip
 
 # ==================================================================
 # ======= Download FreeSurfer Files listed in basket 2013814 =======
@@ -323,37 +496,37 @@ cat surface_45k_batch1.bulk | wc -l
 tmux new -s surface_downl1
 key=$(ls *.key)
 for i in {1..8000..500}; do 
-./ukbfetch -a${key} -bsurface_45k_batch1.bulk -s${i} -m500 -osurface_${i}
+./ukbfetch -a"${key}" -bsurface_45k_batch1.bulk -s"${i}" -m500 -osurface_"${i}"
 done
 
 tmux new -s surface_downl2
 key=$(ls *.key)
 for i in {8001..16000..500}; do 
-./ukbfetch -a${key} -bsurface_45k_batch1.bulk -s${i} -m500 -osurface_${i}
+./ukbfetch -a"${key}" -bsurface_45k_batch1.bulk -s"${i}" -m500 -osurface_"${i}"
 done
 
 tmux new -s surface_downl3
 key=$(ls *.key)
 for i in {16001..24000..500}; do 
-./ukbfetch -a${key} -bsurface_45k_batch1.bulk -s${i} -m500 -osurface_${i}
+./ukbfetch -a"${key}" -bsurface_45k_batch1.bulk -s"${i}" -m500 -osurface_"${i}"
 done
 
 tmux new -s surface_downl4
 key=$(ls *.key)
 for i in {24001..32000..500}; do 
-./ukbfetch -a${key} -bsurface_45k_batch1.bulk -s${i} -m500 -osurface_${i}
+./ukbfetch -a"${key}" -bsurface_45k_batch1.bulk -s"${i}" -m500 -osurface_"${i}"
 done
 
 tmux new -s surface_downl5
 key=$(ls *.key)
 for i in {32001..40000..500}; do 
-./ukbfetch -a${key} -bsurface_45k_batch1.bulk -s${i} -m500 -osurface_${i}
+./ukbfetch -a"${key}" -bsurface_45k_batch1.bulk -s"${i}" -m500 -osurface_"${i}"
 done
 
 tmux new -s surface_downl6
 key=$(ls *.key)
 for i in {40001..43075..500}; do 
-./ukbfetch -a${key} -bsurface_45k_batch1.bulk -s${i} -m500 -osurface_${i}
+./ukbfetch -a"${key}" -bsurface_45k_batch1.bulk -s"${i}" -m500 -osurface_"${i}"
 done
 
 # all files downloaded? nope.
@@ -367,7 +540,7 @@ cat surface_45k_batch2.bulk | wc -l
 tmux new -s surface_downl1
 key=$(ls *.key)
 for i in {1..98..500}; do 
-./ukbfetch -a${key} -bsurface_45k_batch2.bulk -s${i} -m500 -osurface_${i}
+./ukbfetch -a"${key}" -bsurface_45k_batch2.bulk -s"${i}" -m500 -osurface_"${i}"
 done
 
 # all files downloaded? yep.
@@ -377,9 +550,9 @@ awk 'NR==FNR { file[$1]; count1++; next } { count2++ } !($1 in file) { print } E
 # move into folder 
 shopt -s nullglob
 for filename in *.zip; do
-    curfile=$(basename $filename)
+    curfile=$(basename "${filename}")
     curfile_first=${curfile:0:7}
-    mkdir -p $curfile_first
-    mv $filename $curfile_first
+    mkdir -p "${curfile_first}"
+    mv "${filename}" "${curfile_first}"
 done
 chmod -R 770 *
