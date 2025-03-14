@@ -182,27 +182,6 @@ Rscript code/genetics/getvars.R ${subsFile} ${varsFile} ${idCol} ${vars} ${varsR
 		FNR> 1 { print $0, "", id[$1] }' OFS='\t' results/combined/chronAge/surfcorr.txt results/combined/discovery.surfcorr.txt  \
 		> results/combined/discovery.surfcorr.chronAge.txt
 
-# =================================
-# === run heritability analysis ===
-# =================================
-
-# set working directory and load conda environment
-cd /slow/projects/ukb_brainage
-conda activate envs/default
-
-# general settings
-covsDiscr=sex,ac1,ac2,array
-covsQuant=age,age2,TIV,PC{1..20}
-grm=data/grm/ukb_merged
-threads=50
-
-# run analysis
-for trait in gap_gm gap_wm gap_gwm; do
-	traitFile="data/${trait}/${trait}.txt"
-	covsFile="data/${trait}/covs.txt"
-	targetDir="results/${trait}/greml"
-	./code/genetics/greml.sh "${trait}" "${traitFile}" "${covsFile}" "${targetDir}" "${covsDiscr}" "${covsQuant}" "${grm}" "${threads}" 
-done
 
 # ==========================================================
 # === discovery sample: genome-wide association analysis ===
@@ -3003,18 +2982,6 @@ wait)
 			height=2.6
 			ncol=3
 			Rscript code/genetics/compareZ.combine.R "${plotTitles}" "${plots}" "${outputFile}" "${width}" "${height}" "${ncol}"
-
-# ============================================================================
-# === Explorative: extract eigen-values of PCs and get feature importances ===
-# ============================================================================
-
-# set working directory
-cd /slow/projects/ukb_brainage
-conda activate envs/default
-
-# get eigenvalues
-matlab
-load('rvm/singlemodel/RVM_gm.mat')
 
 # =============================================
 # === prepare summary statistics for zenodo ===
