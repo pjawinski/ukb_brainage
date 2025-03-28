@@ -26,10 +26,10 @@ Below is a list of the primary tools utilized in our analysis, along with their 
 
 - **[R](https://www.r-project.org/)** `3.5.1-4.4.1` | Statistical computing und plotting, included in conda environments
 - **[MATLAB](https://de.mathworks.com/)** `R2021a` | MRI preprocessing and age-prediction
-- **[SPM12](https://neuro-jena.github.io/cat/)** `r7487` | MRI preprocessing
+- **[SPM12](https://www.fil.ion.ucl.ac.uk/spm/software/spm12/)** `r7487` | MRI preprocessing
 - **[CAT12](https://neuro-jena.github.io/cat/)** `r1364` | MRI preprocessing
 - **[RVM-MATLAB](https://github.com/iqiukp/RVM-MATLAB)** `v1.0.0` | Age-prediction
-- **[XGBoost](https://github.com/iqiukp/RVM-MATLAB)** `v0.82.1` | Age-prediction
+- **[XGBoost](https://xgboost.ai/)** `v0.82.1` | Age-prediction
 - **[PHESANT](https://github.com/MRCIEU/PHESANT)** `v1.1` | Cross-trait (phenome-wide) association analysis in UK Biobank
 - **[ENIGMA Toolbox](https://github.com/MICA-MNI/ENIGMA)** `v2.0.3` for MATLAB | Visualizing cortical and subcortical surface associations
 - **[PLINK 1.9](https://www.cog-genomics.org/plink/)** `v1.90b6.8` 64-bit | Genomic preprocessing
