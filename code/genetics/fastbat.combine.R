@@ -49,7 +49,7 @@ for (i in 1:length(traits)) {
   # merge datasets
   if (i ==1) { df = tmp } else { df = left_join(df,tmp, by = 'Gene') }
 }
-  
+
 # get top p-value and top |rho|
 df$topPvalue =  df[,grep('Pvalue',names(df))] %>% apply(1, FUN = min)
 df$topFDR = df[,grep('FDR',names(df))] %>% apply(1, FUN = min)

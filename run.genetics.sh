@@ -31,7 +31,6 @@ for trait in gap_gm gap_wm gap_gwm; do
 done
 
 # create discovery covs file
-mv "data/traits/covs.txt" "data/traits/covs.backup.txt"
 subsFile='data/genetics/chr1/imp_mri_qc/chr1_mri_qc.psam'
 varsFile='results/genetics/r2024.vars.pca.txt'
 idCol='IID'
@@ -182,6 +181,27 @@ Rscript code/genetics/getvars.R ${subsFile} ${varsFile} ${idCol} ${vars} ${varsR
 		FNR> 1 { print $0, "", id[$1] }' OFS='\t' results/combined/chronAge/surfcorr.txt results/combined/discovery.surfcorr.txt  \
 		> results/combined/discovery.surfcorr.chronAge.txt
 
+# =================================
+# === run heritability analysis ===
+# =================================
+
+# set working directory and load conda environment
+cd /slow/projects/ukb_brainage
+conda activate envs/default
+
+# general settings
+covsDiscr=sex,ac1,ac2,array
+covsQuant=age,age2,TIV,PC{1..20}
+grm=data/grm/ukb_merged
+threads=50
+
+# run analysis
+for trait in gap_gm gap_wm gap_gwm; do
+	traitFile="data/${trait}/${trait}.txt"
+	covsFile="data/${trait}/covs.txt"
+	targetDir="results/${trait}/greml"
+	./code/genetics/greml.sh "${trait}" "${traitFile}" "${covsFile}" "${targetDir}" "${covsDiscr}" "${covsQuant}" "${grm}" "${threads}" 
+done
 
 # ==========================================================
 # === discovery sample: genome-wide association analysis ===
@@ -390,6 +410,7 @@ height=4 # plot height (4 inch)
 	targetDir="results/${trait}/discovery/qqplot/"
 	sumstats="results/${trait}/discovery/gwas/sumstats.txt.gz"
 	Rscript code/genetics/qqplot.R "${trait}" "${targetDir}" "${sumstats}" "${pCol}" "${nCriterion}" "${prune}" "${drawCI}" "${drawLambda}" "${xend}" "${xsteps}" "${yend}" "${ysteps}" "${width}" "${height}"
+	rm -f 
 	) &
 done
 wait)
@@ -511,7 +532,7 @@ height=17.5
 (for trait in gap_gm gap_wm gap_gwm; do (
 	manhattanPlots=$(echo $(for sample in $(echo $sampleList | sed 's/,/ /g'); do echo results/${trait}/replicate/${sample}/manhattan.png; done) | sed 's/ /,/g' )
 	qqPlots=$(echo $(for sample in $(echo $sampleList | sed 's/,/ /g'); do echo results/${trait}/replicate/${sample}/qqplot.png; done) | sed 's/ /,/g' )
-	outputFile="results/${trait}/replicate/replicate.qqplot.manhattan.png"
+	outputFile="results/${trait}/replicate/replicate.manhattan.qq.png"
 	Rscript code/genetics/manhattan.qq.combine.R "${sampleList}" "${plotTitles}" "${manhattanPlots}" "${qqPlots}" "${outputFile}" "${width}" "${height}"
 	) &
 done
@@ -602,7 +623,7 @@ wait)
 	height=8
 	manhattanPlots=$(echo $(for trait in $(echo $traitList | sed 's/,/ /g'); do echo results/${trait}/replicate/metal.eur/manhattan.png; done) | sed 's/ /,/g' )
 	qqPlots=$(echo $(for trait in $(echo $traitList | sed 's/,/ /g'); do echo results/${trait}/replicate/metal.eur/qqplot.png; done) | sed 's/ /,/g' )
-	outputFile="results/combined/replicate.eur.qqplot.manhattan.png"
+	outputFile="results/combined/replicate.eur.manhattan.qq.png"
 	Rscript code/genetics/manhattan.qq.combine.R "${traitList}" "${plotTitles}" "${manhattanPlots}" "${qqPlots}" "${outputFile}" "${width}" "${height}"
 
 	# get replication results of discovery index variants
@@ -780,7 +801,7 @@ wait)
 	height=8
 	manhattanPlots=$(echo $(for trait in $(echo $traitList | sed 's/,/ /g'); do echo results/${trait}/replicate/mrmega.all/manhattan.png; done) | sed 's/ /,/g' )
 	qqPlots=$(echo $(for trait in $(echo $traitList | sed 's/,/ /g'); do echo results/${trait}/replicate/mrmega.all/qqplot.png; done) | sed 's/ /,/g' )
-	outputFile="results/combined/replicate.all.qqplot.manhattan.png"
+	outputFile="results/combined/replicate.all.manhattan.qq.png"
 	Rscript code/genetics/manhattan.qq.combine.R "${traitList}" "${plotTitles}" "${manhattanPlots}" "${qqPlots}" "${outputFile}" "${width}" "${height}"
 
 	# get MR-MEGA replication results of discovery index variants
@@ -837,7 +858,7 @@ wait)
 
 # show number of variants
 for ancestry in AFR AMR CSA EAS EUR MID LIFE; do
-	echo ${ancestry} $(zcat results/gap_gm/replicate/${ancestry}/sumstats.txt.gz | wc -l)
+	echo ${ancestry} $(zcat results/gap_gm/replicate/${ancestry}/sumstats.txt.gz | awk 'NR>1 && $1!="MT"' | wc -l)
 done
 
 # show sample size
@@ -896,7 +917,7 @@ wait)
 
 	# create GWAMA manhattan plots
 	nCriterion=FALSE # LDSC-like method to exclude snps with N < quantile(N, 0.9) / 1.5 
-	annotationThresh=1E-1-0 # pthresh=5E-8
+	annotationThresh=1E-100 # pthresh=5E-8
 	sig=5E-8 # sig=5E-8
 	yend=40 # upper y axis limit
 	ysteps=10 # y axis breaks
@@ -910,7 +931,7 @@ wait)
 		Rscript code/genetics/manhattan.R "${trait}" "${targetDir}" "${sumstats}" "${nCriterion}" "${annotationFile}" "${annotationThresh}" "${sig}" "${yend}" "${ysteps}" "${width}" "${height}" "${preview}"
 		) &
 	done
-	wait)
+	wait) &
 
 	# create GWAMA qq-plots
 	pCol="P" # column containing p-values
@@ -939,7 +960,7 @@ wait)
 	height=12
 	manhattanPlots=$(echo $(for trait in $(echo $traitList | sed 's/,/ /g'); do echo results/${trait}/gwama/eur/manhattan.png; done) | sed 's/ /,/g' )
 	qqPlots=$(echo $(for trait in $(echo $traitList | sed 's/,/ /g'); do echo results/${trait}/gwama/eur/qqplot.png; done) | sed 's/ /,/g' )
-	outputFile="results/combined/gwama.eur.qqplot.manhattan.png"
+	outputFile="results/combined/gwama.eur.manhattan.qq.png"
 	Rscript code/genetics/manhattan.qq.combine.R "${traitList}" "${plotTitles}" "${manhattanPlots}" "${qqPlots}" "${outputFile}" "${width}" "${height}"
 
 # run MR-MEGA across multi-ancestry discovery and replication cohorts (also run random and fixed-effects GWAMA and add weights to MR-MEGA results)
@@ -988,7 +1009,8 @@ wait)
 		Rscript code/genetics/manhattan.R "${trait}" "${targetDir}" "${sumstats}" "${nCriterion}" "${annotationFile}" "${annotationThresh}" "${sig}" "${yend}" "${ysteps}" "${width}" "${height}" "${preview}"
 		rm -f "${annotationFile}"
 		) &
-	done) &
+	done
+	wait) &
 
 	# create MR-MEGA qq-plots
 	pCol="P" # column containing p-values
@@ -1017,16 +1039,16 @@ wait)
 	height=12
 	manhattanPlots=$(echo $(for trait in $(echo $traitList | sed 's/,/ /g'); do echo results/${trait}/gwama/all/manhattan.png; done) | sed 's/ /,/g' )
 	qqPlots=$(echo $(for trait in $(echo $traitList | sed 's/,/ /g'); do echo results/${trait}/gwama/all/qqplot.png; done) | sed 's/ /,/g' )
-	outputFile="results/combined/gwama.all.qqplot.manhattan.png"
+	outputFile="results/combined/gwama.all.manhattan.qq.png"
 	Rscript code/genetics/manhattan.qq.combine.R "${traitList}" "${plotTitles}" "${manhattanPlots}" "${qqPlots}" "${outputFile}" "${width}" "${height}"
 
 # show number of variants
 for trait in gap_gm gap_wm gap_gwm; do
-	echo ${trait} $(zcat results/${trait}/gwama/eur/metal.ivweight.qc.gz | wc -l)
+	echo ${trait} $(zcat results/${trait}/gwama/eur/metal.ivweight.qc.gz | awk 'NR>1 && $2!="MT"' | wc -l)
 done
 
 for trait in gap_gm gap_wm gap_gwm; do
-	echo ${trait} $(zcat results/${trait}/gwama/all/mrmega.weights.gz | wc -l)
+	echo ${trait} $(zcat results/${trait}/gwama/all/mrmega.weights.gz | awk 'NR>1 && $2!="MT"' | wc -l)
 done
 
 
@@ -1838,7 +1860,6 @@ clumpingWindow=3000
 
 	# run analysis
 	(for trait in gap_gm gap_wm gap_gwm; do (
-		ulimit -Sv 50000000
 		targetDir="results/${trait}/gwama/eur/fastbat"
 		sumstats="results/${trait}/gwama/eur/metal.ivweight.qc.gz"
 		conditionalFile="results/${trait}/gwama/eur/conditional/conditional.cleaned.tophits.annovar.txt"
@@ -1849,6 +1870,12 @@ clumpingWindow=3000
 
 	# replace .bim files with original files (change numeric values to chromosome strings)
 	for i in X Y XY MT; do \cp $(eval echo ${chrFilehandler}_original.bim) $(eval echo ${chrFilehandler}.bim); done
+
+for trait in gap_gm gap_wm gap_gwm; do (
+	targetDir="results/${trait}/gwama/eur/fastbat"
+	Rscript code/genetics/fastbat.clumping.R "${targetDir}"/fastbat."${window}"kb.gene.fastbat.annovar "${clumpingWindow}"
+	) &
+done
 
 # combine results
 traits="gap_gm,gap_wm,gap_gwm"
@@ -1886,7 +1913,9 @@ height=4 # plot height (4 inch)
 (for trait in gap_gm gap_wm gap_gwm; do (
 	targetDir="results/${trait}/gwama/eur/fastbat/"
 	sumstats="results/${trait}/gwama/eur/fastbat/fastbat.0kb.gene.fastbat.annovar.clumped"
-	Rscript code/genetics/qqplot.R "${trait}" "${targetDir}" "${sumstats}" "${pCol}" "${nCriterion}" "${prune}" "${drawCI}" "${drawLambda}" "${xend}" "${xsteps}" "${yend}" "${ysteps}" "${width}" "${height}"
+	awk -F'\t' '$9!=26' "${sumstats}" > "${sumstats}".tmp # remove mitochondrial
+	Rscript code/genetics/qqplot.R "${trait}" "${targetDir}" "${sumstats}".tmp "${pCol}" "${nCriterion}" "${prune}" "${drawCI}" "${drawLambda}" "${xend}" "${xsteps}" "${yend}" "${ysteps}" "${width}" "${height}"
+	rm -f "${sumstats}".tmp
 	) &
 done
 wait)
@@ -1896,7 +1925,7 @@ traits="gap_gm,gap_wm,gap_gwm"
 plotTitles="Grey_matter,White_matter,Grey_and_white_matter" # annotation will be a-f if no plot titles are provided
 manhattanPlots="results/gap_gm/gwama/eur/fastbat/fastbat.manhattan.png,results/gap_wm/gwama/eur/fastbat/fastbat.manhattan.png,results/gap_gwm/gwama/eur/fastbat/fastbat.manhattan.png"
 qqPlots="results/gap_gm/gwama/eur/fastbat/qqplot.png,results/gap_wm/gwama/eur/fastbat/qqplot.png,results/gap_gwm/gwama/eur/fastbat/qqplot.png"
-outputFile="results/combined/gwama.eur.fastbat.qqplot.manhattan.png"
+outputFile="results/combined/gwama.eur.fastbat.manhattan.qq.png"
 width=14
 height=12
 Rscript code/genetics/manhattan.qq.combine.R "${traits}" "${plotTitles}" "${manhattanPlots}" "${qqPlots}" "${outputFile}" "${width}" "${height}"
@@ -2998,23 +3027,23 @@ for tissue in gm wm gwm; do
 	echo "Starting with gap_${tissue}"
 
 	# discovery
-	pigz -dc "results/gap_${tissue}/discovery/gwas/sumstats.txt.gz" > "${targetDir}/brainage2025.discov.${tissue}"
+	awk '$1!="MT"' <(pigz -dc "results/gap_${tissue}/discovery/gwas/sumstats.txt.gz") > "${targetDir}/brainage2025.discov.${tissue}"
 	chmod 770 "${targetDir}/brainage2025.discov.${tissue}"
 	pigz -f "${targetDir}/brainage2025.discov.${tissue}"
 
 	# replication
-	pigz -dc "results/gap_${tissue}/replicate/metal.eur/metal.ivweight.qc.gz" > "${targetDir}/brainage2025.replic.eur.${tissue}"
+	awk '$2!="MT"' <(pigz -dc "results/gap_${tissue}/replicate/metal.eur/metal.ivweight.qc.gz") > "${targetDir}/brainage2025.replic.eur.${tissue}"
 	chmod 770 "${targetDir}/brainage2025.replic.eur.${tissue}"
 	pigz -f "${targetDir}/brainage2025.replic.eur.${tissue}"
-	pigz -dc "results/gap_${tissue}/replicate/mrmega.all/mrmega.weights.gz" > "${targetDir}/brainage2025.replic.multi.${tissue}"
+	awk '$2!="MT"' <(pigz -dc "results/gap_${tissue}/replicate/mrmega.all/mrmega.weights.gz") > "${targetDir}/brainage2025.replic.multi.${tissue}"
 	chmod 770 "${targetDir}/brainage2025.replic.multi.${tissue}"
 	pigz -f "${targetDir}/brainage2025.replic.multi.${tissue}"
 
 	# discovery & replication
-	pigz -dc "results/gap_${tissue}/gwama/eur/metal.ivweight.qc.gz" > "${targetDir}/brainage2025.full.eur.${tissue}"
+	awk '$2!="MT"' <(pigz -dc "results/gap_${tissue}/gwama/eur/metal.ivweight.qc.gz") > "${targetDir}/brainage2025.full.eur.${tissue}"
 	chmod 770 "${targetDir}/brainage2025.full.eur.${tissue}"
 	pigz -f "${targetDir}/brainage2025.full.eur.${tissue}"
-	pigz -dc "results/gap_${tissue}/gwama/all/mrmega.weights.gz" > "${targetDir}/brainage2025.full.multi.${tissue}"
+	awk '$2!="MT"' <(pigz -dc "results/gap_${tissue}/gwama/all/mrmega.weights.gz") > "${targetDir}/brainage2025.full.multi.${tissue}"
 	chmod 770 "${targetDir}/brainage2025.full.multi.${tissue}"
 	pigz -f "${targetDir}/brainage2025.full.multi.${tissue}"
 
@@ -3023,5 +3052,3 @@ for tissue in gm wm gwm; do
 	chmod 770 "${targetDir}/brainage2025.pgsweights.${tissue}"
 	pigz -f "${targetDir}/brainage2025.pgsweights.${tissue}"
 done
-
-

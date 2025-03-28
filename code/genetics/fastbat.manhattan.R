@@ -52,6 +52,9 @@ GWAS$CHR[GWAS$CHR==25] = 23 # GWAS$CHR[GWAS$CHR=='XY'] = 23
 GWAS$CHR[GWAS$CHR==26] = 25 # GWAS$CHR[GWAS$CHR=='MT'] = 25
 GWAS$CHR = as.numeric(GWAS$CHR)
 
+# Remove mitochondrial variants
+GWAS = GWAS[GWAS$CHR != 25, ]
+
 # sort by chromosome
 idx = sort(GWAS$CHR, index.return = T)$ix
 GWAS = GWAS[idx,]
@@ -107,7 +110,7 @@ manhplot = ggplot(data = subset(GWAS, P >= 10^-ylim)) + #
   geom_point(data=subset(GWAS, GENE_COUNT == 1 & P <= sigBonf & P >= 10^-ylim), aes(x=BPcum, y=-log10(P)), color='black', shape=5, size=3) +
   geom_point(data=subset(GWAS, GENE_COUNT == 1 & P <= 10^-ylim), aes(x=BPcum, y=-log10(P_exceeding)), color='red', shape=5, size=3) +
   scale_color_manual(values = rep(c('#282873', '#6e90ca'), nCHR)) +
-  scale_x_continuous(expand = c(0.03,0), label = c(1:18,'', 20, '', 22, 'X', 'Y MT', ''), breaks = axis.set$center) + # label = axis.set$CHR % label = c(1:22, 'X', 'Y MT', '') label = c(1:18,'', 20, '', 22, 'X', 'Y MT', '')
+  scale_x_continuous(expand = c(0.03,0), label = c(1:18,'', 20, '', 22, 'X', 'Y'), breaks = axis.set$center) + # label = axis.set$CHR % label = c(1:22, 'X', 'Y MT', '') label = c(1:18,'', 20, '', 22, 'X', 'Y MT', '')
   scale_y_continuous(expand = c(0,0), limits = c(0,ylim), breaks = seq(0,ylim,ysteps)) +
   coord_cartesian(clip = 'off') +
   geom_hline(yintercept = -log10(sigBonf), color = 'black', linetype = 'solid', size = 0.25) +

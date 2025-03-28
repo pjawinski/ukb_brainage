@@ -57,6 +57,18 @@ if (stringr::str_sub(sumstats,-3,-1) == '.gz') {
   GWAS = data.frame(fread(file = sumstats, tmpdir = getwd(), header=T, stringsAsFactors=FALSE))
 }
 
+# rename chromosomes
+if ("CHR" %in% colnames(GWAS)) {
+  GWAS$CHR[GWAS$CHR=='X'] = 23
+  GWAS$CHR[GWAS$CHR=='Y'] = 24
+  GWAS$CHR[GWAS$CHR=='XY'] = 23
+  GWAS$CHR[GWAS$CHR=='MT'] = 25
+  GWAS$CHR = as.numeric(GWAS$CHR)
+
+  # Remove mitochondrial variants
+  GWAS = GWAS[GWAS$CHR != 25, ]
+}
+
 # exclude snps that do not meet N criterion
 if (nCriterion == TRUE) {
   message('Excluding variants that do not meet N criterion.')

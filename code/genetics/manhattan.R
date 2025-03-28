@@ -89,6 +89,9 @@ GWAS$CHR[GWAS$CHR=='XY'] = 23
 GWAS$CHR[GWAS$CHR=='MT'] = 25
 GWAS$CHR = as.numeric(GWAS$CHR)
 
+# Remove mitochondrial variants
+GWAS = GWAS[GWAS$CHR != 25, ]
+
 # sort by chromosome
 idx = sort(GWAS$CHR, index.return = T)$ix
 GWAS = GWAS[idx,]
@@ -125,9 +128,9 @@ if (sum(!is.na(GWAS$GENE_ANNOT) & GWAS$P < 10^-yend) > 0) {
 }
 
 # create labels (prevent overplotting)
-label = c(1:18,'', 20,'',22,'X','Y MT','')
+label = c(1:18,'', 20,'',22,'X','Y')
 if (length(label) != length(axis.set$center)) {
-  label = as.character(factor(axis.set$CHR, levels = c(1:25), labels = c(1:22,'X','Y','MT')))
+  label = as.character(factor(axis.set$CHR, levels = c(1:24), labels = c(1:22,'X','Y')))
   label[which(label %in% c('19','21'))] = ''
 }
 

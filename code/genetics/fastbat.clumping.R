@@ -23,6 +23,9 @@ message(paste0('Loading ', targetFile))
 df = read.delim(targetFile, sep='\t', header=T, stringsAsFactors=FALSE)
 df$FDR = p.adjust(df$Pvalue, method = 'BH', n = length(df$Pvalue))
 
+# remove mitochondrial variants
+df = df[df$Chr!=26,]
+
 # do clumping
 message('Starting clumping procedure.')
 df$INDEX_CLUMP = 999
