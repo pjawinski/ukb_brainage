@@ -38,8 +38,8 @@ Below is a list of the primary tools utilized in our analysis, along with their 
 - **[MR-MEGA](https://genomics.ut.ee/en/tools)** `v0.2` | Multi-ancestry meta-analysis (meta-regression)
 - **[GWAMA](https://genomics.ut.ee/en/tools)** `v2.2.2` | Multi-ancestry meta-analysis (random-effects)
 - **[LOCUSZOOM](https://genome.sph.umich.edu/wiki/LocusZoom_Standalone)** `v1.4` standalone | Regional association plots
-- **[GCTA](https://yanglab.westlake.edu.cn/software/gcta/)** `v1.93.1f beta` Linux | Conditional analysis, gene-based analysis, and Mendelian randomization
-- **[SMR](https://yanglab.westlake.edu.cn/software/smr/#Overview)** `v1.3.0` | eQTL/sQTL Mendelian randomization
+- **[GCTA](https://yanglab.westlake.edu.cn/software/gcta/)** `v1.93.1f beta` Linux | Conditional analysis, gene-based analysis, and Mendelian Randomization
+- **[SMR](https://yanglab.westlake.edu.cn/software/smr/#Overview)** `v1.3.0` | eQTL/sQTL Mendelian Randomization
 - **[LDSTORE](http://www.christianbenner.com)** `v2.0` x86/64 | Estimating and storing linkage-disequilibrium data
 - **[FINEMAP](http://www.christianbenner.com)** `v1.4.2` | Identification of causal variants
 - **[susieR](https://github.com/stephenslab/susieR)** `v0.12.35` | Identification of causal variants
@@ -47,6 +47,7 @@ Below is a list of the primary tools utilized in our analysis, along with their 
 - **[PRSice2](https://choishingwan.github.io/PRSice/)** `v2.3.3` | Polygenic score analysis
 - **[MAGMA](https://cncr.nl/research/magma/)** `v1.10` | Gene-based analysis as input for PoPS
 - **[PoPS](https://github.com/FinucaneLab/pops)** `v0.2` | Gene prioritization
+- **[LDSC](https://github.com/bulik/ldsc)** `v1.0.1` | Heritability & partitioned heritability analysis, genetic correlations 
 - **[GENESIS](https://github.com/yandorazhang/GENESIS)** `e4e6894` | Polygenicity analysis
 
 
