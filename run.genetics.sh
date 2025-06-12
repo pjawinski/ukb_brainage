@@ -358,6 +358,8 @@ traitlist="gap_gm gap_wm gap_gwm"
 conditionalFiles="results/gap_gm/discovery/conditional/conditional.cleaned.tophits.annovar.txt results/gap_wm/discovery/conditional/conditional.cleaned.tophits.annovar.txt results/gap_gwm/discovery/conditional/conditional.cleaned.tophits.annovar.txt"
 nonsynFiles="" # leave empty - use for GWAS meta-analysis results across discovery and replication
 catalogFiles="" # leave empty - use for GWAS meta-analysis results across discovery and replication
+susieRFiles="" # leave empty - use for GWAS meta-analysis results across discovery and replication
+sbayesFiles="" # leave empty - use for GWAS meta-analysis results across discovery and replication
 finemapFiles="" # leave empty - use for GWAS meta-analysis results across discovery and replication
 smrFiles="" # leave empty - use for GWAS meta-analysis results across discovery and replication
 eqtlFiles="" # leave empty - use for GWAS meta-analysis results across discovery and replication
@@ -366,7 +368,7 @@ targetDir="results/combined/discovery.snplevel"
 chrFilehandler='data/genetics/chr${i}/imp_mri_qc_EURjoined/bed/chr${i}_mri_qc'
 LDsample="data/gap_gm/gap_gm.txt"
 pthresh=1E-6
-./code/genetics/snplevel.sh "${traitlist}" "${conditionalFiles}" "${nonsynFiles}" "${catalogFiles}" "${finemapFiles}" "${smrFiles}" "${eqtlFiles}" "${popsFiles}" "${targetDir}" "${chrFilehandler}" "${LDsample}" "${pthresh}"
+./code/genetics/snplevel.sh "${traitlist}" "${conditionalFiles}" "${nonsynFiles}" "${catalogFiles}" "${sbayesFiles}" "${susieRFiles}" "${finemapFiles}" "${smrFiles}" "${eqtlFiles}" "${popsFiles}" "${targetDir}" "${chrFilehandler}" "${LDsample}" "${pthresh}" 
 
 # =======================================================
 # === discovery sample: create manhattan and qq plots ===
