@@ -91,19 +91,17 @@ for (i in 1:length(traits)) {
   if (i == 1) { pl = tmp } else { pl = pl / ldsc }
 }
 
-# # set layout
-# if (length(traits) > 1) {
-#   pl = pl + plot_annotation(tag_levels = list(c(rbind(letters[1:length(traits)],letters[(1+length(traits)):(2*length(traits))])))) & # list(c(rbind(letters,' ')))
-#     theme(plot.tag.position = c(0, 1),
-#           plot.tag = element_text(size = 22))
-# }
-
 # set layout
-if (length(plotTitles) > 1) {
+if (length(plotTitles) == 1 & length(traits) > 1) {
+  pl = pl + plot_annotation(tag_levels = list(c(letters[1:length(traits)]))) & # list(c(rbind(letters,' ')))
+    theme(plot.tag.position = c(0, 1),
+          plot.tag = element_text(size = 14))
+  } else if (length(traits) > 1) {
   pl = pl + plot_annotation(tag_levels = list(c(plotTitles))) &
     theme(plot.tag.position = c(0.52, 1),
           plot.tag = element_text(size = 12, face = 'bold', hjust = 0.5, vjust = 1.9))
 }
+
 
 # save file
 message('Saving plot.')
