@@ -33,18 +33,21 @@ fprintf(' - calculating accuracy metrics.\n')
 discovery.age = discovery.covs.table.t1_age;
 discovery.agerange = (max(discovery.age)-min(discovery.age));
 discovery.rho = corr(discovery.age, discovery.brainage.data(:,[1:12]));
+discovery.R2 = 1-sum((discovery.brainage.data(:,1:12)-discovery.age).^2)./sum((mean(discovery.age)-discovery.age).^2);
 discovery.mae = mean(abs(discovery.age - discovery.brainage.data(:,[1:12])));
 discovery.wmae = mean(abs(discovery.age - discovery.brainage.data(:,[1:12])))/discovery.agerange;
 
 replication.age = replication.covs.table.t1_age;
 replication.agerange = (max(replication.age)-min(replication.age));
 replication.rho = corr(replication.age, replication.brainage_singlemodel.data(:,[1:12]));
+replication.R2 = 1-sum((replication.brainage.data(:,1:12)-replication.age).^2)./sum((mean(replication.age)-replication.age).^2);
 replication.mae = mean(abs(replication.age - replication.brainage_singlemodel.data(:,[1:12])));
 replication.wmae = mean(abs(replication.age - replication.brainage_singlemodel.data(:,[1:12])))/replication.agerange;
 
 life.age = life.covs.table.age;
 life.agerange = (max(life.age)-min(life.age));
 life.rho = corr(life.age, life.brainage.data(:,[1:12]));
+life.R2 = 1-sum((life.brainage.data(:,1:12)-life.age).^2)./sum((mean(life.age)-life.age).^2);
 life.mae = mean(abs(life.age - life.brainage.data(:,[1:12])));
 life.wmae = mean(abs(life.age - life.brainage.data(:,[1:12])))/replication.agerange;
 
@@ -408,14 +411,14 @@ print('results/mri/accuracy.gwm.png','-dpng', '-r300')
 
 % make table with accuracy metrics for all models
 fprintf(' - writing accuracy metrics to text file.\n')
-T = table(discovery.rho',discovery.mae',discoveryRetest.ICC,replication.rho',replication.mae',replicationRetest.ICC_singlemodel,life.rho', life.mae');
+T = table(discovery.rho',discovery.R2',discovery.mae',discoveryRetest.ICC,replication.rho',replication.R2',replication.mae',replicationRetest.ICC_singlemodel,life.rho',life.R2',life.mae');
 % T = table2cell(T);
 % T(:,[2 5 8]) = cellfun(@(x) sprintf('%.3f',x), T(:,[2 5 8]), 'UniformOutput', false);
 % T(:,[1 3 4 6 7]) = cellfun(@(x) sprintf('.%0.0f',x*1000), T(:,[1 3 4 6 7]), 'UniformOutput', false);
 % T = cell2table(T);
-T.Properties.VariableNames = {'discovery_rho','discovery_mae','discovery_icc','replication_rho','replication_mae','replication_icc','life_rho','life_replication'};
+T.Properties.VariableNames = {'discovery_rho','discovery_R2','discovery_mae','discovery_icc','replication_rho','replication_R2','replication_mae','replication_icc','life_rho','life_R2','life_mae'};
 emptyCol = NaN(12,1);
-T = splitvars(table(T(:,1:3),emptyCol,T(:,4:6),emptyCol,T(:,7:8)));
+T = splitvars(table(T(:,1:4),emptyCol,T(:,5:8),emptyCol,T(:,9:11)));
 T.Properties.RowNames = discovery.brainage.varnames(1:12)';
 for emptyRow = [9 5]   
     T = T([1:(emptyRow-1),(emptyRow-1):end], :); 
@@ -425,14 +428,14 @@ end
 writetable(T,'results/mri/accuracy.all.txt','delimiter','\t', 'WriteRowNames' , true)
 
 % make table with accuracy metrics for stacked models
-T = table(discovery.rho',discovery.mae',discoveryRetest.ICC,replication.rho',replication.mae',replicationRetest.ICC_singlemodel,life.rho', life.mae');
+T = table(discovery.rho',discovery.R2',discovery.mae',discoveryRetest.ICC,replication.rho',replication.R2',replication.mae',replicationRetest.ICC_singlemodel,life.rho',life.R2',life.mae');
 T = table2cell(T);
-T(:,[2 5 8]) = cellfun(@(x) sprintf('%.3f',x), T(:,[2 5 8]), 'UniformOutput', false);
-T(:,[1 3 4 6 7]) = cellfun(@(x) sprintf('.%0.0f',x*1000), T(:,[1 3 4 6 7]), 'UniformOutput', false);
+T(:,[3 7 11]) = cellfun(@(x) sprintf('%.3f',x), T(:,[3 7 11]), 'UniformOutput', false);
+T(:,[1 2 4 5 6 8 9 10]) = cellfun(@(x) sprintf('.%0.0f',x*1000), T(:,[1 2 4 5 6 8 9 10]), 'UniformOutput', false);
 T = cell2table(T);
-T.Properties.VariableNames = {'discovery_rho','discovery_mae','discovery_icc','replication_rho','replication_mae','replication_icc','life_rho','life_replication'};
+T.Properties.VariableNames = {'discovery_rho','discovery_R2','discovery_mae','discovery_icc','replication_rho','replication_R2','replication_mae','replication_icc','life_rho','life_R2','life_mae'};
 emptyCol = cell(12,1);
-T = splitvars(table(T(:,1:3),emptyCol,T(:,4:6),emptyCol,T(:,7:8)));
+T = splitvars(table(T(:,1:4),emptyCol,T(:,5:8),emptyCol,T(:,9:11)));
 T.Properties.RowNames = discovery.brainage.varnames(1:12)';
 for emptyRow = [9 5]   
     T = T([1:(emptyRow-1),(emptyRow-1):end], :); 
@@ -445,7 +448,6 @@ writetable(T,'results/mri/accuracy.stacked.txt','delimiter','\t', 'WriteRowNames
 % get sample characteristics
 fprintf(' - writing sample characteristics to text file.\n')
 stats = @(x) [mean(x); min(x);max(x)];
-
 T = table([size(discovery.brainage.data,1); sum(discovery.covs.table.sex == 1); sum(discovery.covs.table.sex == 2); stats(discovery.age); stats(discoveryRetest.covs.table.t2_age - discoveryRetest.covs.table.t1_age)],...
     [size(replication.brainage.data,1); sum(replication.covs.table.sex == 1); sum(replication.covs.table.sex == 2); stats(replication.age); stats(replicationRetest.covs.table.t2_age - replicationRetest.covs.table.t1_age)],...
     [size(life.brainage.data,1); sum(life.covs.table.sex == 2); sum(life.covs.table.sex == 1); stats(life.age); NaN; NaN; NaN]);

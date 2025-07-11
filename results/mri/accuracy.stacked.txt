@@ -1,4 +1,4 @@
-discovery_rho	discovery_mae	discovery_icc	emptyCol	replication_rho	replication_mae	replication_icc	emptyCol_1	life_rho	life_replication
-.827	3.372	.899		.825	3.405	.888		.828	3.990
-.835	3.307	.920		.830	3.368	.911		.829	3.979
-.857	3.089	.915		.854	3.123	.908		.862	3.557
+discovery_rho	discovery_R2	discovery_mae	discovery_icc	emptyCol	replication_rho	replication_R2	replication_mae	replication_icc	emptyCol_1	life_rho	life_R2	life_mae
+.827	.683	3.372	.899		.825	.676	3.405	.888		.828	.653	3.990
+.835	.696	3.307	.920		.830	.683	3.368	.911		.829	.667	3.979
+.857	.734	3.089	.915		.854	.726	3.123	.908		.862	.729	3.557
