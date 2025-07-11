@@ -4,7 +4,7 @@
 # === install conda environments ===
 # ==================================
 
-for env in default eqtl finemap genesis gofuncr ldsc locuszoom mendelian phesant pointdensity pops power xgb; do
+for env in default; do
 	if [ ! -d "envs/${env}" ]; then
 		mamba env create --file envs/${env}.yml -p envs/${env}
 	fi
@@ -798,7 +798,7 @@ wait)
 
 	# combine MR-MEGA manhattan and qq plots
 	traitList="gap_gm,gap_wm,gap_gwm"
-	plotTitles="Grey_matter,White_matter,Grey_and_white_matter" # underscore "_" will be replaced by white space
+	plotTitles="Grey_matter,White_matter,Grey_and_white_matter" # underscore "Grey_matter,White_matter,Grey_and_white_matter" will be replaced by white space
 	width=14
 	height=8
 	manhattanPlots=$(echo $(for trait in $(echo $traitList | sed 's/,/ /g'); do echo results/${trait}/replicate/mrmega.all/manhattan.png; done) | sed 's/ /,/g' )
@@ -1036,7 +1036,7 @@ wait)
 
 	# combine MR-MEGA manhattan and qq plots
 	traitList="gap_gm,gap_wm,gap_gwm"
-	plotTitles="Grey_matter,White_matter,Grey_and_white_matter" # underscore "_" will be replaced by white space
+	plotTitles="" # underscore "Grey_matter,White_matter,Grey_and_white_matter" will be replaced by white space
 	width=14
 	height=12
 	manhattanPlots=$(echo $(for trait in $(echo $traitList | sed 's/,/ /g'); do echo results/${trait}/gwama/all/manhattan.png; done) | sed 's/ /,/g' )
@@ -1345,7 +1345,7 @@ wait)
 
 		# combine plots and summary tables
 		traits="gap_gm,gap_wm,gap_gwm"
-		plotTitles="Grey_matter,White_matter,Grey_and_white_matter"
+		plotTitles="" # "Grey_matter,White_matter,Grey_and_white_matter"
 		ldscPlots="results/gap_gm/gwama/eur/ldsc/ldsc.partitioned.results.png,results/gap_wm/gwama/eur/ldsc/ldsc.partitioned.results.png,results/gap_gwm/gwama/eur/ldsc/ldsc.partitioned.results.png"
 		ldscSummary="results/gap_gm/gwama/eur/ldsc/ldsc.partitioned.results.summary.txt,results/gap_wm/gwama/eur/ldsc/ldsc.partitioned.results.summary.txt,results/gap_gwm/gwama/eur/ldsc/ldsc.partitioned.results.summary.txt"
 		outputFile="results/combined/gwama.eur.ldsc.partitioned"
@@ -1369,7 +1369,7 @@ wait)
 
 		# combine plots and summary tables
 		traits="gap_gm,gap_wm,gap_gwm"
-		plotTitles="Grey_matter,White_matter,Grey_and_white_matter"
+		plotTitles="" # "Grey_matter,White_matter,Grey_and_white_matter"
 		ldscPlots="results/gap_gm/gwama/eur/ldsc/ldsc.ctg.results.png,results/gap_wm/gwama/eur/ldsc/ldsc.ctg.results.png,results/gap_gwm/gwama/eur/ldsc/ldsc.ctg.results.png"
 		ldscSummary="results/gap_gm/gwama/eur/ldsc/ldsc.ctg.results.summary.txt,results/gap_wm/gwama/eur/ldsc/ldsc.ctg.results.summary.txt,results/gap_gwm/gwama/eur/ldsc/ldsc.ctg.results.summary.txt"
 		outputFile="results/combined/gwama.eur.ldsc.ctg"
@@ -1709,7 +1709,7 @@ conda activate envs/default
 
 # settings
 ownDiscoveries="results/combined/gwama.eur.snplevel/snplevel.gws.prio.txt"
-prevDiscoveries="data/prevDiscoveries/Jonsson_2019_munged.txt,data/prevDiscoveries/Ning_2021_munged.txt,data/prevDiscoveries/Smith_2020_munged.txt,data/prevDiscoveries/Kim_2023_munged.txt,data/prevDiscoveries/Leonardsen_2023_munged.txt,data/prevDiscoveries/Wen_2024_munged.txt"
+prevDiscoveries="data/prevDiscoveries/Jonsson_2019_munged.txt,data/prevDiscoveries/Ning_2021_munged.txt,data/prevDiscoveries/Smith_2020_munged.txt,data/prevDiscoveries/Kim_2023_munged.txt,data/prevDiscoveries/Leonardsen_2023_munged.txt,data/prevDiscoveries/Wen_2024_munged.txt,data/prevDiscoveries/Yi_2025_munged.txt"
 targetDir="results/combined/gwama.eur.snplevel/"
 chrFilehandler='data/genetics/2024/chr${i}/imp_mri/chr${i}_mri'
 LDsample="data/genetics/chr1/imp_mri_qc_EURjoined/chr1_mri_qc.psam"
@@ -1924,7 +1924,7 @@ wait)
 
 # combine Manhattan and qq-plots
 traits="gap_gm,gap_wm,gap_gwm"
-plotTitles="Grey_matter,White_matter,Grey_and_white_matter" # annotation will be a-f if no plot titles are provided
+plotTitles="" # "Grey_matter,White_matter,Grey_and_white_matter" # annotation will be a-f if no plot titles are provided
 manhattanPlots="results/gap_gm/gwama/eur/fastbat/fastbat.manhattan.png,results/gap_wm/gwama/eur/fastbat/fastbat.manhattan.png,results/gap_gwm/gwama/eur/fastbat/fastbat.manhattan.png"
 qqPlots="results/gap_gm/gwama/eur/fastbat/qqplot.png,results/gap_wm/gwama/eur/fastbat/qqplot.png,results/gap_gwm/gwama/eur/fastbat/qqplot.png"
 outputFile="results/combined/gwama.eur.fastbat.manhattan.qq.png"

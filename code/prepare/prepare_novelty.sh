@@ -11,11 +11,15 @@ conda activate envs/default
 # set targetdir
 targetDir="data/prevDiscoveries"
 
-# download association files of Smith et al. (2020) and  Ning et al. (2020)
+# download association files of Smith et al. (2020) and Ning et al. (2020)
 mkdir -p ${targetDir}
 wget -O ${targetDir}/Smith_2020.txt https://www.fmrib.ox.ac.uk/ukbiobank/BrainAgingModes/GWAS/GWAS_2019_09_02_1/Table1.txt
 wget -O ${targetDir}/Ning_2020.xlsx https://zenodo.org/record/3496206/files/Supplementary_Table_3_SNP_p_value.xlsx?download=1
 wget -O ${targetDir}/Ning_2021.xlsx https://zenodo.org/records/3786826/files/Supplementary_Table_1_SNP_RBA_assoc_P_values.xlsx?download=1
+
+# manually download Yi et al via browser from https://www.science.org/doi/suppl/10.1126/sciadv.adr3757/suppl_file/sciadv.adr3757_data_s1_to_s23.zip
+unzip ${targetDir}/sciadv.adr3757_data_s1_to_s23.zip -d ${targetDir}
+xlsx2csv -s 2 -d "\t" --floatformat %e ${targetDir}/adr3757_data_s1_to_s23.xlsx | awk 'BEGIN { print "TRAIT\tID\tP" } NR>1 && $9 < 5E-8 { print "ViT", $2, $9 }' OFS='\t' > ${targetDir}/Yi_2025.txt
 
 # add association results of Jonsson et al. (2019) shown in main article (Table 4)
 echo "TRAIT"$'\t'"ID"$'\t'"P"$'\n'\
@@ -68,12 +72,13 @@ echo "TRAIT"$'\t'"ID"$'\t'"P"$'\n'\
 "wwm"$'\t'"rs1894525"$'\t'"2.71e-09"$'\n'\
 "wcf"$'\t'"rs5877290"$'\t'"2.31e-08" > ${targetDir}/Wen_2024.txt
 
-# munge sumstats of Smith et al., Jonsson et al., and Leonardsen et al.
+# munge sumstats of Smith et al., Jonsson et al., Kim et al., Leonardsen et al., Wen et al., and Yi et al.
 awk 'NR==1 { next } $2 != "V0141" { print "Smith_2020", $2, $1, 10^(-$9) }' OFS='\t' ${targetDir}/Smith_2020.txt > ${targetDir}/Smith_2020_munged.txt
 awk 'NR==1 { next } { print "Jonsson_2019", $0 }' OFS='\t' ${targetDir}/Jonsson_2019.txt > ${targetDir}/Jonsson_2019_munged.txt
 awk 'NR==1 { next } { print "Kim_2023", $0 }' OFS='\t' ${targetDir}/Kim_2023.txt > ${targetDir}/Kim_2023_munged.txt
 awk 'NR==1 { next } { print "Leonardsen_2023", $0 }' OFS='\t' ${targetDir}/Leonardsen_2023.txt > ${targetDir}/Leonardsen_2023_munged.txt
 awk 'NR==1 { next } { print "Wen_2024", $0 }' OFS='\t' ${targetDir}/Wen_2024.txt > ${targetDir}/Wen_2024_munged.txt
+awk 'NR==1 { next } { print "Yi_2025", $0 }' OFS='\t' ${targetDir}/Yi_2025.txt > ${targetDir}/Yi_2025_munged.txt
 
 # munge sumstats of Ning et al. 2020
 xlsx2csv -s 1 -d "\t" --floatformat %e ${targetDir}/Ning_2020.xlsx | awk 'NR==1 { print } $4 < 5E-8 { print }' OSF='\t' > ${targetDir}/Ning_2020.txt
