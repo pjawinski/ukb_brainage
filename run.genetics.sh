@@ -2348,8 +2348,8 @@ done
 	ancestries="EUR"
 	covs="sex,age,age2,ac1,ac2,ac3,TIV,array,PanC{1..20}"
 	for trait in gap_gm gap_wm gap_gwm; do
-		#targetDir="results/${trait}/replicate/EUR/EUR.excl.2k"
-		#taskset -c 0-99 code/genetics/replicate.sh "${trait}" "${targetDir}" "${chrFileHandle}" "${data}" "${covs}" "${ancestries}" "${ancestriesCol}" "${snpQC}" "${impMFI}" "${maf}" "${threads}"
+		targetDir="results/${trait}/replicate/EUR/EUR.excl.2k"
+		taskset -c 0-99 code/genetics/replicate.sh "${trait}" "${targetDir}" "${chrFileHandle}" "${data}" "${covs}" "${ancestries}" "${ancestriesCol}" "${snpQC}" "${impMFI}" "${maf}" "${threads}"
 		mv "results/${trait}/replicate/EUR/EUR.excl.2k/EUR/"* "results/${trait}/replicate/EUR/EUR.excl.2k/"
 	done
 
