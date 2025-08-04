@@ -25,7 +25,7 @@ message(paste0('\n--- Calcualte prs associations ---',
                '\noutFile: ', outFile,'\n'))
 
 # attach required packages
-for (pkg in c('dplyr','ppcor','stringr')) { eval(bquote(suppressWarnings(suppressPackageStartupMessages(require(.(pkg)))))) }
+for (pkg in c('dplyr','psych','stringr')) { eval(bquote(suppressWarnings(suppressPackageStartupMessages(require(.(pkg)))))) }
 
 # transform variables
 covs = str_split(covs, ',')[[1]]
@@ -37,29 +37,30 @@ prs$IID = as.numeric(sub('_.*','', prs$IID))
 data = read.delim(dataFile, header = T, sep = '\t')
 data = data[,c('IID',trait,covs)]
 
+# merge datasets
+df = inner_join(prs,data,by = 'IID')
+df = df[complete.cases(df),]
+
 # keep only covariates with more than one value
 message('Only keeping covariates with more than one distinct value.')
-idx = sapply(data[,covs],function(x) length(unique(x))) > 1
-if (sum(!idx) > 1) {
+idx = sapply(df[,covs],function(x) length(unique(x))) > 1
+if (sum(!idx) > 0) {
   message(sprintf(' - removing the following variables: %s', paste0(covs[!idx],collapse = ', ')))
   covs = covs[idx] } else {
   message(' - all covariates kept.')
 }
 
-# merge datasets
-df = inner_join(prs,data,by = 'IID')
-
 # run prs analysis
 message('Running prs analysis.')
 for (i in ncol(prs):3) {
-  options(warn = -1)
-  tmp = data.frame(pgsMethod = names(prs)[i], pcor.test(x = df[,names(prs)[i]], y = df[,trait], z = df[,covs], method = 'pearson'))
-  tmp$R2 = tmp$estimate^2
-  tmp$df = tmp$n-2-tmp$gp
-  tmp = tmp[,c('pgsMethod','estimate','R2','statistic','df','p.value','n','gp','Method')]
+  rho = partial.r(data = df, x = c(trait,names(prs)[i]), y = covs, use = 'pairwise', method = 'pearson')[[2]]
+  n = nrow(df)
+  p = corr.p(rho,n-length(covs),ci = F,adjust="none")$p
+  t = rho * sqrt(n-2)/sqrt(1-rho^2) 
+  tmp = data.frame(pgsMethod = names(prs)[i], estimate = rho, R2 = rho^2, statistic = t, df = n-2-length(covs), p.value = p, n = n, gp = length(covs), Method = 'pearson')
   if (i == ncol(prs)) { results = tmp } else { results = rbind(results,tmp)}
-  options(warn = 0)
 }
+print(results)
 
 # save file
 message(sprintf('Writing results to file %s.',outFile))

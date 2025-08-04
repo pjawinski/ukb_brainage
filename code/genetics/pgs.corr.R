@@ -31,7 +31,7 @@ message(paste0('\n--- Calcualte PGS associations ---',
                '\noutFile: ', outFile,'\n'))
 
 # attach required packages
-for (pkg in c('dplyr','ppcor','stringr')) { eval(bquote(suppressWarnings(suppressPackageStartupMessages(require(.(pkg)))))) }
+for (pkg in c('dplyr','psych','stringr')) { eval(bquote(suppressWarnings(suppressPackageStartupMessages(require(.(pkg)))))) }
 
 # transform variables
 covs = str_split(covs, ',')[[1]]
@@ -43,27 +43,27 @@ pgs = pgs[,c(joinVar,pgsVar)]
 data = read.delim(phenoFile, header = T, sep = '\t')
 data = data[,c(joinVar,phenoVar,covs)]
 
+# merge datasets
+df = inner_join(pgs,data,by = joinVar)
+df = df[complete.cases(df),]
+
 # keep only covariates with more than one value
 message('Only keeping covariates with more than one distinct value.')
-idx = sapply(data[,covs],function(x) length(unique(x))) > 1
-if (sum(!idx) > 1) {
+idx = sapply(df[,covs],function(x) length(unique(x))) > 1
+if (sum(!idx) > 0) {
   message(sprintf(' - removing the following variables: %s', paste0(covs[!idx],collapse = ', ')))
   covs = covs[idx] } else {
   message(' - all covariates kept.')
 }
 
-# merge datasets
-df = inner_join(pgs,data,by = joinVar)
-
-# run prs analysis
+# run pgs analysis
 message('Running pgs analysis.\n')
-options(warn = -1)
-results = data.frame(pgsMethod = pgsMethod, pcor.test(x = df[,pgsVar], y = df[,phenoVar], z = df[,covs], method = 'pearson'))
-results$R2 = results$estimate^2
-results$df = results$n-2-results$gp
-results = results[,c('pgsMethod','estimate','R2','statistic','df','p.value','n','gp','Method')]
+rho = partial.r(data = df, x = c(phenoVar,pgsVar), y = covs, use = 'pairwise', method = 'pearson')[[2]]
+n = nrow(df)
+p = corr.p(rho,n-length(covs),ci = F,adjust="none")$p
+t = rho * sqrt(n-2)/sqrt(1-rho^2) 
+results = data.frame(pgsMethod = pgsMethod, estimate = rho, R2 = rho^2, statistic = t, df = n-2-length(covs), p.value = p, n = n, gp = length(covs), Method = 'pearson')
 print(results)
-options(warn = 0)
 
 # save file
 message(sprintf('\nWriting %s',outFile))
