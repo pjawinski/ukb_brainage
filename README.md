@@ -47,7 +47,7 @@ Below is a list of the primary tools utilized in our analysis, along with their 
 - **[PRSice2](https://choishingwan.github.io/PRSice/)** `v2.3.3` | Polygenic score analysis
 - **[MAGMA](https://cncr.nl/research/magma/)** `v1.10` | Gene-based analysis as input for PoPS
 - **[PoPS](https://github.com/FinucaneLab/pops)** `v0.2` | Gene prioritization
-- **[GOfuncR](https://github.com/sgrote/GOfuncR)** `v0.2` | Gene set enrichment analysis
+- **[GOfuncR](https://github.com/sgrote/GOfuncR)** `v1.14.0` | Gene set enrichment analysis
 - **[LDSC](https://github.com/bulik/ldsc)** `v1.0.1` | Heritability & partitioned heritability analysis, genetic correlations 
 - **[GENESIS](https://github.com/yandorazhang/GENESIS)** `e4e6894` | Polygenicity analysis
 
