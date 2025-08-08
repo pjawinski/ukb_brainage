@@ -6,8 +6,8 @@
 
 # get arguments
 args = commandArgs(trailingOnly=TRUE)
-if (length(args)!=7) {
-  stop(paste0('expected 7 arguments, but ', length(args), ' argument(s) provided.'), call.=FALSE)
+if (length(args)!=8) {
+  stop(paste0('expected 8 arguments, but ', length(args), ' argument(s) provided.'), call.=FALSE)
 }
 
 # set arguments
@@ -18,6 +18,7 @@ qqPlots = args[4] # qqPlots="results/pwr_cz_alpha/qqplot/qqplot.png,results/pwr_
 outputFile = args[5] # outputFile="results/combined/qqplot.manhattan.png"
 width = as.numeric(args[6]) # width = 14
 height = as.numeric(args[7]) # height = 17.5
+dpi = as.numeric(args[8]) # dpi = 600
 
 message(paste0('\n--- Combine Manhattan and qq-plots ---',
                '\ntraits: ', traits,
@@ -26,7 +27,8 @@ message(paste0('\n--- Combine Manhattan and qq-plots ---',
                '\nqqPlots: ', qqPlots,
                '\noutputFile: ', outputFile,
                '\nwidth: ', width,
-               '\nheight: ', height,'\n'))
+               '\nheight: ', height,
+               '\ndpi: ', dpi,'\n'))
 
 # attach required packages
 for (pkg in c('ggpubr','ggplot2','patchwork','magick','stringr')) { eval(bquote(suppressWarnings(suppressPackageStartupMessages(require(.(pkg)))))) }
@@ -76,7 +78,14 @@ if (length(plotTitles) == 1 & length(traits) > 1) {
 
 # save file
 message(sprintf(' - saving %s',outputFile))
-png(width = width, height = height, units = "in", res = 300, filename = outputFile)
-pl
-invisible(dev.off())
+if (grepl("\\.pdf$", outputFile, ignore.case = TRUE)) {
+  # Save as PDF (vector)
+  ggsave(outputFile, plot = pl, width = width, height = height, units = "in", dpi = dpi)
+  
+} else if (grepl("\\.png$", outputFile, ignore.case = TRUE)) {
+  # Save as PNG (raster)
+  png(width = width, height = height, units = "in", res = dpi, filename = outputFile)
+  print(pl)
+  invisible(dev.off())
+}
 message('--- Completed: Combine Manhattan and qq-plots ---')
