@@ -256,6 +256,12 @@ pl
 invisible(dev.off())
 options(warn=0)
 
+# save file as vector graphic
+message(sprintf(' - saving %s.pdf', outFile))
+pdf(width = 10, height = 3.5, file = sprintf('%s.pdf', outFile))
+pl
+invisible(dev.off())
+
 # save log file
 message(sprintf(' - writing %s.log', outFile))
 sink(sprintf('%s.log', outFile))

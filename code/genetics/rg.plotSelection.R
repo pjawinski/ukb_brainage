@@ -15,7 +15,7 @@ corrTable = args[1] # corrTable="results/combined/rgSelection.txt"
 traits = args[2] # traits="gap_gm,gap_wm,gap_gwm"
 traitLabels = args[3] # traitLabels="Grey_matter,White_matter,Grey_&_White"
 matchVar = args[4] # matchVar="p2"
-outFile = args[5] # outFile="results/combined/rgSelection.png"
+outFile = args[5] # outFile="results/combined/rgSelection"
 scaleLimit = as.numeric(args[6]) # scaleLimit=0.35
 width = as.numeric(args[7]) # width = 2.76
 height = as.numeric(args[8]) # height = 6.85
@@ -101,60 +101,68 @@ p[fdr < 0.05] = 0.0009
 tlCol = c(rep('#183E60',7), rep('#900000',5), rep('#183E60',5), rep('#900000',4), rep('#183E60',4), rep('#900000',5), rep('#183E60',3), rep('#900000',5))
 
 # draw plot
-message(sprintf(' - saving %s',outFile))
-png(filename = outFile, width = width, height = height, units = 'in', res = 600)
-par(xpd = TRUE)
-corrplot(rg, method = 'color', addgrid.col="grey95",
-     mar = c(2, 0.1, 0.1, 0.1),
-     is.corr = FALSE, #, bg = backColor,
-     p.mat = p, sig.level = c(0.001,0.05), insig = 'label_sig', pch.cex = 0.6,  # number.cex = 0.4, addCoef.col ='black',
-     tl.cex = 0.6,
-     tl.col = tlCol,
-     tl.srt = 45,
-     col.lim = c(-scaleLimit,scaleLimit),
-     col=rev(COL2('RdBu', 200)),
-     cl.pos='n')
+for (fileFormat in c('.svg', '.png')) {
+  message(sprintf(' - saving %s%s', outFile, fileFormat))
+  
+  if (fileFormat == '.png') {
+    png(filename = paste0(outFile, fileFormat), width = width, height = height, units = 'in', res = 600)
+  } else {
+    svg(file = paste0(outFile, fileFormat), width = width, height = height)
+  }
 
-    # add category label background
-    xleft = length(traits)+0.5; xright = length(traits)+2
-    rect(xleft = xleft, xright = xright, ybottom = 31.5, ytop = 38.5, col = '#EDF7F9', border = FALSE)
-    rect(xleft = xleft, xright = xright, ybottom = 26.5, ytop = 31.5, col = '#FDEFEE', border = FALSE)
-    rect(xleft = xleft, xright = xright, ybottom = 21.5, ytop = 26.5, col = '#EDF7F9', border = FALSE)
-    rect(xleft = xleft, xright = xright, ybottom = 17.5, ytop = 21.5, col = '#FDEFEE', border = FALSE)
-    rect(xleft = xleft, xright = xright, ybottom = 13.5, ytop = 17.5, col = '#EDF7F9', border = FALSE)
-    rect(xleft = xleft, xright = xright, ybottom = 8.5, ytop = 13.5, col = '#FDEFEE', border = FALSE)
-    rect(xleft = xleft, xright = xright, ybottom = 5.5, ytop = 8.5, col = '#EDF7F9', border = FALSE)
-    rect(xleft = xleft, xright = xright, ybottom = 0.5, ytop = 5.5, col = '#FDEFEE', border = FALSE)
-    
-    # add category labels
-    xleft = length(traits)+1.25;
-    text(xleft, 35, 'Psychiatric', cex = 0.6, srt = 90, col = '#183E60')
-    text(xleft, 29, 'Substance use', cex = 0.6, srt = 90, col = '#900000')
-    text(xleft, 24, 'Neurological', cex = 0.6, srt = 90, col = '#183E60')
-    text(xleft, 19.5, 'Psycholog.', cex = 0.6, srt = 90, col = '#900000')
-    text(xleft, 15.5, 'Sleep', cex = 0.6, srt = 90, col = '#183E60')
-    text(xleft, 11, 'Cognition', cex = 0.6, srt = 90, col = '#900000')
-    text(xleft, 7, 'Anthrop.', cex = 0.6, srt = 90, col = '#183E60')
-    text(xleft, 3, 'Cardiometabolic', cex = 0.6, srt = 90, col = '#183E60')
-    
-    # add color legend and labels
-    colorlegend(colbar = rev(COL2('RdBu', 200)), cex = 0.5, xlim=c(-8,length(traits)+1), ylim=c(-1.75,-0.5),  labels = c('',''), vertical=FALSE)
-    text(-7.75, -0.8, -scaleLimit, pos = 2, cex = 0.6, col = 'black')
-    text(length(traits)+0.75, -0.8, scaleLimit, pos = 4, cex = 0.6, col = 'black')
-    text(mean(c(-7.75,length(traits)+1)), -0.8, expression("Genetic correlation (r"["G"]*')'), pos = 1, cex = 0.6, col = 'black')
-    
-    # add outer lines for categories
-    xleft = -9; xright = length(traits)+2
-    lines(x = c(xleft,xright), y = c(38.5,38.5), lwd = 1, lty = 3, col = 'grey30')
-    lines(x = c(xleft,xright), y = c(31.5,31.5), lwd = 1, lty = 3, col = 'grey30')
-    lines(x = c(xleft,xright), y = c(26.5,26.5), lwd = 1, lty = 3, col = 'grey30')
-    lines(x = c(xleft,xright), y = c(21.5,21.5), lwd = 1, lty = 3, col = 'grey30')
-    lines(x = c(xleft,xright), y = c(17.5,17.5), lwd = 1, lty = 3, col = 'grey30')
-    lines(x = c(xleft,xright), y = c(13.5,13.5), lwd = 1, lty = 3, col = 'grey30')
-    lines(x = c(xleft,xright), y = c(8.5,8.5), lwd = 1, lty = 3, col = 'grey30')
-    lines(x = c(xleft,xright), y = c(5.5,5.5), lwd = 1, lty = 3, col = 'grey30')
-    lines(x = c(xleft,xright), y = c(0.5,0.5), lwd = 1, lty = 3, col = 'grey30')
-    lines(x = c(0.5,0.5), y = c(0.5,38.5), lwd = 1, lty = 3, col = 'grey30')
-    lines(x = c(xright-1.5,xright-1.5), y = c(0.5,38.5), lwd = 1, lty = 3, col = 'grey30')
-invisible(dev.off())
+  par(xpd = TRUE)
+  corrplot(rg, method = 'color', addgrid.col="grey95",
+       mar = c(2, 0.1, 0.1, 0.1),
+       is.corr = FALSE, #, bg = backColor,
+       p.mat = p, sig.level = c(0.001,0.05), insig = 'label_sig', pch.cex = 0.6,  # number.cex = 0.4, addCoef.col ='black',
+       tl.cex = 0.6,
+       tl.col = tlCol,
+       tl.srt = 45,
+       col.lim = c(-scaleLimit,scaleLimit),
+       col=rev(COL2('RdBu', 200)),
+       cl.pos='n')
+
+      # add category label background
+      xleft = length(traits)+0.5; xright = length(traits)+2
+      rect(xleft = xleft, xright = xright, ybottom = 31.5, ytop = 38.5, col = '#EDF7F9', border = FALSE)
+      rect(xleft = xleft, xright = xright, ybottom = 26.5, ytop = 31.5, col = '#FDEFEE', border = FALSE)
+      rect(xleft = xleft, xright = xright, ybottom = 21.5, ytop = 26.5, col = '#EDF7F9', border = FALSE)
+      rect(xleft = xleft, xright = xright, ybottom = 17.5, ytop = 21.5, col = '#FDEFEE', border = FALSE)
+      rect(xleft = xleft, xright = xright, ybottom = 13.5, ytop = 17.5, col = '#EDF7F9', border = FALSE)
+      rect(xleft = xleft, xright = xright, ybottom = 8.5, ytop = 13.5, col = '#FDEFEE', border = FALSE)
+      rect(xleft = xleft, xright = xright, ybottom = 5.5, ytop = 8.5, col = '#EDF7F9', border = FALSE)
+      rect(xleft = xleft, xright = xright, ybottom = 0.5, ytop = 5.5, col = '#FDEFEE', border = FALSE)
+      
+      # add category labels
+      xleft = length(traits)+1.25;
+      text(xleft, 35, 'Psychiatric', cex = 0.6, srt = 90, col = '#183E60')
+      text(xleft, 29, 'Substance use', cex = 0.6, srt = 90, col = '#900000')
+      text(xleft, 24, 'Neurological', cex = 0.6, srt = 90, col = '#183E60')
+      text(xleft, 19.5, 'Psycholog.', cex = 0.6, srt = 90, col = '#900000')
+      text(xleft, 15.5, 'Sleep', cex = 0.6, srt = 90, col = '#183E60')
+      text(xleft, 11, 'Cognition', cex = 0.6, srt = 90, col = '#900000')
+      text(xleft, 7, 'Anthrop.', cex = 0.6, srt = 90, col = '#183E60')
+      text(xleft, 3, 'Cardiometabolic', cex = 0.6, srt = 90, col = '#183E60')
+      
+      # add color legend and labels
+      colorlegend(colbar = rev(COL2('RdBu', 200)), cex = 0.5, xlim=c(-8,length(traits)+1), ylim=c(-1.75,-0.5),  labels = c('',''), vertical=FALSE)
+      text(-7.75, -0.8, -scaleLimit, pos = 2, cex = 0.6, col = 'black')
+      text(length(traits)+0.75, -0.8, scaleLimit, pos = 4, cex = 0.6, col = 'black')
+      text(mean(c(-7.75,length(traits)+1)), -0.8, expression("Genetic correlation (r"["G"]*')'), pos = 1, cex = 0.6, col = 'black')
+      
+      # add outer lines for categories
+      xleft = -9; xright = length(traits)+2
+      lines(x = c(xleft,xright), y = c(38.5,38.5), lwd = 1, lty = 3, col = 'grey30')
+      lines(x = c(xleft,xright), y = c(31.5,31.5), lwd = 1, lty = 3, col = 'grey30')
+      lines(x = c(xleft,xright), y = c(26.5,26.5), lwd = 1, lty = 3, col = 'grey30')
+      lines(x = c(xleft,xright), y = c(21.5,21.5), lwd = 1, lty = 3, col = 'grey30')
+      lines(x = c(xleft,xright), y = c(17.5,17.5), lwd = 1, lty = 3, col = 'grey30')
+      lines(x = c(xleft,xright), y = c(13.5,13.5), lwd = 1, lty = 3, col = 'grey30')
+      lines(x = c(xleft,xright), y = c(8.5,8.5), lwd = 1, lty = 3, col = 'grey30')
+      lines(x = c(xleft,xright), y = c(5.5,5.5), lwd = 1, lty = 3, col = 'grey30')
+      lines(x = c(xleft,xright), y = c(0.5,0.5), lwd = 1, lty = 3, col = 'grey30')
+      lines(x = c(0.5,0.5), y = c(0.5,38.5), lwd = 1, lty = 3, col = 'grey30')
+      lines(x = c(xright-1.5,xright-1.5), y = c(0.5,38.5), lwd = 1, lty = 3, col = 'grey30')
+  invisible(dev.off())
+}
 message('--- Completed: Create genetic correlation plot ---')

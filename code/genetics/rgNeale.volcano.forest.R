@@ -39,7 +39,7 @@ message(paste0('\n--- Create volcano and forest plot of genetic correlations (Ne
                '\nheight: ', height,'\n'))
 
 # attach required packages
-for (pkg in c('dplyr','stringr','ggplot2','ggrepel','patchwork','RColorBrewer')) { eval(bquote(suppressWarnings(suppressPackageStartupMessages(require(.(pkg)))))) }
+for (pkg in c('dplyr','stringr','ggplot2','ggrepel','patchwork','RColorBrewer','svglite')) { eval(bquote(suppressWarnings(suppressPackageStartupMessages(require(.(pkg)))))) }
 
 # load data
 df = read.delim(inputFile, header = T, sep = '\t')
@@ -183,7 +183,14 @@ fp = ggplot(data=dfforest, aes(x=trait_description, y=rg, ymin=lower, ymax=upper
 merged = vp/fp + plot_layout(heights = c(2, 3))
 
 # save plot
-message(sprintf('Saving %s', outFile))
-ggsave(outFile, merged, width = width, height = height, units = "in", dpi = 300)
-system(sprintf('chmod 770 %s', outFile))
+message(sprintf('Saving %s.png', outFile))
+ggsave(sprintf('%s.png', outFile), merged, width = width, height = height, units = "in", dpi = 300)
+system(sprintf('chmod 770 %s.png', outFile))
+
+# save plot as PDF
+message(sprintf('Saving %s.pdf', outFile))
+svg(sprintf('%s.svg', outFile), width = width, height = height)
+print(merged)
+dev.off()
+system(sprintf('chmod 770 %s.pdf', outFile))
 message('-- Completed: Create volcano and forest plot of genetic correlations (Neale et al. traits) ---')
