@@ -127,7 +127,7 @@ annotation('textbox','Position',cb.Position + [-0.175 0.014 0 0] ,'String',-cbli
 % save as png
 fprintf(' - saving %s.\n',outFile)
 set(f,'PaperUnits', 'centimeters','PaperPosition', [0 0 22 16])
-print(sprintf('%s', outFile),'-dpng', '-r300');
+print(sprintf('%s', outFile),'-dpng', '-r600');
 system(sprintf('chmod 770 $s*', outFile));
 fprintf('\n--- Completed: Plot surface correlations via ENIGMA toolbox. ---\n')
 

@@ -26,7 +26,7 @@ message(paste0('\n--- Combine phesant and surface plot ---',
 for (pkg in c('ggpubr','ggplot2','patchwork','magick','stringr')) { eval(bquote(suppressWarnings(suppressPackageStartupMessages(require(.(pkg)))))) }
 
 # load phesant
-message(sprintf('[1/5] Loading %s', phesantplot))
+message(sprintf('[1/5] Loading %s', accuracyplot))
 accuracy = image_read(accuracyplot)
 accuracy = image_trim(accuracy)
 accuracy.width = image_info(accuracy)$width
@@ -73,8 +73,12 @@ pl = tmp + plot_annotation(tag_levels = 'a') &
 
 # save file
 message(sprintf('[5/5] Saving %s',outFile))
-png(width = 8.1, height = 5.7, units = "in", res = 600, filename = outFile)
-pl
-invisible(dev.off())
+if (grepl("\\.pdf$", outFile, ignore.case = TRUE)) {
+  ggsave(outFile, plot = pl, width = 8.1, height = 5.7, units = "in", dpi = 600)
+} else if (grepl("\\.png$", outFile, ignore.case = TRUE)) {
+  png(width = 8.1, height = 5.7, units = "in", res = 600, filename = outFile)
+  pl
+  invisible(dev.off())
+}
 message('--- Completed: Combine phesant and surface plot ---')
 

@@ -963,7 +963,8 @@ wait)
 	manhattanPlots=$(echo $(for trait in $(echo $traitList | sed 's/,/ /g'); do echo results/${trait}/gwama/eur/manhattan.png; done) | sed 's/ /,/g' )
 	qqPlots=$(echo $(for trait in $(echo $traitList | sed 's/,/ /g'); do echo results/${trait}/gwama/eur/qqplot.png; done) | sed 's/ /,/g' )
 	outputFile="results/combined/gwama.eur.manhattan.qq.png"
-	Rscript code/genetics/manhattan.qq.combine.R "${traitList}" "${plotTitles}" "${manhattanPlots}" "${qqPlots}" "${outputFile}" "${width}" "${height}"
+	dpi=600
+	Rscript code/genetics/manhattan.qq.combine.R "${traitList}" "${plotTitles}" "${manhattanPlots}" "${qqPlots}" "${outputFile}" "${width}" "${height}" "${dpi}"
 
 # run MR-MEGA across multi-ancestry discovery and replication cohorts (also run random and fixed-effects GWAMA and add weights to MR-MEGA results)
 (for trait in gap_gm gap_wm gap_gwm; do (
@@ -1994,11 +1995,12 @@ done
 	./code/genetics/rg.addLabels.R "${inputFile}" "${outFile}" "${matchVar}" 
 
 	# plot rg results
+	conda activate envs/vectorplot
 	corrTable="results/combined/gwama.eur.rgSelection.txt"
 	traits="gap_gm,gap_wm,gap_gwm"
 	traitLabels="Grey_matter,White_matter,Grey_&_White"
 	matchVar="p2"
-	outFile="results/combined/gwama.eur.rgSelection.png"
+	outFile="results/combined/gwama.eur.rgSelection"
 	scaleLimit=0.3
 	width=2.76
 	height=6.85
@@ -2025,8 +2027,9 @@ done
 	./code/genetics/rgNeale.combine.R "${traits}" "${inputFiles}" "${outputFile}"
 
 	# draw volcano and forest plot of rg Neale results
+	conda activate envs/vectorplot
 	inputFile="results/combined/gwama.eur.rgNeale.txt"
-	outFile="results/combined/gwama.eur.rgNeale.volcano.forest.png"
+	outFile="results/combined/gwama.eur.rgNeale.volcano.forest"
 	rgCol="gap_gm_rg"
 	seCol="gap_gm_se"
 	pCol="gap_gm_p"
@@ -2040,12 +2043,13 @@ done
 	./code/genetics/rgNeale.volcano.forest.R "${inputFile}" "${outFile}" "${rgCol}" "${seCol}" "${pCol}" "${multipleTesting}" "${ylim}" "${ysteps}" "${xlim}" "${xsteps}" "${width}" "${height}"
 
 	# combine plot of selected traits and Neale traits
-	rgSelection="results/combined/gwama.eur.rgSelection.png"
-	rgNeale="results/combined/gwama.eur.rgNeale.volcano.forest.png"
-	outFile="results/combined/gwama.eur.rgCombined.png"
+	rgSelection="results/combined/gwama.eur.rgSelection"
+	rgNeale="results/combined/gwama.eur.rgNeale.volcano.forest"
+	outFile="results/combined/gwama.eur.rgCombined"
 	./code/genetics/rg.plotCombine.R "${rgSelection}" "${rgNeale}" "${outFile}"
 
 	# draw qq plot of rg Neale results
+	conda activate envs/vectorplot
 	inputFile="results/combined/gwama.eur.rgNeale.txt"
 	outFile="results/combined/gwama.eur.rgNeale.qq.png"
 	rgCol="gap_gm_rg"
@@ -2240,27 +2244,6 @@ conda activate envs/default
 	trait="gap_gwm"; targetDir="results/${trait}/discovery/sbayes"; sumstats="results/${trait}/discovery/sbayes/sbayesrc.imputed.ma.gz";
 		taskset -c 30-45 ./code/genetics/sbayes.sh "${targetDir}" "${sumstats}" "${cols}" "${ldmFolder}" "${annotFile}" "${threads}" "${sbayes}" "${imputation}"
 
-	# run SBayesRC with custom eigen-decomposition data (9M variants from 32k disovery individuals) and baselineLF.v2.2.UKB annotations
-	cols="ID,A1,A2,A1_FREQ,BETA,SE,P,N" # set input column names that correspond to header columns SNP A1 A2 freq b se p N
-	ldmFolder="/fast/software/gctb/resources/ukbEUR_32k/ldm"
-	annotFile="/fast/software/gctb/resources/ukbEUR_32k/ldm/annot_baselineLF_v2.2.UKB_32k.txt"
-	threads=50
-	sbayes="sbayesrc"
-	imputation=1
-	trait="gap_gm"; targetDir="results/${trait}/discovery/sbayes_ld32k"; sumstats="results/${trait}/discovery/gwas/sumstats.txt.gz"
-		taskset -c 0-49 ./code/genetics/sbayes.sh "${targetDir}" "${sumstats}" "${cols}" "${ldmFolder}" "${annotFile}" "${threads}" "${sbayes}" "${imputation}"
-	trait="gap_wm"; targetDir="results/${trait}/discovery/sbayes_ld32k"; sumstats="results/${trait}/discovery/gwas/sumstats.txt.gz"
-		taskset -c 0-49 ./code/genetics/sbayes.sh "${targetDir}" "${sumstats}" "${cols}" "${ldmFolder}" "${annotFile}" "${threads}" "${sbayes}" "${imputation}"
-	trait="gap_gwm"; targetDir="results/${trait}/discovery/sbayes_ld32k"; sumstats="results/${trait}/discovery/gwas/sumstats.txt.gz"
-		taskset -c 56-105 ./code/genetics/sbayes.sh "${targetDir}" "${sumstats}" "${cols}" "${ldmFolder}" "${annotFile}" "${threads}" "${sbayes}" "${imputation}"
-	for trait in gap_gm gap_wm gap_gwm; do
-		mv "results/${trait}/discovery/sbayes_ld32k/sbayesrc.badSNPlist" "results/${trait}/discovery/sbayes/sbayesrc_ld32k.badSNPlist"
-		mv "results/${trait}/discovery/sbayes_ld32k/sbayesrc.imputed.ma.gz" "results/${trait}/discovery/sbayes/sbayesrc_ld32k.imputed.ma.gz"
-		mv "results/${trait}/discovery/sbayes_ld32k/sbayesrc.parRes" "results/${trait}/discovery/sbayes/sbayesrc_ld32k.parRes"
-		mv "results/${trait}/discovery/sbayes_ld32k/sbayesrc.parSetRes" "results/${trait}/discovery/sbayes/sbayesrc_ld32k.parSetRes"
-		mv "results/${trait}/discovery/sbayes_ld32k/sbayesrc.snpRes.gz" "results/${trait}/discovery/sbayes/sbayesrc_ld32k.snpRes.gz"
-	done
-
 		# calculate PGS in replication sample based on discovery SBayesRC weights
 		pgenFileHandlerBeta='data/genetics/chr${i}/imp_mri_qc_ANCESTRY/chr${i}_mri_qc'
 		idCol="Name"
@@ -2270,7 +2253,7 @@ conda activate envs/default
 		threads=100
 		for ancestry in EUR; do
 			for trait in gap_gm gap_wm gap_gwm; do
-				for pgsMethod in sbayesrc_ld32k sbayesrc sbayesr; do
+				for pgsMethod in sbayesrc sbayesr; do
 					pgenFileHandler=$(echo ${pgenFileHandlerBeta} | sed "s/ANCESTRY/${ancestry}/g")
 					outFile="data/genetics/prs/imp_mri_qc_${ancestry}/${trait}.${pgsMethod}.32k"
 					weightFile="results/${trait}/discovery/sbayes/${pgsMethod}.snpRes.gz"
@@ -2286,10 +2269,10 @@ conda activate envs/default
 		covs="sex,age,age2,ac1,ac2,ac3,TIV,array,PanC1,PanC2,PanC3,PanC4,PanC5,PanC6,PanC7,PanC8,PanC9,PanC10,PanC11,PanC12,PanC13,PanC14,PanC15,PanC16,PanC17,PanC18,PanC19,PanC20"
 		for ancestry in EUR; do # AFR AMR CSA EAS EUR MID
 			for trait in gap_gm gap_wm gap_gwm; do
-				for pgsMethod in sbayesrc_ld32k sbayesrc sbayesr; do
+				for pgsMethod in sbayesrc sbayesr; do
 					phenoVar=${trait}
 					pgsFile="data/genetics/prs/imp_mri_qc_${ancestry}/${trait}.${pgsMethod}.32k.score"
-					outFile="≈${pgsMethod}.base32k.target20k.assoc.txt"
+					outFile="results/${trait}/replicate/${ancestry}/${pgsMethod}.base32k.target20k.assoc.txt"
 					code/genetics/pgs.corr.R "${pgsMethod}" "${pgsFile}" "${phenoFile}" "${joinVar}" "${pgsVar}" "${phenoVar}" "${covs}" "${outFile}"
 				done
 			done
@@ -2403,28 +2386,6 @@ done
 	trait="gap_gwm"; targetDir="results/${trait}/gwama/eur/eur.excl.2k"; sumstats="results/${trait}/gwama/eur/eur.excl.2k/sbayesrc.imputed.ma.gz";
 		taskset -c 36-53 ./code/genetics/sbayes.sh "${targetDir}" "${sumstats}" "${cols}" "${ldmFolder}" "${annotFile}" "${threads}" "${sbayes}" "${imputation}"
 
-	# 4c) run SBayesRC with custom eigen-decomposition data (9M variants from 32k disovery individuals) and baselineLF.v2.2.UKB annotations
-	cols="ID,A1,A2,A1_FREQ,BETA,SE,P,N" # set input column names that correspond to header columns SNP A1 A2 freq b se p N
-	ldmFolder="/fast/software/gctb/resources/ukbEUR_32k/ldm"
-	annotFile="/fast/software/gctb/resources/ukbEUR_32k/ldm/annot_baselineLF_v2.2.UKB_32k.txt"
-	threads=30
-	sbayes="sbayesrc"
-	imputation=1
-	trait="gap_gm"; targetDir="results/${trait}/gwama/eur/eur.excl.2k/sbayes_ld32k"; sumstats="results/${trait}/gwama/eur/eur.excl.2k/metal.ivweight.qc.gz";
-		taskset -c 0-29 ./code/genetics/sbayes.sh "${targetDir}" "${sumstats}" "${cols}" "${ldmFolder}" "${annotFile}" "${threads}" "${sbayes}" "${imputation}"
-	trait="gap_wm"; targetDir="results/${trait}/gwama/eur/eur.excl.2k/sbayes_ld32k"; sumstats="results/${trait}/gwama/eur/eur.excl.2k/metal.ivweight.qc.gz";
-		taskset -c 40-79 ./code/genetics/sbayes.sh "${targetDir}" "${sumstats}" "${cols}" "${ldmFolder}" "${annotFile}" "${threads}" "${sbayes}" "${imputation}"
-	trait="gap_gwm"; targetDir="results/${trait}/gwama/eur/eur.excl.2k/sbayes_ld32k"; sumstats="results/${trait}/gwama/eur/eur.excl.2k/metal.ivweight.qc.gz";
-		taskset -c 80-109 ./code/genetics/sbayes.sh "${targetDir}" "${sumstats}" "${cols}" "${ldmFolder}" "${annotFile}" "${threads}" "${sbayes}" "${imputation}"
-	for trait in gap_gm gap_wm gap_gwm; do
-		mv "results/${trait}/gwama/eur/eur.excl.2k/sbayes_ld32k/sbayesrc.badSNPlist" "results/${trait}/gwama/eur/eur.excl.2k/sbayesrc_ld32k.badSNPlist"
-		mv "results/${trait}/gwama/eur/eur.excl.2k/sbayes_ld32k/sbayesrc.imputed.ma.gz" "results/${trait}/gwama/eur/eur.excl.2k/sbayesrc_ld32k.imputed.ma.gz"
-		mv "results/${trait}/gwama/eur/eur.excl.2k/sbayes_ld32k/sbayesrc.parRes" "results/${trait}/gwama/eur/eur.excl.2k/sbayesrc_ld32k.parRes"
-		mv "results/${trait}/gwama/eur/eur.excl.2k/sbayes_ld32k/sbayesrc.parSetRes" "results/${trait}/gwama/eur/eur.excl.2k/sbayesrc_ld32k.parSetRes"
-		mv "results/${trait}/gwama/eur/eur.excl.2k/sbayes_ld32k/sbayesrc.snpRes.gz" "results/${trait}/gwama/eur/eur.excl.2k/sbayesrc_ld32k.snpRes.gz"
-	done
-	rm -rf results/{gap_gm,gap_wm,gap_gwm}/gwama/eur/eur.excl.2k/sbayes_ld32k/
-
 	# 5) Calculate polygenic scores (PGS) in the selected 2,000 individuals using weights from discovery-only and discovery+replication datasets.
 	pgenFileHandlerBeta='data/genetics/chr${i}/imp_mri_qc_ANCESTRY/chr${i}_mri_qc'
 	idCol="Name"
@@ -2434,7 +2395,7 @@ done
 	threads=100
 	for ancestry in AFR CSA EAS EUR; do # do not use AMR and MID due to low sample sizes (n < 100) 
 		for trait in gap_gm gap_wm gap_gwm; do
-			for pgsMethod in sbayesrc_ld32k sbayesrc sbayesr; do
+			for pgsMethod in sbayesrc sbayesr; do
 				pgenFileHandler=$(echo ${pgenFileHandlerBeta} | sed "s/ANCESTRY/${ancestry}/g")
 				outFile="data/genetics/prs/imp_mri_qc_${ancestry}/${trait}.${pgsMethod}.52k"
 				weightFile="results/${trait}/gwama/eur/eur.excl.2k/${pgsMethod}.snpRes.gz"
@@ -2450,7 +2411,7 @@ done
 	covs="sex,age,age2,ac1,ac2,ac3,TIV,array,PanC1,PanC2,PanC3,PanC4,PanC5,PanC6,PanC7,PanC8,PanC9,PanC10,PanC11,PanC12,PanC13,PanC14,PanC15,PanC16,PanC17,PanC18,PanC19,PanC20"
 	for ancestry in EUR; do
 		for trait in gap_gm gap_wm gap_gwm; do
-			for pgsMethod in sbayesrc_ld32k sbayesrc sbayesr; do
+			for pgsMethod in sbayesrc sbayesr; do
 				phenoVar=${trait}
 				pgsFile="data/genetics/prs/imp_mri_qc_${ancestry}/${trait}.${pgsMethod}.32k.score"
 				outFile="results/${trait}/replicate/${ancestry}/${pgsMethod}.base32k.target2k.assoc.txt"
@@ -2469,7 +2430,7 @@ done
 	covs="sex,age,age2,ac1,ac2,ac3,TIV,array,PanC1,PanC2,PanC3,PanC4"
 	for ancestry in AFR CSA EAS; do
 		for trait in gap_gm gap_wm gap_gwm; do
-			for pgsMethod in sbayesrc_ld32k sbayesrc sbayesr; do
+			for pgsMethod in sbayesrc sbayesr; do
 				phenoVar=${trait}
 				pgsFile="data/genetics/prs/imp_mri_qc_${ancestry}/${trait}.${pgsMethod}.52k.score"
 				outFile="results/${trait}/replicate/${ancestry}/${pgsMethod}.base52k.assoc.txt"
@@ -2537,13 +2498,13 @@ done
 		# join results from sbayesrc and prsice for each trait
 		ancestry=EUR
 		for trait in gap_gm gap_wm gap_gwm; do
-			awk 'NR==1 { print; next } FNR==1 { next } { print }' "results/${trait}/replicate/${ancestry}/"{sbayesrc_ld32k,sbayesrc,sbayesr,prsice}".base32k.target20k.assoc.txt"  > "results/${trait}/replicate/${ancestry}/pgs.base32k.target20k.assoc.txt"
-			awk 'NR==1 { print; next } FNR==1 { next } { print }' "results/${trait}/replicate/${ancestry}/"{sbayesrc_ld32k,sbayesrc,sbayesr,prsice}".base32k.target2k.assoc.txt"  > "results/${trait}/replicate/${ancestry}/pgs.base32k.target2k.assoc.txt"
-			awk 'NR==1 { print; next } FNR==1 { next } { print }' "results/${trait}/replicate/${ancestry}/"{sbayesrc_ld32k,sbayesrc,sbayesr,prsice}".base52k.target2k.assoc.txt" > "results/${trait}/replicate/${ancestry}/pgs.base52k.target2k.assoc.txt"
+			awk 'NR==1 { print; next } FNR==1 { next } { print }' "results/${trait}/replicate/${ancestry}/"{sbayesrc,sbayesr,prsice}".base32k.target20k.assoc.txt"  > "results/${trait}/replicate/${ancestry}/pgs.base32k.target20k.assoc.txt"
+			awk 'NR==1 { print; next } FNR==1 { next } { print }' "results/${trait}/replicate/${ancestry}/"{sbayesrc,sbayesr,prsice}".base32k.target2k.assoc.txt"  > "results/${trait}/replicate/${ancestry}/pgs.base32k.target2k.assoc.txt"
+			awk 'NR==1 { print; next } FNR==1 { next } { print }' "results/${trait}/replicate/${ancestry}/"{sbayesrc,sbayesr,prsice}".base52k.target2k.assoc.txt" > "results/${trait}/replicate/${ancestry}/pgs.base52k.target2k.assoc.txt"
 		done
 		for ancestry in AFR CSA EAS; do
 			for trait in gap_gm gap_wm gap_gwm; do
-				awk 'NR==1 { print; next } FNR==1 { next } { print }' "results/${trait}/replicate/${ancestry}/"{sbayesrc_ld32k,sbayesrc,sbayesr,prsice}".base52k.assoc.txt"  > "results/${trait}/replicate/${ancestry}/pgs.base52k.assoc.txt"
+				awk 'NR==1 { print; next } FNR==1 { next } { print }' "results/${trait}/replicate/${ancestry}/"{sbayesrc,sbayesr,prsice}".base52k.assoc.txt"  > "results/${trait}/replicate/${ancestry}/pgs.base52k.assoc.txt"
 			done
 		done
 
