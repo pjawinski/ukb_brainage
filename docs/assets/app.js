@@ -3,19 +3,20 @@
    Two result sets share one interface:
      pheno  phenome-wide associations (PHESANT) in all participants, women, men
      rg     genetic correlations with Neale lab UK Biobank GWAS (LDSC) */
+/* eslint-disable n/no-unsupported-features/node-builtins -- browser code, not Node.js */
 /* eslint-disable security/detect-object-injection -- lookups use keys from the site's own data files and
    from controls validated against fixed lists, not arbitrary user input */
-const MEASURES = {
+const measures = {
   gwm: "Grey + white matter",
   gm: "Grey matter",
   wm: "White matter",
 };
 
-const MKEYS = ["gm", "wm", "gwm"];
+const modelKeys = ["gm", "wm", "gwm"];
 
-const SHORT = { gwm: "Grey + white", gm: "Grey", wm: "White" };
+const shortModel = { gwm: "Grey + white", gm: "Grey", wm: "White" };
 
-const CAT_SHORT = {
+const catShort = {
   "Hospital Inpatient - Administration": "Hospital admin.",
   "Family history and early life factors": "Family & early life",
   "Maternity and sex-specific factors": "Maternity & sex-spec.",
@@ -24,10 +25,10 @@ const CAT_SHORT = {
   "Diet by 24-hour recall": "Diet (24-h recall)",
 };
 
-const SAMPLES = { all: "All", female: "Women", male: "Men" };
+const sampleNames = { all: "All", female: "Women", male: "Men" };
 
 // one colour per category, in the alphabetical order of meta.categories
-const CAT_COLORS = [
+const catColors = [
   "#7d6b5d",
   "#c2417b",
   "#1c8fb0",
@@ -48,7 +49,7 @@ const CAT_COLORS = [
   "#e17ca4",
 ];
 
-const VIEWS = {
+const viewsByMode = {
   pheno: ["manhattan", "volcano", "sex"],
   rg: ["manhattan", "volcano"],
   cmp: ["pg"],
@@ -59,10 +60,10 @@ const VIEWS = {
   mr: [],
 };
 
-const PAGE = 5;
+const pageSize = 5;
 
 // first free position for a label around its point, or null when every candidate box collides
-const LABEL_OFFSETS = [
+const labelOffsets = [
   [22, -20],
   [-22, -20],
   [22, 20],
@@ -75,7 +76,7 @@ const LABEL_OFFSETS = [
   [0, 46],
 ];
 
-const H_CFG = {
+const heritPlotConfig = {
   displaylogo: false,
   responsive: true,
   modeBarButtonsToRemove: [
@@ -91,21 +92,21 @@ const H_CFG = {
 
 // ---------- GWAS loci (values and evidence strings as reported in the result tables) ----------
 // chromosome lengths in GRCh37, used only to sort loci by genome position
-const CHR_LEN = [
+const chrLen = [
   249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663,
   146364022, 141213431, 135534747, 135006516, 133851895, 115169878, 107349540,
   102531392, 90354753, 81195210, 78077248, 59128983, 63025520, 48129895,
   51304566, 155270560,
 ];
 
-const CHR_START = CHR_LEN.map((_, k) =>
-  CHR_LEN.slice(0, k).reduce((a, b) => a + b, 0),
+const chrStart = chrLen.map((_, k) =>
+  chrLen.slice(0, k).reduce((a, b) => a + b, 0),
 );
 
-const LOCI_SHOW = 10; // rows shown before "Show all" // m: a brain age model, or "all" for the three together
+const lociShow = 10; // rows shown before "Show all" // m: a brain age model, or "all" for the three together
 
 // column definitions as given in the paper's supplementary tables
-const LDEF = {
+const lociColumnHelp = {
   Locus:
     "Independent discovery count, each containing up to three co-inherited index variants derived from the three genome-wide association analyses of brain age gap.",
   Cytoband: "Cytogenetic band that contains the index variant.",
@@ -147,12 +148,12 @@ const LDEF = {
 };
 
 // ---------- Mendelian randomization (GSMR and sensitivity methods, values as in the result table) ----------
-const MR_DIRS = [
+const mrDirs = [
   ["to", "Trait → brain age gap"],
   ["from", "Brain age gap → trait"],
 ];
 
-const GROUPS = [
+const searchGroups = [
   "GWAS loci",
   "Gene-based tests",
   "Phenotypic correlations",
@@ -161,28 +162,28 @@ const GROUPS = [
   "Mendelian randomization",
 ];
 
-const MODEL_TEXT = {
+const modelText = {
   gm: "grey matter",
   wm: "white matter",
   gwm: "grey + white matter",
 };
 
 // UK Biobank imaging discovery sample (results/mri/accuracy.sample.txt); traits have up to this many participants
-const PHEWAS_N = {
+const phewasN = {
   all: "Up to 32,634 participants. ",
   female: "Up to 17,084 women. ",
   male: "Up to 15,550 men. ",
   sexdiff: "Up to 17,084 women and 15,550 men. ",
 };
 
-const SAMPLE_TEXT = {
+const sampleText = {
   all: "all participants",
   female: "women",
   male: "men",
   sexdiff: "women versus men",
 };
 
-const SECTION = {
+const sectionOf = {
   herit: "#herit",
   loci: "#loci",
   genes: "#genes",
@@ -190,9 +191,18 @@ const SECTION = {
   mr: "#mr",
 };
 
-const ORDER = ["herit", "loci", "genes", "pheno", "rg", "rgsel", "cmp", "mr"];
+const modeOrder = [
+  "herit",
+  "loci",
+  "genes",
+  "pheno",
+  "rg",
+  "rgsel",
+  "cmp",
+  "mr",
+];
 
-const ORDER_NAME = {
+const modeName = {
   herit: "Heritability",
   loci: "Genomic loci",
   genes: "Gene-based tests",
@@ -203,7 +213,7 @@ const ORDER_NAME = {
   mr: "Mendelian randomization",
 };
 
-const VIEW_NOTES = {
+const viewNotes = {
   pheno: {
     manhattan:
       "Traits grouped by category, as in the paper figure. Height shows significance; triangles point in the direction of the association.",
@@ -222,7 +232,7 @@ const VIEW_NOTES = {
   },
 };
 
-const BIB = `@article{jawinski2025brainage,
+const bibtex = `@article{jawinski2025brainage,
   author  = {Jawinski, Philippe and Forstbach, Helena and Kirsten, Holger and Beyer, Frauke and Villringer, Arno and Witte, A. Veronica and Scholz, Markus and Ripke, Stephan and Markett, Sebastian},
   title   = {Genome-wide analysis of brain age identifies 59 associated loci and unveils relationships with mental and physical health},
   journal = {Nature Aging},
@@ -273,12 +283,15 @@ const BIB = `@article{jawinski2025brainage,
   // ---------- helpers ----------
   const fmtInt = (n) => (isNil(n) ? "–" : n.toLocaleString("en-US"));
   /**
-   * Set the markup of an element. All markup is built in this file from the site's own data files; free text
-   * such as trait names or the search input goes through esc() first.
+   * Replace the content of an element with markup. All markup is built in this
+   * file from the site's own data files; free text such as trait names or the
+   * search input goes through esc() first. The markup is parsed in the context
+   * of the element, so table rows stay table rows.
    */
   function setHtml(el, html) {
-    // nosemgrep: javascript.browser.security.insecure-document-method.insecure-document-method
-    el.innerHTML = html;
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    el.replaceChildren(range.createContextualFragment(html));
   }
   /** Format a p-value for display, as HTML (×10 superscript) or plain text. */
   function fmtP(p, html = true) {
@@ -349,17 +362,18 @@ const BIB = `@article{jawinski2025brainage,
   function readHash() {
     // eslint-disable-next-line compat/compat -- supported by every browser the site targets
     const h = new URLSearchParams(location.hash.slice(1));
-    if (VIEWS[h.get("d")]) state.d = h.get("d");
+    if (viewsByMode[h.get("d")]) state.d = h.get("d");
     else if (!location.hash.slice(1)) state.d = "herit"; // the page opens on heritability; older links without d= stay on the phenotypic correlations
-    if (VIEWS[state.d].includes(h.get("v"))) state.v = h.get("v");
+    if (viewsByMode[state.d].includes(h.get("v"))) state.v = h.get("v");
     if (state.d === "cmp") state.v = "pg";
-    if (MEASURES[h.get("m")]) state.m = h.get("m");
+    if (measures[h.get("m")]) state.m = h.get("m");
     if (state.d === "loci")
-      lociState.m = MEASURES[h.get("m")] ? h.get("m") : "all";
+      lociState.m = measures[h.get("m")] ? h.get("m") : "all";
     if (state.d === "loci" && h.get("locus")) lociState.sel = +h.get("locus"); // an open locus panel
     if (state.d === "mr" && h.get("trait")) mrSel = +h.get("trait"); // an open MR trait panel
     if (state.d === "genes" && h.get("gene")) geneState.sel = h.get("gene");
-    if (SAMPLES[h.get("s")] || h.get("s") === "sexdiff") state.s = h.get("s");
+    if (sampleNames[h.get("s")] || h.get("s") === "sexdiff")
+      state.s = h.get("s");
     if (h.get("t")) state.t = h.get("t");
     if (h.get("q")) state.q = h.get("q");
     if (h.get("sig")) state.sig = h.get("sig");
@@ -433,7 +447,7 @@ const BIB = `@article{jawinski2025brainage,
           })
           .filter(Boolean);
       rows.push(...pairRows(m));
-      MKEYS.forEach((mm) =>
+      modelKeys.forEach((mm) =>
         pairRows(mm).forEach((r) => {
           if (lt05(r.q) && lt05(r.pq)) {
             const c = rgMeta.cat[r.i];
@@ -460,7 +474,7 @@ const BIB = `@article{jawinski2025brainage,
           pq: !isNil(pi) ? all[m].q[pi] : null,
         });
       }
-      MKEYS.forEach((mm) => tally(mm, rgMeta[mm].q, (i) => rgMeta.cat[i]));
+      modelKeys.forEach((mm) => tally(mm, rgMeta[mm].q, (i) => rgMeta.cat[i]));
     } else if (state.s === "sexdiff") {
       const [sd, f, ma] = await Promise.all([
         load("sexdiff"),
@@ -487,7 +501,7 @@ const BIB = `@article{jawinski2025brainage,
           n: (f.ntotal[i] || 0) + (ma.ntotal[i] || 0),
         });
       }
-      MKEYS.forEach((mm) => tally(mm, bh(sd[mm]), (i) => pmeta.cat[i]));
+      modelKeys.forEach((mm) => tally(mm, bh(sd[mm]), (i) => pmeta.cat[i]));
     } else {
       const d = await load(state.s);
       const st = d[m];
@@ -503,7 +517,7 @@ const BIB = `@article{jawinski2025brainage,
           n: d.ntotal[i],
         });
       }
-      MKEYS.forEach((mm) => tally(mm, d[mm].q, (i) => pmeta.cat[i]));
+      modelKeys.forEach((mm) => tally(mm, d[mm].q, (i) => pmeta.cat[i]));
     }
     // Manhattan x positions: categories present in this set, alphabetical, ppoints within category
     const byCat = {};
@@ -704,7 +718,7 @@ const BIB = `@article{jawinski2025brainage,
     const labels = narrow
       ? cats.map(() => "")
       : cats.map(
-          (cat) => CAT_SHORT[meta.categories[cat]] || meta.categories[cat],
+          (cat) => catShort[meta.categories[cat]] || meta.categories[cat],
         );
     return {
       x0: 0,
@@ -796,7 +810,7 @@ const BIB = `@article{jawinski2025brainage,
   function labelSpot(ax0, ay0, w, lh, W, H, boxes) {
     const overlap = (a, b) =>
       a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1;
-    for (const [ox, oy] of LABEL_OFFSETS) {
+    for (const [ox, oy] of labelOffsets) {
       const tx = ax0 + ox,
         ty = ay0 + oy;
       let anchor = "center",
@@ -1019,7 +1033,7 @@ const BIB = `@article{jawinski2025brainage,
     Object.entries(byCat)
       .sort((a, b) => (+a[0] === state.cat) - (+b[0] === state.cat))
       .forEach(([c, rs]) => {
-        const col = CAT_COLORS[+c % CAT_COLORS.length];
+        const col = catColors[+c % catColors.length];
         const x = [],
           y = [],
           sym = [],
@@ -1149,7 +1163,7 @@ const BIB = `@article{jawinski2025brainage,
         .map((k) => {
           const c = meta.categories[k];
           return (
-            `<button type="button" class="cat" style="--c:${CAT_COLORS[k]}" data-k="${k}" aria-pressed="${state.cat === k}" title="${counts[k] || 0} traits at FDR < 5%">` +
+            `<button type="button" class="cat" style="--c:${catColors[k]}" data-k="${k}" aria-pressed="${state.cat === k}" title="${counts[k] || 0} traits at FDR < 5%">` +
             `<i></i>${esc(c)}${counts[k] ? ` <b>${counts[k]}</b>` : ""}</button>`
           );
         })
@@ -1206,9 +1220,12 @@ const BIB = `@article{jawinski2025brainage,
       cmp = state.d === "cmp";
     const rows = sortedFiltered();
     qsel("#table").classList.toggle("cmp", cmp);
-    const pages = Math.max(1, Math.ceil(rows.length / PAGE));
+    const pages = Math.max(1, Math.ceil(rows.length / pageSize));
     state.page = Math.min(state.page, pages - 1);
-    const slice = rows.slice(state.page * PAGE, state.page * PAGE + PAGE);
+    const slice = rows.slice(
+      state.page * pageSize,
+      state.page * pageSize + pageSize,
+    );
     const tb = qsel("#table tbody");
     setHtml(
       tb,
@@ -1217,22 +1234,22 @@ const BIB = `@article{jawinski2025brainage,
             .map((r) => {
               const id = meta.id[r.i],
                 c = meta.cat[r.i];
-              let sub = rg
+              const own = rg
                 ? !isNil(meta.field[r.i])
                   ? `field ${meta.field[r.i]}`
                   : ""
                 : id;
               // a pair can join two different fields with the same name; then name the phenotypic one too
-              if (!isNil(r.pidx) && pmeta.field[r.pidx] !== meta.field[r.i]) {
-                const qual = pmeta.qual[r.pidx]
-                  ? `, ${pmeta.qual[r.pidx]}`
+              const other =
+                !isNil(r.pidx) && pmeta.field[r.pidx] !== meta.field[r.i]
+                  ? ` · phenotypic r: field ${pmeta.field[r.pidx]}` +
+                    (pmeta.qual[r.pidx] ? `, ${pmeta.qual[r.pidx]}` : "")
                   : "";
-                sub = `${sub} · phenotypic r: field ${pmeta.field[r.pidx]}${qual}`;
-              }
+              const sub = own + other;
               return (
                 `<tr data-id="${esc(id)}" class="${id === state.t ? "sel" : ""}" tabindex="0">` +
                 `<td class="trait">${esc(meta.desc[r.i])}<small>${esc(sub)}</small></td>` +
-                `<td class="hide-s catcell"><span class="dot" style="background:${CAT_COLORS[c]}"></span>${esc(meta.categories[c])}</td>` +
+                `<td class="hide-s catcell"><span class="dot" style="background:${catColors[c]}"></span>${esc(meta.categories[c])}</td>` +
                 `<td class="num hide-s">${rg ? fmtF(r.n) : fmtInt(r.n)}</td>` +
                 `<td class="num${r.r < 0 ? " neg" : ""}">${fmtR(r.r)}</td>` +
                 (cmp
@@ -1346,7 +1363,7 @@ const BIB = `@article{jawinski2025brainage,
         },
         yaxis: {
           tickvals: [2, 1, 0],
-          ticktext: MKEYS.map((m) => SHORT[m]),
+          ticktext: modelKeys.map((m) => shortModel[m]),
           range: [-0.5, 2.5],
           fixedrange: true,
           showgrid: false,
@@ -1374,11 +1391,11 @@ const BIB = `@article{jawinski2025brainage,
     const box = qsel("#detail");
     box.classList.add("is-overview");
     const c = view.counts;
-    const cats = view.cats.filter((k) => MKEYS.some((m) => c[m][k]));
+    const cats = view.cats.filter((k) => modelKeys.some((m) => c[m][k]));
     cats.sort(
       (a, b) =>
         (c[state.m][b] || 0) - (c[state.m][a] || 0) ||
-        MKEYS.reduce((s, m) => s + (c[m][b] || 0) - (c[m][a] || 0), 0),
+        modelKeys.reduce((s, m) => s + (c[m][b] || 0) - (c[m][a] || 0), 0),
     );
     const what =
       state.d === "rg"
@@ -1393,7 +1410,7 @@ const BIB = `@article{jawinski2025brainage,
       `<h2>FDR hits by category</h2>` +
         `<p class="lede">Number of ${what} for each brain age model. Select a bar to filter the plot and table; select a trait for its details.</p>` +
         (cats.length
-          ? `<div class="bar-key" aria-hidden="true">${MKEYS.map((m) => `<span class="${m === state.m ? "on" : ""}"><i style="background:var(--m-${m})"></i>${SHORT[m]}</span>`).join("")}</div><div id="catbars" class="catbars"></div>`
+          ? `<div class="bar-key" aria-hidden="true">${modelKeys.map((m) => `<span class="${m === state.m ? "on" : ""}"><i style="background:var(--m-${m})"></i>${shortModel[m]}</span>`).join("")}</div><div id="catbars" class="catbars"></div>`
           : `<p class="lede">No category has results at FDR &lt; 5% in this view.</p>`) +
         (!isNil(state.cat)
           ? `<button type="button" class="btn" id="clear-cat">Show all categories</button>`
@@ -1406,12 +1423,12 @@ const BIB = `@article{jawinski2025brainage,
       muted = css("--muted"),
       rule = css("--rule");
     const names = cats.map(
-      (k) => CAT_SHORT[meta.categories[k]] || meta.categories[k],
+      (k) => catShort[meta.categories[k]] || meta.categories[k],
     );
-    const traces = MKEYS.map((m) => ({
+    const traces = modelKeys.map((m) => ({
       type: "bar",
       orientation: "h",
-      name: SHORT[m],
+      name: shortModel[m],
       y: names,
       x: cats.map((k) => c[m][k] || 0),
       customdata: cats,
@@ -1422,7 +1439,7 @@ const BIB = `@article{jawinski2025brainage,
         ),
         line: { width: m === state.m ? 1.5 : 0, color: ink },
       },
-      hovertemplate: `%{y}<br>${MEASURES[m]}: %{x}${state.d === "cmp" ? " pairs significant in both" : " at FDR < 5%"}<extra></extra>`,
+      hovertemplate: `%{y}<br>${measures[m]}: %{x}${state.d === "cmp" ? " pairs significant in both" : " at FDR < 5%"}<extra></extra>`,
     }));
     const el = qsel("#catbars");
     Plotly.react(
@@ -1485,7 +1502,7 @@ const BIB = `@article{jawinski2025brainage,
       `<button type="button" class="btn close" id="close-detail">Close</button>` +
       `<button type="button" class="btn close share" data-share>Copy link</button>` +
       `<h2>${esc(meta.desc[i])}</h2><div class="meta">` +
-      `<div><span class="dot" style="background:${CAT_COLORS[meta.cat[i]]}"></span>${esc(meta.categories[meta.cat[i]])}</div>` +
+      `<div><span class="dot" style="background:${catColors[meta.cat[i]]}"></span>${esc(meta.categories[meta.cat[i]])}</div>` +
       extra +
       `<div class="path">${esc(meta.paths[meta.path[i]])}</div></div>`;
     const showcase = (f, code) =>
@@ -1495,11 +1512,13 @@ const BIB = `@article{jawinski2025brainage,
     const all = await load("all");
 
     if (isGen(state.d)) {
-      const rgRows = MKEYS.map(
-        (m) =>
-          `<tr${m === state.m ? ' class="sel"' : ""}><td>${SHORT[m]}</td><td class="num">${fmtR(rgMeta[m].r[i])}</td>` +
-          `<td class="num">${fmtF(rgMeta[m].se[i])}</td><td class="num${lt05(rgMeta[m].q[i]) ? " sig" : ""}">${fmtP(rgMeta[m].p[i])}</td><td class="num">${fmtP(rgMeta[m].q[i])}</td></tr>`,
-      ).join("");
+      const rgRows = modelKeys
+        .map(
+          (m) =>
+            `<tr${m === state.m ? ' class="sel"' : ""}><td>${shortModel[m]}</td><td class="num">${fmtR(rgMeta[m].r[i])}</td>` +
+            `<td class="num">${fmtF(rgMeta[m].se[i])}</td><td class="num${lt05(rgMeta[m].q[i]) ? " sig" : ""}">${fmtP(rgMeta[m].p[i])}</td><td class="num">${fmtP(rgMeta[m].q[i])}</td></tr>`,
+        )
+        .join("");
       setHtml(
         box,
         header(
@@ -1517,19 +1536,21 @@ const BIB = `@article{jawinski2025brainage,
             name: "rg",
             color: ink,
             symbol: "diamond",
-            pts: MKEYS.map((m, k) => {
-              const r = rgMeta[m].r[i],
-                se = rgMeta[m].se[i];
-              return isNil(r)
-                ? null
-                : {
-                    k,
-                    x: r,
-                    lo: r - 1.96 * se,
-                    hi: r + 1.96 * se,
-                    text: `${MEASURES[m]}<br>r<sub>g</sub> = ${fmtR(r)} [${fmtR(r - 1.96 * se)}, ${fmtR(r + 1.96 * se)}]<br>p = ${fmtP(rgMeta[m].p[i])}`,
-                  };
-            }).filter(Boolean),
+            pts: modelKeys
+              .map((m, k) => {
+                const r = rgMeta[m].r[i],
+                  se = rgMeta[m].se[i];
+                return isNil(r)
+                  ? null
+                  : {
+                      k,
+                      x: r,
+                      lo: r - 1.96 * se,
+                      hi: r + 1.96 * se,
+                      text: `${measures[m]}<br>r<sub>g</sub> = ${fmtR(r)} [${fmtR(r - 1.96 * se)}, ${fmtR(r + 1.96 * se)}]<br>p = ${fmtP(rgMeta[m].p[i])}`,
+                    };
+              })
+              .filter(Boolean),
           },
         ],
         "r<sub>g</sub>",
@@ -1553,20 +1574,24 @@ const BIB = `@article{jawinski2025brainage,
         : !isNil(all.ntotal[i])
           ? `N = ${fmtInt(all.ntotal[i])}`
           : "";
-      const rowsHtml = MKEYS.map((m) => {
-        const s = all[m];
-        if (isNil(s.p[i]))
-          return `<tr><td>${SHORT[m]}</td><td class="num" colspan="4">not tested in full sample</td></tr>`;
-        return (
-          `<tr${m === state.m ? ' class="sel"' : ""}><td>${SHORT[m]}</td><td class="num">${fmtR(s.r[i])}</td>` +
-          `<td class="num hide-s">${fmtB(s.b[i], s.se[i])}</td><td class="num${lt05(s.q[i]) ? " sig" : ""}">${fmtP(s.p[i])}</td><td class="num">${fmtP(s.q[i])}</td></tr>`
-        );
-      }).join("");
-      const sexRows = MKEYS.map((m) =>
-        isNil(sd[m][i])
-          ? ""
-          : `<tr><td>${SHORT[m]}</td><td class="num">${fmtR(f[m].r[i])}</td><td class="num">${fmtR(ma[m].r[i])}</td><td class="num">${fmtP(sd[m][i])}</td></tr>`,
-      ).join("");
+      const rowsHtml = modelKeys
+        .map((m) => {
+          const s = all[m];
+          if (isNil(s.p[i]))
+            return `<tr><td>${shortModel[m]}</td><td class="num" colspan="4">not tested in full sample</td></tr>`;
+          return (
+            `<tr${m === state.m ? ' class="sel"' : ""}><td>${shortModel[m]}</td><td class="num">${fmtR(s.r[i])}</td>` +
+            `<td class="num hide-s">${fmtB(s.b[i], s.se[i])}</td><td class="num${lt05(s.q[i]) ? " sig" : ""}">${fmtP(s.p[i])}</td><td class="num">${fmtP(s.q[i])}</td></tr>`
+          );
+        })
+        .join("");
+      const sexRows = modelKeys
+        .map((m) =>
+          isNil(sd[m][i])
+            ? ""
+            : `<tr><td>${shortModel[m]}</td><td class="num">${fmtR(f[m].r[i])}</td><td class="num">${fmtR(ma[m].r[i])}</td><td class="num">${fmtP(sd[m][i])}</td></tr>`,
+        )
+        .join("");
 
       setHtml(
         box,
@@ -1586,28 +1611,30 @@ const BIB = `@article{jawinski2025brainage,
       const offs = { all: 0.22, female: 0, male: -0.22 };
       forest(
         "forest",
-        Object.keys(SAMPLES).map((s) => ({
-          name: SAMPLES[s],
+        Object.keys(sampleNames).map((s) => ({
+          name: sampleNames[s],
           color: sColors[s],
           symbol: s === "all" ? "diamond" : "circle",
           off: offs[s],
-          pts: MKEYS.map((m, k) => {
-            const d = data[s],
-              r = d[m].r[i],
-              n = d.ntotal[i];
-            if (isNil(r) || !n) return null;
-            const zf = Math.atanh(r),
-              se = 1 / Math.sqrt(n - 3);
-            const lo = Math.tanh(zf - 1.96 * se),
-              hi = Math.tanh(zf + 1.96 * se);
-            return {
-              k,
-              x: r,
-              lo,
-              hi,
-              text: `${SAMPLES[s]}, ${MEASURES[m].toLowerCase()}<br>r = ${fmtR(r)} [${fmtR(lo)}, ${fmtR(hi)}]<br>p = ${fmtP(d[m].p[i])}, N = ${fmtInt(n)}`,
-            };
-          }).filter(Boolean),
+          pts: modelKeys
+            .map((m, k) => {
+              const d = data[s],
+                r = d[m].r[i],
+                n = d.ntotal[i];
+              if (isNil(r) || !n) return null;
+              const zf = Math.atanh(r),
+                se = 1 / Math.sqrt(n - 3);
+              const lo = Math.tanh(zf - 1.96 * se),
+                hi = Math.tanh(zf + 1.96 * se);
+              return {
+                k,
+                x: r,
+                lo,
+                hi,
+                text: `${sampleNames[s]}, ${measures[m].toLowerCase()}<br>r = ${fmtR(r)} [${fmtR(lo)}, ${fmtR(hi)}]<br>p = ${fmtP(d[m].p[i])}, N = ${fmtInt(n)}`,
+              };
+            })
+            .filter(Boolean),
         })),
         "r",
         250,
@@ -1623,10 +1650,12 @@ const BIB = `@article{jawinski2025brainage,
   /** HTML key for the three brain age models. */
   function modeKey(hollow) {
     return (
-      MKEYS.map(
-        (m) =>
-          `<span><i style="background:var(--m-${m})"></i>${SHORT[m]}</span>`,
-      ).join("") +
+      modelKeys
+        .map(
+          (m) =>
+            `<span><i style="background:var(--m-${m})"></i>${shortModel[m]}</span>`,
+        )
+        .join("") +
       (hollow
         ? `<span><i class="hollow"></i>not significant (FDR ≥ 5%)</span>`
         : "")
@@ -1673,10 +1702,10 @@ const BIB = `@article{jawinski2025brainage,
     // SNP heritability: one row per sample, three models per row
     const n = heritData.ldsc.length,
       labels = heritData.ldsc.map((r) => r.label);
-    const h2traces = MKEYS.map((m) => ({
+    const h2traces = modelKeys.map((m) => ({
       type: "scatter",
       mode: "markers",
-      name: SHORT[m],
+      name: shortModel[m],
       x: heritData.ldsc.map((r) => r[m].h2),
       y: heritData.ldsc.map((_, k) => n - 1 - k + off[m]),
       error_x: {
@@ -1693,7 +1722,7 @@ const BIB = `@article{jawinski2025brainage,
       },
       text: heritData.ldsc.map(
         (r) =>
-          `<b>${r.label}</b>${r.n ? `, n = ${fmtInt(r.n)}` : ""}<br>${MEASURES[m]}<br>h² = ${r[m].h2.toFixed(3)} (SE ${r[m].se.toFixed(3)})<br>95% CI ${(r[m].h2 - 1.96 * r[m].se).toFixed(3)} to ${(r[m].h2 + 1.96 * r[m].se).toFixed(3)}<br>LDSC intercept = ${r[m].intercept.toFixed(3)} (SE ${r[m].intercept_se.toFixed(3)})` +
+          `<b>${r.label}</b>${r.n ? `, n = ${fmtInt(r.n)}` : ""}<br>${measures[m]}<br>h² = ${r[m].h2.toFixed(3)} (SE ${r[m].se.toFixed(3)})<br>95% CI ${(r[m].h2 - 1.96 * r[m].se).toFixed(3)} to ${(r[m].h2 + 1.96 * r[m].se).toFixed(3)}<br>LDSC intercept = ${r[m].intercept.toFixed(3)} (SE ${r[m].intercept_se.toFixed(3)})` +
           (r.key === "female" || r.key === "male"
             ? "<br><i>UK Biobank only</i>"
             : ""),
@@ -1737,15 +1766,15 @@ const BIB = `@article{jawinski2025brainage,
           line: { color: rule, width: 1 },
         })),
       }),
-      H_CFG,
+      heritPlotConfig,
     );
 
     // GENESIS: number of SNPs with non-zero effect; brain age models in model colours, reference traits grey
     const genesisData = heritData.genesis,
       gn = genesisData.length;
-    const gname = (r) => (r.model ? MEASURES[r.model] : r.label);
+    const gname = (r) => (r.model ? measures[r.model] : r.label);
     const gshort = (r) =>
-      r.model ? MEASURES[r.model] : r.label.replace(/ \(.*\)/, "") + " (ref.)";
+      r.model ? measures[r.model] : r.label.replace(/ \(.*\)/, "") + " (ref.)";
     const gcol = (r) =>
       r.model
         ? css(`--m-${r.model}`)
@@ -1813,7 +1842,7 @@ const BIB = `@article{jawinski2025brainage,
           },
         ],
       }),
-      H_CFG,
+      heritPlotConfig,
     );
 
     // partitioned heritability and cell-type groups: enrichment per annotation, filled = FDR < 5%
@@ -1823,12 +1852,12 @@ const BIB = `@article{jawinski2025brainage,
         .map((_, i) => i)
         .sort((a, b) => panel.gwm.enr[b] - panel.gwm.enr[a]);
       const yOf = (i) => k - 1 - order.indexOf(i);
-      const traces = MKEYS.map((m) => {
+      const traces = modelKeys.map((m) => {
         const col = css(`--m-${m}`);
         return {
           type: "scatter",
           mode: "markers",
-          name: SHORT[m],
+          name: shortModel[m],
           x: order.map((i) => panel[m].enr[i]),
           y: order.map((i) => yOf(i) + off[m] * 0.75),
           marker: {
@@ -1843,12 +1872,12 @@ const BIB = `@article{jawinski2025brainage,
           },
           text: order.map(
             (i) =>
-              `<b>${esc(panel.annotation[i])}</b><br>${MEASURES[m]}<br>enrichment = ${fmtF(panel[m].enr[i], 2)}<br>share of SNPs = ${(100 * panel.propSnps[i]).toFixed(1)}%, share of h² = ${(100 * panel[m].propH2[i]).toFixed(1)}%<br>p (one-sided) = ${fmtP(panel[m].p[i])} · FDR = ${fmtP(panel[m].q[i])}`,
+              `<b>${esc(panel.annotation[i])}</b><br>${measures[m]}<br>enrichment = ${fmtF(panel[m].enr[i], 2)}<br>share of SNPs = ${(100 * panel.propSnps[i]).toFixed(1)}%, share of h² = ${(100 * panel[m].propH2[i]).toFixed(1)}%<br>p (one-sided) = ${fmtP(panel[m].p[i])} · FDR = ${fmtP(panel[m].q[i])}`,
           ),
           hovertemplate: "%{text}<extra></extra>",
         };
       });
-      const xs = MKEYS.flatMap((m) => panel[m].enr);
+      const xs = modelKeys.flatMap((m) => panel[m].enr);
       Plotly.react(
         el,
         traces,
@@ -1911,19 +1940,19 @@ const BIB = `@article{jawinski2025brainage,
             },
           ],
         }),
-        H_CFG,
+        heritPlotConfig,
       );
     };
     enrichPlot("baseplot", heritData.baseline);
     enrichPlot("ctgplot", heritData.celltype);
   }
   const fmtN = (x) =>
-    x >= 1e6
-      ? `${(x / 1e6).toFixed(2).replace(/\.?0+$/, "")} million`
+    x >= 1000000
+      ? `${(x / 1000000).toFixed(2).replace(/\.?0+$/, "")} million`
       : `${fmtInt(Math.round(x / 1000))},000`;
 
   const chrIndex = (c) => (c === "X" || c === "XY" ? 22 : +c - 1); // XY = pseudoautosomal region, shown with X
-  const gpos = (chr, bp) => CHR_START[chrIndex(chr)] + bp;
+  const gpos = (chr, bp) => chrStart[chrIndex(chr)] + bp;
   const lociState = {
     q: "",
     m: "all",
@@ -1969,7 +1998,7 @@ const BIB = `@article{jawinski2025brainage,
     const all = lociData,
       nNovel = all.filter((l) => l.novel).length;
     const all3 = lociState.m === "all",
-      label = all3 ? "" : MEASURES[lociState.m].toLowerCase() + " ";
+      label = all3 ? "" : measures[lociState.m].toLowerCase() + " ";
     const mine = all3 ? all : all.filter((l) => l.models.includes(lociState.m)),
       mNovel = mine.filter((l) => l.novel).length;
     qsel("#loci-title").textContent =
@@ -2010,7 +2039,7 @@ const BIB = `@article{jawinski2025brainage,
     }[lociState.sort];
     rows.sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0) * dir);
     const tb = qsel("#loci-table tbody");
-    const shown = lociState.more ? rows : rows.slice(0, LOCI_SHOW);
+    const shown = lociState.more ? rows : rows.slice(0, lociShow);
     setHtml(
       tb,
       shown
@@ -2020,9 +2049,8 @@ const BIB = `@article{jawinski2025brainage,
             `<td class="trait">${esc(l.cytoband)}<small>chr${esc(l.chr)}:${fmtInt(h.bp)}</small></td>` +
             `<td class="gene"><b><i>${esc(l.gene)}</i></b>${l.novel ? '<span class="novel-tag">novel</span>' : ""}</td>` +
             `<td class="hide-s vid">${esc(h.id)}<small>${esc(h.a1)}/${esc(h.a2)}, freq. ${fmtF(h.freq, 2)}</small></td>` +
-            `<td class="models hide-s">${MKEYS.filter((m) =>
-              l.models.includes(m),
-            )
+            `<td class="models hide-s">${modelKeys
+              .filter((m) => l.models.includes(m))
               .map((m) =>
                 mchip(
                   m,
@@ -2051,15 +2079,15 @@ const BIB = `@article{jawinski2025brainage,
       (l) => lociState.m === "all" || l.models.includes(lociState.m),
     ).length;
     const btn = qsel("#loci-more");
-    btn.hidden = rows.length <= LOCI_SHOW;
+    btn.hidden = rows.length <= lociShow;
     btn.textContent = lociState.more
-      ? `Show first ${LOCI_SHOW} only`
+      ? `Show first ${lociShow} only`
       : `Show all ${rows.length} loci`;
     qsel("#loci-count").textContent =
       `${rows.length === total ? `${total} loci` : `${rows.length} of ${total} loci match`}, ${nn} novel. ` +
       (lociState.m === "all"
         ? "Statistics refer to the model with the smallest p value per locus (outlined in “Models”)."
-        : `Statistics refer to ${MEASURES[lociState.m].toLowerCase()} brain age gap; “Models” lists every model for which the locus was found.`);
+        : `Statistics refer to ${measures[lociState.m].toLowerCase()} brain age gap; “Models” lists every model for which the locus was found.`);
     document
       .querySelectorAll("#loci-table th")
       .forEach((th) =>
@@ -2074,7 +2102,8 @@ const BIB = `@article{jawinski2025brainage,
       );
   }
 
-  const tip = (k) => (LDEF[k] ? ` title="${esc(LDEF[k])}"` : "");
+  const tip = (k) =>
+    lociColumnHelp[k] ? ` title="${esc(lociColumnHelp[k])}"` : "";
 
   /** "GENE (x) | GENE (y) | ..." as a short list, the rest folded away. */
   function evidenceList(str) {
@@ -2095,13 +2124,13 @@ const BIB = `@article{jawinski2025brainage,
       setHtml(box, "");
       return;
     }
-    const hits = MKEYS.map((m) => l.hits.find((h) => h.model === m)).filter(
-      Boolean,
-    );
+    const hits = modelKeys
+      .map((m) => l.hits.find((h) => h.model === m))
+      .filter(Boolean);
     const statRows = hits
       .map(
         (h) =>
-          `<tr><td>${SHORT[h.model]}</td><td>${esc(h.id)}<small>chr${esc(l.chr)}:${fmtInt(h.bp)}</small></td><td>${esc(h.a1)}/${esc(h.a2)}</td><td class="num hide-s">${fmtF(h.freq, 2)}</td>` +
+          `<tr><td>${shortModel[h.model]}</td><td>${esc(h.id)}<small>chr${esc(l.chr)}:${fmtInt(h.bp)}</small></td><td>${esc(h.a1)}/${esc(h.a2)}</td><td class="num hide-s">${fmtF(h.freq, 2)}</td>` +
           `<td class="num">${fmtB(h.beta, h.se)}</td><td class="num sig">${fmtP(h.p)}</td><td class="num hide-s">${!isNil(h.eta2) ? String(+h.eta2.toPrecision(3)) : "–"}</td><td class="num hide-s">${fmtInt(h.n)}</td></tr>`,
       )
       .join("");
@@ -2134,17 +2163,16 @@ const BIB = `@article{jawinski2025brainage,
       `<button type="button" class="btn close" id="close-locus">Close</button>` +
         `<button type="button" class="btn close share" data-share>Copy link</button>` +
         `<h2><i>${esc(l.gene)}</i> · ${esc(l.cytoband)}${l.novel ? '<span class="novel-tag">novel</span>' : ""}</h2>` +
-        `<div class="locus-meta"><p>Chromosome ${esc(l.chr)}, found for ${MKEYS.filter(
-          (m) => l.models.includes(m),
-        )
-          .map((m) => MEASURES[m].toLowerCase())
+        `<div class="locus-meta"><p>Chromosome ${esc(l.chr)}, found for ${modelKeys
+          .filter((m) => l.models.includes(m))
+          .map((m) => measures[m].toLowerCase())
           .join(", ")} brain age gap.</p>` +
         (l.literature
           ? `<p>Previously reported: ${esc(l.literature.replace(/_/g, " "))}</p>`
           : `<p>Not reported in earlier GWAS of brain age gap.</p>`) +
         `</div>` +
         `<h3>Lead variants</h3><div class="mini-wrap"><table class="mini"><thead><tr><th>Model</th>${["Variant", "A1/A2"].map((k) => `<th${tip(k)}>${k}</th>`).join("")}<th class="num hide-s"${tip("Freq.")}>Freq.</th><th class="num"${tip("β (SE)")}>β (SE)</th><th class="num"${tip("p")}>p</th><th class="num hide-s"${tip("ηp²")}>η<sub>p</sub>²</th><th class="num hide-s"${tip("N")}>N</th></tr></thead><tbody>${statRows}</tbody></table></div>` +
-        `<h3>Gene prioritization</h3><div class="mini-wrap"><table class="mini evid"><thead><tr><th></th>${hits.map((h) => `<th>${SHORT[h.model]}</th>`).join("")}</tr></thead><tbody>${evidRows}</tbody></table></div>` +
+        `<h3>Gene prioritization</h3><div class="mini-wrap"><table class="mini evid"><thead><tr><th></th>${hits.map((h) => `<th>${shortModel[h.model]}</th>`).join("")}</tr></thead><tbody>${evidRows}</tbody></table></div>` +
         (catalog
           ? `<details class="catalog"><summary>Associated with ${nCat} trait${nCat > 1 ? "s" : ""} in the GWAS Catalog</summary><p>${esc(catalog.split(" | ").join("; "))}</p></details>`
           : "") +
@@ -2163,10 +2191,10 @@ const BIB = `@article{jawinski2025brainage,
           "GWAS Catalog",
           "Literature",
         ]
-          .filter((k) => LDEF[k])
+          .filter((k) => lociColumnHelp[k])
           .map(
             (k) =>
-              `<dt>${k === "ηp²" ? "η<sub>p</sub>²" : esc(k)}</dt><dd>${esc(LDEF[k])}</dd>`,
+              `<dt>${k === "ηp²" ? "η<sub>p</sub>²" : esc(k)}</dt><dd>${esc(lociColumnHelp[k])}</dd>`,
           )
           .join("")}</dl></details>`,
     );
@@ -2238,21 +2266,21 @@ const BIB = `@article{jawinski2025brainage,
       surf = css("--surface"),
       band = css("--band");
     const narrow = window.innerWidth < 640;
-    const nf = MKEYS.map(
+    const nf = modelKeys.map(
       (m) =>
-        `${rgselTraits.filter((t) => t[m].fdr < 0.05).length} for ${SHORT[m].toLowerCase()}`,
+        `${rgselTraits.filter((t) => t[m].fdr < 0.05).length} for ${shortModel[m].toLowerCase()}`,
     );
     qsel("#rgsel-tally").textContent =
       `Combined European meta-analysis, n = 54,890. Correlations passing FDR < 5%: ${nf.join(", ")}.`;
     const n = rgselTraits.length,
       ys = rgselTraits.map((_, k) => n - 1 - k);
     const xl = (m) =>
-      narrow ? { gm: "GM", wm: "WM", gwm: "GWM" }[m] : SHORT[m];
-    const xs = MKEYS.map(xl);
+      narrow ? { gm: "GM", wm: "WM", gwm: "GWM" }[m] : shortModel[m];
+    const xs = modelKeys.map(xl);
     const text = rgselTraits.map((t) =>
-      MKEYS.map(
+      modelKeys.map(
         (m) =>
-          `<b>${esc(t.trait)}</b> (${esc(t.ref)})<br>${MEASURES[m]} brain age gap<br>r<sub>g</sub> = ${fmtR(t[m].rg)} (SE ${fmtF(t[m].se)})<br>p = ${fmtP(t[m].p)}, FDR = ${fmtP(t[m].fdr)}<br><span style="color:${muted}">h² of trait = ${fmtF(t.h2)} (SE ${fmtF(t.h2_se)})</span>`,
+          `<b>${esc(t.trait)}</b> (${esc(t.ref)})<br>${measures[m]} brain age gap<br>r<sub>g</sub> = ${fmtR(t[m].rg)} (SE ${fmtF(t[m].se)})<br>p = ${fmtP(t[m].p)}, FDR = ${fmtP(t[m].fdr)}<br><span style="color:${muted}">h² of trait = ${fmtF(t.h2)} (SE ${fmtF(t.h2_se)})</span>`,
       ),
     );
     const sig = (t, m) => t[m].p < 0.05;
@@ -2268,7 +2296,7 @@ const BIB = `@article{jawinski2025brainage,
     };
     const faint = {
       ...base,
-      z: rgselTraits.map((t) => MKEYS.map((m) => (sig(t, m) ? null : 0))),
+      z: rgselTraits.map((t) => modelKeys.map((m) => (sig(t, m) ? null : 0))),
       colorscale: [
         [0, band],
         [1, band],
@@ -2281,7 +2309,7 @@ const BIB = `@article{jawinski2025brainage,
     const col = {
       ...base,
       z: rgselTraits.map((t) =>
-        MKEYS.map((m) =>
+        modelKeys.map((m) =>
           sig(t, m) ? Math.max(-0.3, Math.min(0.3, t[m].rg)) : null,
         ),
       ),
@@ -2313,7 +2341,7 @@ const BIB = `@article{jawinski2025brainage,
     };
     const annotations = [];
     rgselTraits.forEach((t, k) =>
-      MKEYS.forEach((m, j) => {
+      modelKeys.forEach((m, j) => {
         const st = stars(t[m]);
         if (st)
           annotations.push({
@@ -2413,7 +2441,7 @@ const BIB = `@article{jawinski2025brainage,
         annotations,
       }),
       {
-        ...H_CFG,
+        ...heritPlotConfig,
         toImageButtonOptions: {
           filename: "brainage_rg_selected_traits",
           scale: 3,
@@ -2438,7 +2466,7 @@ const BIB = `@article{jawinski2025brainage,
     qsel("#mr-tally").textContent =
       `Combined European meta-analysis, n = 54,890. ${mrSummary.to_any} of ${n} traits show an effect on brain age gap and ${mrSummary.from_any} an effect of brain age gap at FDR < 5% for at least one model.`;
     // six columns: two directions × three models
-    const cols = MR_DIRS.flatMap(([dk]) => MKEYS.map((m) => ({ dk, m })));
+    const cols = mrDirs.flatMap(([dk]) => modelKeys.map((m) => ({ dk, m })));
     const xs = cols.map((_, j) => j + (j >= 3 ? 1 : 0)),
       xAll = [0, 1, 2, 3, 4, 5, 6]; // column 3 is an empty spacer between the directions
     const spread = (f) =>
@@ -2457,8 +2485,8 @@ const BIB = `@article{jawinski2025brainage,
       const e = cell(t, c),
         dir =
           c.dk === "to"
-            ? `${t.trait} → ${MEASURES[c.m].toLowerCase()} brain age gap`
-            : `${MEASURES[c.m]} brain age gap → ${t.trait.toLowerCase()}`;
+            ? `${t.trait} → ${measures[c.m].toLowerCase()} brain age gap`
+            : `${measures[c.m]} brain age gap → ${t.trait.toLowerCase()}`;
       if (!e)
         return `<b>${esc(t.trait)}</b> (${esc(t.ref)})<br>${esc(dir)}<br>no estimate available`;
       return (
@@ -2535,7 +2563,7 @@ const BIB = `@article{jawinski2025brainage,
           });
       }),
     );
-    MR_DIRS.forEach(([, label], g) =>
+    mrDirs.forEach(([, label], g) =>
       annotations.push({
         x: (xs[g * 3] + xs[g * 3 + 2]) / 2,
         y: 1,
@@ -2609,7 +2637,7 @@ const BIB = `@article{jawinski2025brainage,
         annotations,
       }),
       {
-        ...H_CFG,
+        ...heritPlotConfig,
         toImageButtonOptions: {
           filename: "brainage_mendelian_randomization",
           scale: 3,
@@ -2650,10 +2678,10 @@ const BIB = `@article{jawinski2025brainage,
       setHtml(box, "");
       return;
     }
-    const cols = MR_DIRS.flatMap(([dk, dl]) =>
-      MKEYS.map((m) => ({ dk, dl, m, e: t[dk][m] })),
+    const cols = mrDirs.flatMap(([dk, dl]) =>
+      modelKeys.map((m) => ({ dk, dl, m, e: t[dk][m] })),
     );
-    const where = (c) => `${c.dl}, ${MEASURES[c.m].toLowerCase()}`;
+    const where = (c) => `${c.dl}, ${measures[c.m].toLowerCase()}`;
     const dot = (c, k, name) => {
       if (!c.e) return '<td class="dotc neg">–</td>';
       const p = k === "gsmr" ? c.e.p : c.e.methods[k];
@@ -2661,7 +2689,7 @@ const BIB = `@article{jawinski2025brainage,
       const on = p < 0.05;
       return `<td class="dotc tap" tabindex="0" data-info="${esc(`<b>${name}</b> · ${where(c)}: p = ${fmtP(p)}`)}"><span class="mdot${on ? " on" : ""}${on && c.e.b < 0 ? " neg-b" : ""}"></span></td>`;
     };
-    const head = `<tr><th></th>${MR_DIRS.map(([, l]) => `<th colspan="3" class="grp">${l}</th>`).join("")}</tr><tr><th></th>${cols.map((c) => `<th class="dotc">${{ gm: "Grey", wm: "White", gwm: "G + W" }[c.m]}</th>`).join("")}</tr>`;
+    const head = `<tr><th></th>${mrDirs.map(([, l]) => `<th colspan="3" class="grp">${l}</th>`).join("")}</tr><tr><th></th>${cols.map((c) => `<th class="dotc">${{ gm: "Grey", wm: "White", gwm: "G + W" }[c.m]}</th>`).join("")}</tr>`;
     const rows = mrData.methods
       .map(
         ([k, name]) =>
@@ -2720,7 +2748,7 @@ const BIB = `@article{jawinski2025brainage,
     const m = state.m,
       geneSummary = pmeta.summary.genes,
       sm = geneSummary[m],
-      model = MEASURES[m].toLowerCase();
+      model = measures[m].toLowerCase();
     qsel("#genes-title").textContent =
       `${fmtInt(sm.bonf)} genes associated with ${model} brain age gap`;
     setHtml(
@@ -2752,7 +2780,7 @@ const BIB = `@article{jawinski2025brainage,
       gene: (g) => g.gene.toLowerCase(),
       pos: (g) => (g.chr === "X" ? 23 : +g.chr) * 1e9 + g.start,
       nsnp: (g) => g.nsnp,
-      models: (g) => MKEYS.filter((mm) => pass(g, mm)).length,
+      models: (g) => modelKeys.filter((mm) => pass(g, mm)).length,
       p: (g) => g[m].p,
       fdr: (g) => g[m].fdr,
       lead: (g) => (g[m].lead || "").toLowerCase(),
@@ -2770,7 +2798,8 @@ const BIB = `@article{jawinski2025brainage,
             `<td class="hide-s">${esc(g.cyto)}<small>chr${esc(g.chr)}:${fmtInt(g.start)}–${fmtInt(g.end)}</small></td>` +
             `<td class="hide-m">${g[m].index ? '<span class="novel-tag lead-tag">lead gene</span>' : g[m].lead ? `<i>${esc(g[m].lead)}</i>` : "–"}</td>` +
             `<td class="num hide-m">${fmtInt(g.nsnp)}</td>` +
-            `<td class="models hide-s">${MKEYS.filter((mm) => pass(g, mm))
+            `<td class="models hide-s">${modelKeys
+              .filter((mm) => pass(g, mm))
               .map((mm) => mchip(mm))
               .join("")}</td>` +
             `<td class="num${g[m].p < bonf ? " sig" : ""}">${fmtP(g[m].p)}</td><td class="num hide-s">${fmtP(g[m].fdr)}</td></tr>`,
@@ -2800,7 +2829,7 @@ const BIB = `@article{jawinski2025brainage,
       ? "Show first 10 only"
       : `Show all ${fmtInt(rows.length)} genes`;
     qsel("#genes-count").textContent =
-      `${rows.length === total ? fmtInt(total) : `${fmtInt(rows.length)} of ${fmtInt(total)}`} genes pass ${geneState.sig === "bonf" ? "Bonferroni" : "FDR < 5%"} for ${MEASURES[m].toLowerCase()} brain age gap; “Models” lists every model for which the gene passes.`;
+      `${rows.length === total ? fmtInt(total) : `${fmtInt(rows.length)} of ${fmtInt(total)}`} genes pass ${geneState.sig === "bonf" ? "Bonferroni" : "FDR < 5%"} for ${measures[m].toLowerCase()} brain age gap; “Models” lists every model for which the gene passes.`;
     document
       .querySelectorAll("#genes-table th")
       .forEach((th) =>
@@ -2840,14 +2869,16 @@ const BIB = `@article{jawinski2025brainage,
       return;
     }
     const bonf = geneData.bonf;
-    const rows = MKEYS.map((m) => {
-      const e = g[m];
-      return (
-        `<tr><td>${SHORT[m]}</td><td class="num${e.p < bonf ? " sig" : ""}">${fmtP(e.p)}</td><td class="num">${fmtP(e.fdr)}</td>` +
-        `<td>${e.index ? "this gene" : e.lead ? `<a href="#" class="lead-jump" data-gene="${esc(e.lead)}"><i>${esc(e.lead)}</i></a>` : "–"}</td>` +
-        `<td>${e.p < bonf ? "Bonferroni" : e.fdr < 0.05 ? "FDR &lt; 5%" : "–"}</td></tr>`
-      );
-    }).join("");
+    const rows = modelKeys
+      .map((m) => {
+        const e = g[m];
+        return (
+          `<tr><td>${shortModel[m]}</td><td class="num${e.p < bonf ? " sig" : ""}">${fmtP(e.p)}</td><td class="num">${fmtP(e.fdr)}</td>` +
+          `<td>${e.index ? "this gene" : e.lead ? `<a href="#" class="lead-jump" data-gene="${esc(e.lead)}"><i>${esc(e.lead)}</i></a>` : "–"}</td>` +
+          `<td>${e.p < bonf ? "Bonferroni" : e.fdr < 0.05 ? "FDR &lt; 5%" : "–"}</td></tr>`
+        );
+      })
+      .join("");
     const links = [
       `<a href="https://www.genecards.org/cgi-bin/carddisp.pl?gene=${encodeURIComponent(g.gene)}" target="_blank" rel="noopener">GeneCards</a>`,
     ].concat(
@@ -2926,8 +2957,8 @@ const BIB = `@article{jawinski2025brainage,
       load("loci"),
       load("genes"),
     ]);
-    const sigP = (i) => MKEYS.some((m) => lt05(all[m].q[i]));
-    const sigR = (i) => MKEYS.some((m) => lt05(rgMeta[m].q[i]));
+    const sigP = (i) => modelKeys.some((m) => lt05(all[m].q[i]));
+    const sigR = (i) => modelKeys.some((m) => lt05(rgMeta[m].q[i]));
     const items = [];
     pmeta.desc.forEach((d, i) =>
       items.push({
@@ -2954,7 +2985,7 @@ const BIB = `@article{jawinski2025brainage,
         g: "Genetic correlations, 38 selected traits",
         text: t.trait,
         sub: t.ref,
-        sig: MKEYS.some((m) => t[m].fdr < 0.05),
+        sig: modelKeys.some((m) => t[m].fdr < 0.05),
         hay: `${t.trait} ${t.ref}`,
         go: { d: "rgsel" },
       }),
@@ -2965,7 +2996,7 @@ const BIB = `@article{jawinski2025brainage,
         text: t.trait,
         sub: t.ref,
         sig: ["to", "from"].some((dk) =>
-          MKEYS.some((m) => t[dk][m] && t[dk][m].fdr < 0.05),
+          modelKeys.some((m) => t[dk][m] && t[dk][m].fdr < 0.05),
         ),
         hay: `${t.trait} ${t.ref}`,
         go: { d: "mr", trait: k },
@@ -2991,12 +3022,15 @@ const BIB = `@article{jawinski2025brainage,
       }),
     );
     G.genes.forEach((g) => {
-      const best = MKEYS.reduce((a, mm) => (g[mm].p < g[a].p ? mm : a), "gwm");
+      const best = modelKeys.reduce(
+        (a, mm) => (g[mm].p < g[a].p ? mm : a),
+        "gwm",
+      );
       items.push({
         g: "Gene-based tests",
         text: g.gene,
         sub: `${g.cyto} · p = ${fmtP(g[best].p, false)}`,
-        sig: MKEYS.some((mm) => g[mm].p < G.bonf),
+        sig: modelKeys.some((mm) => g[mm].p < G.bonf),
         italic: true,
         hay: `${g.gene} ${g.desc || ""} ${g.cyto}`,
         go: { d: "genes", m: best, gq: g.gene },
@@ -3033,7 +3067,7 @@ const BIB = `@article{jawinski2025brainage,
       index = index || (await searchIndex());
       opts = [];
       let html = "";
-      GROUPS.forEach((g) => {
+      searchGroups.forEach((g) => {
         const hits = index
           .filter((x) => x.g === g && x.hay.includes(q))
           .sort(
@@ -3194,7 +3228,7 @@ const BIB = `@article{jawinski2025brainage,
     }
   }
   let lastD = null;
-  const sectionEl = () => qsel(SECTION[state.d] || "#explore-body");
+  const sectionEl = () => qsel(sectionOf[state.d] || "#explore-body");
 
   // ---------- result cards, jump chips and previous/next ----------
   /** Fill the result cards with the fixed headline numbers. */
@@ -3203,7 +3237,7 @@ const BIB = `@article{jawinski2025brainage,
     if (!cardSummary) return;
     const pct = (x) => Math.round(x * 100);
     const h = cardSummary.herit.ldsc_combined,
-      hs = MKEYS.map((k) => h[k].h2);
+      hs = modelKeys.map((k) => h[k].h2);
     const set = (k, num, sub) => {
       setHtml(qsel(`[data-num="${k}"]`), num);
       if (sub) setHtml(qsel(`[data-sub="${k}"]`), sub);
@@ -3244,15 +3278,15 @@ const BIB = `@article{jawinski2025brainage,
   }
   /** Update the previous/next buttons below the results. */
   function updateNext() {
-    const k = ORDER.indexOf(state.d);
+    const k = modeOrder.indexOf(state.d);
     [
-      ["#nn-prev", ORDER[k - 1]],
-      ["#nn-next", ORDER[k + 1]],
+      ["#nn-prev", modeOrder[k - 1]],
+      ["#nn-next", modeOrder[k + 1]],
     ].forEach(([sel, d]) => {
       const b = qsel(sel);
       b.hidden = !d;
       b.dataset.d = d || "";
-      if (d) b.querySelector(".nn-name").textContent = ORDER_NAME[d];
+      if (d) b.querySelector(".nn-name").textContent = modeName[d];
     });
   }
   const scrollToResults = () => {
@@ -3403,7 +3437,7 @@ const BIB = `@article{jawinski2025brainage,
   }
   /** Plot types offered for the current results and sample. */
   function viewsFor() {
-    if (state.d !== "pheno") return VIEWS[state.d];
+    if (state.d !== "pheno") return viewsByMode[state.d];
     return state.s === "sexdiff"
       ? ["sex", "manhattan", "volcano"]
       : ["manhattan", "volcano"];
@@ -3454,7 +3488,7 @@ const BIB = `@article{jawinski2025brainage,
     const n = view.rows.length,
       nSig = view.rows.filter(isSig).length,
       nB = view.rows.filter((r) => r.p < view.bonf).length;
-    const model = `<span class="pick">${MODEL_TEXT[state.m]}</span>`;
+    const model = `<span class="pick">${modelText[state.m]}</span>`;
     const ps = rgMeta.pairStats[state.m];
     setHtml(
       qsel("#sentence"),
@@ -3465,18 +3499,18 @@ const BIB = `@article{jawinski2025brainage,
           : `Associations of ${model} brain age gap with <strong>${fmtInt(n)}</strong> UK Biobank traits` +
             (state.s === "all"
               ? ""
-              : ` in <span class="pick">${SAMPLE_TEXT[state.s]}</span>`),
+              : ` in <span class="pick">${sampleText[state.s]}</span>`),
     ); // sample size goes in the line below
     qsel("#tally").textContent =
       state.d === "cmp"
         ? `Across pairs, r = ${ps.r.toFixed(2)} between genetic and phenotypic correlations; ${fmtInt(nSig)} pairs are significant in both analyses (FDR < 5%).`
         : state.d === "rg"
           ? `${fmtInt(nSig)} genetic correlations pass FDR < 5%, ${fmtInt(nB)} pass Bonferroni correction.`
-          : PHEWAS_N[state.s] +
+          : phewasN[state.s] +
             (state.s === "sexdiff"
               ? `${fmtInt(nSig)} traits differ between women and men at FDR < 5%, ${fmtInt(nB)} after Bonferroni correction.`
               : `${fmtInt(nSig)} associations pass FDR < 5%, ${fmtInt(nB)} pass Bonferroni correction.`);
-    let note = VIEW_NOTES[state.d][state.v];
+    let note = viewNotes[state.d][state.v];
     qsel("#view-note").textContent = note;
     setHtml(qsel("#keymarks"), keyHtml());
     syncControls();
@@ -3683,7 +3717,7 @@ const BIB = `@article{jawinski2025brainage,
       }),
     );
     qsel("#copy-bib").addEventListener("click", (e) => {
-      navigator.clipboard.writeText(BIB).then(
+      navigator.clipboard.writeText(bibtex).then(
         () => {
           e.target.textContent = "BibTeX copied";
           setTimeout(() => (e.target.textContent = "Copy BibTeX"), 2000);

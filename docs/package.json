@@ -1,0 +1,12 @@
+{
+  "name": "ukb-brainage-results-browser",
+  "private": true,
+  "description": "Static results browser for Jawinski et al. (2025) Nature Aging; no build step, no dependencies",
+  "engines": {
+    "node": ">=22"
+  },
+  "browserslist": [
+    "defaults",
+    "not op_mini all"
+  ]
+}
