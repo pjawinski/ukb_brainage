@@ -1,14 +1,14 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/baff2f8d50e947c5a1a69bb392a9746f)](https://app.codacy.com/gh/pjawinski/ukb_brainage/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![DOI](https://img.shields.io/badge/DOI-10.1038%2Fs43587--025--00962--7-brightgreen)](https://doi.org/10.1038/s43587-025-00962-7)
-[![Bluesky](https://img.shields.io/badge/Bluesky-pjawinski.bsky.social-blue?logo=bluesky)](https://bsky.app/profile/pjawinski.bsky.social)
 [![Results browser](https://img.shields.io/badge/Interactive-results%20browser-2453a6)](https://pjawinski.github.io/ukb_brainage/)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-pjawinski-blue?logo=linkedin)](https://www.linkedin.com/in/pjawinski)
 
 # Genome-wide analysis of brain age gap identifies 59 associated loci and unveils relationships with mental and physical health
 This repository provides the analysis scripts and resources required to reproduce the findings reported in our article published in [Nature Aging](https://doi.org/10.1038/s43587-025-00962-7). The individual-level data incorporated in this work have been obtained from the [UK Biobank](https://www.ukbiobank.ac.uk/) and the [LIFE-Adult study](https://www.uniklinikum-leipzig.de/einrichtungen/life). Access to these datasets is restricted to researchers with approved projects. The GWAS summary statistics and polygenic score weights generated from our analyses are publicly available on [Zenodo](https://doi.org/10.5281/zenodo.14826943).
 
 ## Interactive results browser
-Explore the phenome-wide associations of brain age gap with 7,088 UK Biobank traits and its genetic correlations with 989 UK Biobank traits and 38 selected traits from published GWAS at **[pjawinski.github.io/ukb_brainage](https://pjawinski.github.io/ukb_brainage/)**. Switch between Manhattan and volcano plots, compare women and men, set genetic against phenotypic correlations as in the paper, browse SNP heritability, polygenicity and partitioned heritability, explore the 59 GWAS loci with their gene prioritization evidence and the fastBAT gene-based results, check Mendelian randomization results in both directions, search any trait, and download filtered results as CSV. The site is built from [results/combined](results/combined) and lives in [docs/](docs/).
+Explore the results at **[pjawinski.github.io/ukb_brainage](https://pjawinski.github.io/ukb_brainage/)**: SNP heritability and polygenicity, the 59 GWAS loci with gene prioritization and fastBAT gene-based results, phenome-wide associations with 7,088 UK Biobank traits, genetic correlations with 989 UK Biobank traits and 38 published GWAS, and Mendelian randomization in both directions. Search any trait, gene or variant, compare women and men, and download filtered results as CSV.
 
 ## Abstract
 Neuroimaging and machine learning are advancing research into the mechanisms of biological aging. In this field, 'brain age gap' has emerged as a promising magnetic resonance imaging-based biomarker that quantifies the deviation between an individual’s biological and chronological age of the brain. Here we conducted an in-depth genomic analysis of the brain age gap and its relationships with over 1,000 health traits. Genome-wide analyses in up to 56,348 individuals unveiled a heritability of 23–29% attributable to common genetic variants and highlighted 59 associated loci (39 novel). The leading locus encompasses MAPT, encoding the tau protein central to Alzheimer’s disease. Genetic correlations revealed relationships with mental health, physical health, lifestyle and socioeconomic traits, including depressed mood, diabetes, alcohol intake and income. Mendelian randomization indicated a causal role of high blood pressure and type 2 diabetes in accelerated brain aging. Our study highlights key genes and pathways related to neurogenesis, immune-system-related processes and small GTPase binding, laying the foundation for further mechanistic exploration.
@@ -73,5 +73,5 @@ cd ukb_brainage
 
 
 ## Contact
-Philippe Jawinski | Humboldt-Universität zu Berlin | philippe.jawinski[at]hu-berlin.de <br>
+Philippe Jawinski | Charité – Universitätsmedizin Berlin | philippe.jawinski[at]charite.de <br>
 Sebastian Markett | Humboldt-Universität zu Berlin | sebastian.markett[at]hu-berlin.de
