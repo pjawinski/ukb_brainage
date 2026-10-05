@@ -2,9 +2,13 @@
 [![license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![DOI](https://img.shields.io/badge/DOI-10.1038%2Fs43587--025--00962--7-brightgreen)](https://doi.org/10.1038/s43587-025-00962-7)
 [![Bluesky](https://img.shields.io/badge/Bluesky-pjawinski.bsky.social-blue?logo=bluesky)](https://bsky.app/profile/pjawinski.bsky.social)
+[![Results browser](https://img.shields.io/badge/Interactive-results%20browser-2453a6)](https://pjawinski.github.io/ukb_brainage/)
 
 # Genome-wide analysis of brain age gap identifies 59 associated loci and unveils relationships with mental and physical health
 This repository provides the analysis scripts and resources required to reproduce the findings reported in our article published in [Nature Aging](https://doi.org/10.1038/s43587-025-00962-7). The individual-level data incorporated in this work have been obtained from the [UK Biobank](https://www.ukbiobank.ac.uk/) and the [LIFE-Adult study](https://www.uniklinikum-leipzig.de/einrichtungen/life). Access to these datasets is restricted to researchers with approved projects. The GWAS summary statistics and polygenic score weights generated from our analyses are publicly available on [Zenodo](https://doi.org/10.5281/zenodo.14826943).
+
+## Interactive results browser
+Explore the phenome-wide associations of brain age gap with 7,088 UK Biobank traits and its genetic correlations with 989 UK Biobank traits and 38 selected traits from published GWAS at **[pjawinski.github.io/ukb_brainage](https://pjawinski.github.io/ukb_brainage/)**. Switch between Manhattan and volcano plots, compare women and men, set genetic against phenotypic correlations as in the paper, browse SNP heritability, polygenicity and partitioned heritability, explore the 59 GWAS loci with their gene prioritization evidence and the fastBAT gene-based results, check Mendelian randomization results in both directions, search any trait, and download filtered results as CSV. The site is built from [results/combined](results/combined) and lives in [docs/](docs/).
 
 ## Abstract
 Neuroimaging and machine learning are advancing research into the mechanisms of biological aging. In this field, 'brain age gap' has emerged as a promising magnetic resonance imaging-based biomarker that quantifies the deviation between an individual’s biological and chronological age of the brain. Here we conducted an in-depth genomic analysis of the brain age gap and its relationships with over 1,000 health traits. Genome-wide analyses in up to 56,348 individuals unveiled a heritability of 23–29% attributable to common genetic variants and highlighted 59 associated loci (39 novel). The leading locus encompasses MAPT, encoding the tau protein central to Alzheimer’s disease. Genetic correlations revealed relationships with mental health, physical health, lifestyle and socioeconomic traits, including depressed mood, diabetes, alcohol intake and income. Mendelian randomization indicated a causal role of high blood pressure and type 2 diabetes in accelerated brain aging. Our study highlights key genes and pathways related to neurogenesis, immune-system-related processes and small GTPase binding, laying the foundation for further mechanistic exploration.
@@ -17,6 +21,7 @@ Keywords: aging, genetics, machine learning, mental health, MRI
 [results/](results/) - contains result files (individual-level results are not provided due to data privacy policies)<br>
 [run.mri.sh](run.mri.sh) - main analysis file for brain age gap estimations (phenotyping)<br>
 [run.genetics.sh](run.genetics.sh) - main analysis file for genetic analyses<br>
+[docs/](docs/) - interactive results browser (heritability, GWAS loci, gene-based tests, phenotypic and genetic correlations, Mendelian randomization) served via GitHub Pages<br>
 
 ## Software Environment
 Analyses were run on **Debian GNU/Linux 11 (bullseye)** with  **kernel version 5.10.0-23-amd64**. The [code/prepare/](code/prepare/) directory contains scripts to facilitate the installation of the necessary bioinformatic tools for reproducing our analyses. For managing conda environments, we recommend using [mamba](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html), which offers faster dependency resolution and package installation compared to `conda`.

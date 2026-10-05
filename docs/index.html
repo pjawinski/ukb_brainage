@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exploring the genetics of brain age gap</title>
+<meta name="description" content="Interactive results on the heritability, GWAS loci, phenotypic and genetic correlations and Mendelian randomization of the MRI-based brain age gap (Jawinski et al., Nature Aging 2025).">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Exploring the genetics of brain age gap">
+<meta property="og:description" content="Interactive results from Jawinski et al., Nature Aging 2025: heritability, 59 GWAS loci, phenotypic and genetic correlations and Mendelian randomization of the MRI-based brain age gap.">
+<meta property="og:url" content="https://pjawinski.github.io/ukb_brainage/">
+<meta property="og:image" content="https://pjawinski.github.io/ukb_brainage/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Manhattan plot of the 59 brain age gap loci">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 4 28 26H4z' fill='%232453A6'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<a class="skip" href="#results">Skip to results table</a>
+
+<header class="masthead">
+  <div class="wrap">
+    <nav class="social-top" aria-label="Philippe Jawinski on social media"><span class="social-name">Site by Philippe Jawinski</span><a href="https://www.linkedin.com/in/pjawinski" rel="me" class="profile-link icon-only" title="Philippe Jawinski on LinkedIn" aria-label="Philippe Jawinski on LinkedIn"><img src="img/linkedin.png" width="21" height="18" alt=""></a><a href="https://bsky.app/profile/pjawinski.bsky.social" rel="me" class="profile-link icon-only" title="Philippe Jawinski on Bluesky" aria-label="Philippe Jawinski on Bluesky"><img src="img/bluesky.svg" width="20" height="18" alt=""></a></nav>
+    <h1>Exploring the genetics of brain age gap</h1>
+    <p class="paper">Interactive results from Jawinski et al., “Genome-wide analysis of brain age identifies 59 associated loci and unveils relationships with mental and physical health”, <i>Nature Aging</i> 5, 2086–2103 (2025).</p>
+    <nav class="links" aria-label="Related resources">
+      <a href="https://doi.org/10.1038/s43587-025-00962-7">Read the paper</a>
+      <a href="https://github.com/pjawinski/ukb_brainage">Code on GitHub</a>
+      <a href="https://doi.org/10.5281/zenodo.14826943">GWAS summary statistics</a>
+      <a href="#about">How to read this</a>
+    </nav>
+    <p class="intro">The <b>brain age gap</b> is the difference between the age predicted from a person’s T1-weighted MRI scan and their chronological age. A positive gap means the brain appears older than expected. Gaps were estimated from grey matter, white matter, and both combined. Data come from the UK Biobank resource (application number 42032) and the LIFE-Adult study.</p>
+  </div>
+</header>
+
+<main>
+  <section class="wrap explorer" aria-label="Phenome-wide association plot">
+    <div class="settings" role="region" aria-labelledby="settings-title">
+      <h2 class="settings-title" id="settings-title">Choose what to explore</h2>
+      <p class="settings-hint">Pick a result, then the brain age model and sample where available. The figures and tables below update right away.</p>
+      <div class="gsearch">
+        <label class="sr-only" for="gq">Search all results</label>
+        <input type="search" id="gq" placeholder="Search all results for a trait, gene or variant, e.g. diabetes, MAPT" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="gq-list" aria-autocomplete="list">
+        <div id="gq-list" class="gq-list" role="listbox" hidden></div>
+      </div>
+    <div class="controls">
+      <div class="ctl">
+        <span class="ctl-label" id="lbl-data">Results</span>
+        <div class="seg seg-results rcards" role="radiogroup" aria-labelledby="lbl-data" data-key="d">
+          <button type="button" role="radio" data-val="herit"><span class="rc-num" data-num="herit">23–29%</span><span class="rc-name">Heritability</span><span class="rc-sub" data-sub="herit">SNP heritability</span></button>
+          <button type="button" role="radio" data-val="loci"><span class="rc-num" data-num="loci">59</span><span class="rc-name">Genomic loci</span><span class="rc-sub" data-sub="loci">genome-wide significant, 39 novel</span></button>
+          <button type="button" role="radio" data-val="pheno"><span class="rc-num" data-num="pheno">–</span><span class="rc-name">Phenotypic correlations</span><span class="rc-sub" data-sub="pheno">traits at FDR &lt; 5%</span></button>
+          <button type="button" role="radio" data-val="rg"><span class="rc-num" data-num="rg">–</span><span class="rc-name">Genetic correlations</span><span class="rc-sub" data-sub="rg">traits at FDR &lt; 5%</span></button>
+          <button type="button" role="radio" data-val="cmp"><span class="rc-num" data-num="cmp">–</span><span class="rc-name">Phenotypic vs. genetic</span><span class="rc-sub" data-sub="cmp">agreement across traits</span></button>
+          <button type="button" role="radio" data-val="mr"><span class="rc-num" data-num="mr">–</span><span class="rc-name">Mendelian randomization</span><span class="rc-sub" data-sub="mr">traits affecting brain age gap</span></button>
+        </div>
+        <p class="rc-note" id="rc-note"></p>
+      </div>
+      <div class="ctl" id="ctl-level" hidden>
+        <span class="ctl-label" id="lbl-level">Level</span>
+        <div class="seg" role="radiogroup" aria-labelledby="lbl-level" data-key="lv">
+          <button type="button" role="radio" data-val="loci">Variants</button>
+          <button type="button" role="radio" data-val="genes">Genes</button>
+        </div>
+      </div>
+      <div class="ctl" id="ctl-rgset" hidden>
+        <span class="ctl-label" id="lbl-rgset">Traits</span>
+        <div class="seg" role="radiogroup" aria-labelledby="lbl-rgset" data-key="g">
+          <button type="button" role="radio" data-val="ukb">UK Biobank traits</button>
+          <button type="button" role="radio" data-val="sel">38 selected traits</button>
+        </div>
+      </div>
+      <div class="ctl" id="ctl-model">
+        <span class="ctl-label" id="lbl-model">Brain age model</span>
+        <div class="seg" role="radiogroup" aria-labelledby="lbl-model" data-key="m">
+          <button type="button" role="radio" data-val="gm">Grey matter</button>
+          <button type="button" role="radio" data-val="wm">White matter</button>
+          <button type="button" role="radio" data-val="gwm">Grey + white</button>
+          <button type="button" role="radio" data-val="all" hidden>All together</button>
+        </div>
+      </div>
+      <div class="ctl" id="ctl-sample">
+        <span class="ctl-label" id="lbl-sample">Sample</span>
+        <div class="seg" role="radiogroup" aria-labelledby="lbl-sample" data-key="s">
+          <button type="button" role="radio" data-val="all">All</button>
+          <button type="button" role="radio" data-val="female">Women</button>
+          <button type="button" role="radio" data-val="male">Men</button>
+          <button type="button" role="radio" data-val="sexdiff">Women vs. men</button>
+        </div>
+      </div>
+    </div>
+    </div>
+    <div id="explore-body">
+    <div class="plot-head">
+      <h2 class="sentence" id="sentence">Loading results</h2>
+      <p class="tally" id="tally" aria-live="polite"></p>
+      <p class="view-note" id="view-note"></p>
+    </div>
+
+    <div class="plot-frame">
+      <div id="plot" class="plot" role="img" aria-label="Phenome-wide association plot"></div>
+      <div class="plot-loading" id="plot-loading">Loading results</div>
+    </div>
+
+    <div class="plot-tools">
+      <div class="plot-ctl" id="ctl-plot">
+          <span id="lbl-plot">Plot</span>
+          <div class="seg seg-sm" role="radiogroup" aria-labelledby="lbl-plot" data-key="v">
+            <button type="button" role="radio" data-val="sex">Scatter</button>
+            <button type="button" role="radio" data-val="manhattan">Manhattan</button>
+            <button type="button" role="radio" data-val="volcano">Volcano</button>
+          </div>
+        </div>
+      <div class="labels-ctl"><span id="lbl-labels">Labels</span>
+        <div class="seg seg-sm" id="labels" role="radiogroup" aria-labelledby="lbl-labels" data-key="l">
+          <button type="button" role="radio" data-val="0" aria-checked="false" tabindex="-1">Off</button>
+          <button type="button" role="radio" data-val="5" aria-checked="false" tabindex="-1">5</button>
+          <button type="button" role="radio" data-val="10" aria-checked="true">10</button>
+          <button type="button" role="radio" data-val="20" aria-checked="false" tabindex="-1">20</button>
+        </div>
+      </div>
+    </div>
+    <div class="key">
+      <div class="key-marks" id="keymarks" aria-hidden="true"></div>
+    </div>
+
+    <p class="cats-hint">Tap a category to filter the plot and table. Numbers count traits at FDR &lt; 5%.</p>
+    <div class="cats" id="cats" role="group" aria-label="Filter by category"></div>
+    </div>
+
+    <div id="loci" class="loci" hidden>
+      <div class="plot-head">
+        <h2 class="sentence" id="loci-title">Genome-wide significant loci for brain age gap</h2>
+        <p class="tally" id="loci-tally"></p>
+        <p class="view-note" id="loci-note">Manhattan plot of the combined European meta-analysis for the selected brain age model. Diamonds mark the lead variants of independent loci; the line marks p = 5×10<sup>−8</sup>, and the y-axis is truncated at −log<sub>10</sub>(p) = 40. The table lists all loci found for this model; select a row for details.</p>
+      </div>
+      <figure class="png-frame"><img id="loci-img" src="img/manhattan.all.png" width="1600" height="596" alt="Manhattan plot for the three brain age models together"></figure>
+
+      <div class="loci-list">
+        <div class="filters">
+          <label class="search"><span class="sr-only">Search loci</span>
+            <input type="search" id="loci-q" placeholder="Search genes or variants, e.g. MAPT, rs2260227" autocomplete="off">
+          </label>
+          
+          <label><span class="sr-only">Novelty</span>
+            <select id="loci-nov">
+              <option value="all">Novel and known</option>
+              <option value="novel">Novel only</option>
+              <option value="known">Previously reported</option>
+            </select></label>
+        </div>
+        <p class="count" id="loci-count"></p>
+        <div class="table-scroll">
+          <table id="loci-table">
+            <thead><tr>
+              <th scope="col" data-k="pos" title="Cytogenetic band and position (hg19) of the index variant">Locus</th>
+              <th scope="col" data-k="gene">Gene</th>
+              <th scope="col" data-k="id" class="hide-s">Lead variant</th>
+              <th scope="col" data-k="models" class="hide-s" title="Brain age gap phenotypes for which an association with the locus was found">Models</th>
+              <th scope="col" data-k="beta" class="num hide-m">β (SE)</th>
+              <th scope="col" data-k="p" class="num">p</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="more-row"><button type="button" class="btn" id="loci-more" hidden>Show all loci</button></div>
+
+        <section class="detail trait-card" id="locus" aria-live="polite" hidden></section>
+      </div>
+    </div>
+
+    <div id="rgsel" class="rgsel" hidden>
+      <div class="plot-head">
+        <h2 class="sentence">Genetic correlations of brain age gap with 38 selected traits</h2>
+        <p class="tally" id="rgsel-tally"></p>
+        <p class="view-note">Traits from published GWAS, grouped by health domain. Cells are coloured by the genetic correlation r<sub>g</sub> where p &lt; 0.05 and shaded grey otherwise; * p &lt; 0.05, ** FDR &lt; 0.05. Hover or tap a cell for the exact values, including the SNP heritability of the selected trait.</p>
+      </div>
+      <div class="plot-frame"><div id="rgselplot" class="rgselplot"></div></div>
+    </div>
+
+    <div id="genes" class="genes" hidden>
+      <div class="plot-head">
+        <h2 class="sentence" id="genes-title">Gene-based association</h2>
+        <p class="tally" id="genes-tally"></p>
+        <p class="view-note">Manhattan plot of the fastBAT gene-based tests for the selected brain age model. The solid line marks Bonferroni significance, the dashed line FDR &lt; 5%; diamonds mark the lead genes of independent loci passing Bonferroni and circles those passing FDR only. The y-axis is truncated at −log<sub>10</sub>(p) = 40.</p>
+      </div>
+      <figure class="png-frame"><img id="genes-img" src="img/genes.gwm.png" width="1600" height="602" alt="Gene-based Manhattan plot"></figure>
+      <div class="loci-list">
+        <div class="filters">
+          <label class="search"><span class="sr-only">Search genes</span>
+            <input type="search" id="genes-q" placeholder="Search genes, e.g. KANSL1, 17q21" autocomplete="off">
+          </label>
+          <label><span class="sr-only">Significance</span>
+            <select id="genes-sig">
+              <option value="bonf">Bonferroni</option>
+              <option value="fdr">FDR &lt; 5%</option>
+            </select></label>
+        </div>
+        <p class="count" id="genes-count"></p>
+        <div class="table-scroll">
+          <table id="genes-table">
+            <thead><tr>
+              <th scope="col" data-k="gene">Gene</th>
+              <th scope="col" data-k="pos" class="hide-s">Location</th>
+              <th scope="col" data-k="lead" class="hide-m" title="Most significant gene of the locus the gene belongs to (3-Mb clumping, selected model)">Lead gene</th>
+              <th scope="col" data-k="nsnp" class="num hide-m">SNPs</th>
+              <th scope="col" data-k="models" class="hide-s" title="Brain age models for which the gene passes the chosen threshold">Models</th>
+              <th scope="col" data-k="p" class="num">p</th>
+              <th scope="col" data-k="fdr" class="num hide-s">FDR</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="more-row"><button type="button" class="btn" id="genes-more" hidden>Show all genes</button></div>
+        <section class="detail trait-card" id="gene-detail" aria-live="polite" hidden></section>
+      </div>
+    </div>
+
+    <div id="mr" class="mr" hidden>
+      <div class="plot-head">
+        <h2 class="sentence" id="mr-title">Mendelian randomization between brain age gap and 12 traits</h2>
+        <p class="tally" id="mr-tally"></p>
+        <p class="view-note">Generalised summary-data-based Mendelian randomization (GSMR) in both directions. Cells are coloured by the GSMR z-score (b / SE) where p &lt; 0.05 and shaded grey otherwise; * p &lt; 0.05, ** FDR &lt; 0.05. Hover or tap a cell for the estimate and the sensitivity analyses; select a cell to compare all MR methods for that trait.</p>
+      </div>
+      <div class="plot-frame"><div id="mrplot" class="mrplot"></div></div>
+      <section class="detail trait-card" id="mr-detail" aria-live="polite" hidden></section>
+    </div>
+
+    <div id="herit" class="herit" hidden>
+      <div class="herit-grid">
+        <section class="hpanel" aria-labelledby="h-h2">
+          <h2 id="h-h2">SNP heritability</h2>
+          <p class="lede">Proportion of variance in brain age gap explained by common SNPs, estimated with LD score regression (LDSC). “Combined” is the European meta-analysis of discovery and replication samples. Bars show 95% confidence intervals (±1.96 SE); hover or tap a point for the exact values.</p>
+          <div class="model-key" aria-hidden="true"></div>
+          <div id="h2plot" class="hplot"></div>
+          <p class="note">* Sex-stratified analyses include UK Biobank participants only (without LIFE-Adult).</p>
+        </section>
+        <section class="hpanel" aria-labelledby="h-gen">
+          <h2 id="h-gen">Polygenicity</h2>
+          <p class="lede">GENESIS estimates of the number of SNPs with non-zero effect (European discovery + replication meta-analysis), with height and neuroticism as reference traits. Bars show ±1 SE.</p>
+          <div id="genplot" class="hplot"></div>
+          <p class="note">Hover or tap a bar for the GENESIS projection: the sample size at which a GWAS would explain 80% of the SNP heritability, and the number of genome-wide significant independent SNPs (“expected loci”) at that sample size.</p>
+        </section>
+      </div>
+      <section class="hpanel" aria-labelledby="h-part">
+        <h2 id="h-part">Partitioned heritability</h2>
+        <p class="lede">Enrichment of SNP heritability in functional annotations of the LDSC baseline model: the share of heritability divided by the share of SNPs in each annotation. Filled points pass FDR &lt; 5%.</p>
+        <div class="model-key" aria-hidden="true"></div>
+        <div id="baseplot" class="hplot"></div>
+      </section>
+      <section class="hpanel" aria-labelledby="h-ctg">
+        <h2 id="h-ctg">Cell-type groups</h2>
+        <p class="lede">Heritability enrichment in ten cell-type groups defined by cell-type-specific histone marks (Finucane et al., 2015), each added to the baseline-LD model. Filled points pass FDR &lt; 5%.</p>
+        <div class="model-key" aria-hidden="true"></div>
+        <div id="ctgplot" class="hplot"></div>
+      </section>
+      <p class="note herit-note">Enrichment p-values are one-sided tests of a positive heritability coefficient (τ &gt; 0) conditional on the other annotations, as in the paper. An annotation can therefore show an enrichment above 1 with a p-value close to 1.</p>
+    </div>
+  </section>
+
+  <section class="wrap split" id="split">
+    <div class="table-col" id="results">
+      <div class="filters">
+        <label class="search"><span class="sr-only">Search traits</span>
+          <input type="search" id="q" placeholder="Search traits, e.g. diabetes, alcohol, 20116" autocomplete="off">
+        </label>
+        <label><span class="sr-only">Significance</span>
+          <select id="sig">
+            <option value="all">All results</option>
+            <option value="fdr">FDR &lt; 5%</option>
+            <option value="bonf">Bonferroni &lt; 5%</option>
+          </select></label>
+        <button type="button" id="download" class="btn">Download CSV</button>
+      </div>
+      <p class="count" id="count" aria-live="polite"></p>
+      <div class="table-scroll">
+        <table id="table">
+          <thead><tr>
+            <th scope="col" data-k="desc">Trait</th>
+            <th scope="col" data-k="cat" class="hide-s">Category</th>
+            <th scope="col" data-k="n" class="num hide-s">N</th>
+            <th scope="col" data-k="r" class="num">r</th>
+            <th scope="col" data-k="b" class="num hide-m">β (SE)</th>
+            <th scope="col" data-k="p" class="num" aria-sort="ascending">p</th>
+            <th scope="col" data-k="q" class="num">FDR</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <button type="button" class="btn" id="prev">Previous</button>
+        <span id="pageinfo"></span>
+        <button type="button" class="btn" id="next">Next</button>
+      </div>
+      <section class="detail trait-card" id="trait" aria-live="polite" hidden></section>
+    </div>
+
+    <aside class="detail" id="detail" aria-live="polite">
+      <h2>FDR hits by category</h2>
+    </aside>
+  </section>
+
+  <nav class="wrap next-nav" id="next-nav" aria-label="Move between results">
+    <button type="button" class="nn prev" id="nn-prev"><span class="nn-dir">← Previous</span><span class="nn-name"></span></button>
+    <button type="button" class="nn next" id="nn-next"><span class="nn-dir">Next →</span><span class="nn-name"></span></button>
+  </nav>
+
+  <section class="wrap prose" id="about">
+    <h2>How to read this</h2>
+    <div data-for="herit">
+      <p><b>SNP heritability</b> is the share of variance in brain age gap explained by common SNPs, estimated with LD score regression (LDSC) in the discovery sample (n = 32,634), the European replication sample (n = 22,256) and their combined European meta-analysis (n = 54,890), and separately in women (n = 27,789) and men (n = 25,268). The sex-stratified analyses include UK Biobank participants only.</p>
+      <p><b>Polygenicity</b> estimates from GENESIS refer to the combined European meta-analysis (n = 54,890): the number of SNPs with a non-zero effect, and a projection of the sample size at which a GWAS would explain 80% of the SNP heritability, with the number of independent genome-wide significant SNPs expected at that sample size. Height and neuroticism are shown for comparison.</p>
+      <p><b>Partitioned heritability</b>, also from the combined European meta-analysis (n = 54,890), uses the LDSC baseline model (functional annotations) and ten cell-type groups defined by cell-type-specific histone marks (Finucane et al., 2015). Enrichment is the share of SNP heritability divided by the share of SNPs in an annotation; values above 1 mean the annotation carries more heritability than its size would suggest.</p>
+    </div>
+
+    <div data-for="loci">
+      <p><b>GWAS loci</b> come from the combined European meta-analysis (n = 54,890) of the three brain age models. After cross-trait LD clumping of index variants (r² &gt; 0.1, 10,000-kb window), 59 distinct loci remained; each locus contains up to three co-inherited index variants, one per brain age model for which a genome-wide significant association (p &lt; 5×10<sup>−8</sup>) was found. The Manhattan plot and table show the loci of the selected model. “All together” shows all 59 loci, with a Manhattan plot of the smallest p value per variant across the three models, and gives each locus the statistics of the model with the smallest p value. Positions refer to hg19 (GRCh37).</p>
+      <p>A locus counts as <b>novel</b> when it does not contain any variant reported in seven earlier GWAS of brain age gap (Jonsson et al., 2019; Smith et al., 2020; Ning et al., 2021; Kim et al., 2023; Leonardsen et al., 2023; Wen et al., 2024; Yi et al., 2025). To test this, the index variants and the previously reported variants were clumped together with the same settings (r² &gt; 0.1, 10,000-kb window, LD estimated in UK Biobank imaging participants of European ancestry); a locus is previously reported when a previously reported variant falls into its clump. For these loci, the details list the earlier studies with their strongest reported variant.</p>
+      <p>The <b>prioritized gene</b> aggregates seven gene nomination strategies shown in the locus details: SBayesRC credible-set annotation, nonsynonymous variants in the 95% credible set, SMR with BrainMeta v2 eQTL and sQTL data, single- and multi-tissue GTEx eQTL mapping, and the polygenic priority score (PoPS). Hover over a row label, or open “What the columns mean” in the locus details, for the definition of each column. Values in parentheses are shown as reported in the paper’s supplementary tables.</p>
+    </div>
+
+    <div data-for="pheno">
+      <p><b>Phenome-wide association study (PheWAS).</b> All views of the phenotypic correlations come from one PheWAS: each UK Biobank variable was tested with <a href="https://github.com/MRCIEU/PHESANT">PHESANT</a> v1.1 in the UK Biobank imaging discovery sample (n = 32,634; the number available per trait is shown in the table). Each association between brain age gap (in years) and a trait was estimated in a regression model that included age, age², sex, assessment centre and total intracranial volume as covariates, so the association itself is adjusted for these variables; the sex-stratified analyses were run separately in women (n = 17,084) and men (n = 15,550). Categorical variables with several levels appear as separate binary tests, shown with their coding after the field number (for example <code>6150#4</code>).</p>
+      <p><b>Manhattan and volcano plots.</b> Each point is one PheWAS test. The Manhattan plot orders the traits by category along the x-axis, with −log<sub>10</sub>(p) on the y-axis; the volcano plot places them by effect size r instead, so direction and strength are visible at once. In the <b>women vs. men</b> scatter plot, each point is a trait with its r in women on the x-axis and in men on the y-axis; the Manhattan and volcano plots of this sample show the test for the sex difference, with the difference Δr (women − men) on the x-axis of the volcano plot. The category buttons under the plot filter the plot and the table.</p>
+      <p><b>FDR hits by category</b>, the bar chart below the table, counts the traits with FDR &lt; 5% in each category for each of the three brain age models; selecting a bar filters the plot and table to that category. Selecting a point or a table row opens the <b>trait panel</b> with the estimates across models and samples.</p>
+      <p><b>r</b> is a correlation-scale effect size derived from each test statistic, r = sign(β) · √(z² / (z² + N − 2)), so it is comparable across linear, logistic and ordinal models. <b>β</b> is the raw PHESANT coefficient on that model’s own scale. Confidence intervals in the trait panel are for r, via Fisher’s z. <b>FDR</b> is the Benjamini–Hochberg q-value within each model and sample; the Bonferroni line is 0.05 divided by the number of tests shown. The women-versus-men comparison tests whether the female and male estimates differ (two-sided z-test).</p>
+      <p>Phenotypic correlations describe shared variation and do not establish cause.</p>
+    </div>
+
+    <div data-for="rg">
+      <p><b>Genetic correlations</b> (r<sub>g</sub>) were estimated with LD score regression between the brain age gap GWAS (combined European meta-analysis, n = 54,890) and the Neale lab GWAS of UK Biobank traits. <b>h²</b> in the table is the SNP heritability of the UK Biobank trait on the observed scale. FDR is the Benjamini–Hochberg q-value within each brain age model.</p>
+      <p>In the Manhattan and volcano plots, each point is one UK Biobank trait from the Neale lab GWAS, ordered by category or placed by r<sub>g</sub>. The bar chart <b>FDR hits by category</b> below the table counts the traits with FDR &lt; 5% per category for each brain age model.</p>
+      <p>Genetic correlations describe shared genetic influences and do not establish cause.</p>
+    </div>
+
+    <div data-for="rgsel">
+      <p><b>Genetic correlations with selected traits</b> (r<sub>g</sub>) were estimated with LD score regression between the brain age gap GWAS (combined European meta-analysis, n = 54,890) and 38 published GWAS of traits from eight health domains: psychiatric disorders, substance use, neurological disorders, personality, sleep, cognition, anthropometric traits and cardiovascular traits. Hovering or tapping a cell shows the study behind each trait. FDR is the Benjamini–Hochberg q-value as reported in the result table. The heatmap follows the paper figure: cells are coloured only where p &lt; 0.05, with one star for p &lt; 0.05 and two stars for FDR &lt; 0.05.</p>
+      <p>Switch to <b>UK Biobank traits</b> for the genetic correlations with the Neale lab GWAS of UK Biobank traits. Genetic correlations describe shared genetic influences and do not establish cause.</p>
+    </div>
+
+    <div data-for="genes">
+      <p><b>Gene-based tests</b> were run with fastBAT (GCTA) on the combined European meta-analysis (n = 54,890) for each brain age model. fastBAT combines the association statistics of all SNPs within a gene’s boundaries (hg19 RefSeq gene list, no additional window) while accounting for linkage disequilibrium, estimated in UK Biobank imaging participants of European ancestry. Of 18,629 genes tested, genes pass <b>Bonferroni</b> significance at p &lt; 0.05 / 18,629 = 2.7×10<sup>−6</sup>; <b>FDR</b> is the Benjamini–Hochberg q-value within each model. Genes within 3 Mb of a more significant gene were clumped into one locus, whose most significant gene is its lead gene.</p>
+      <p>Only genes with FDR &lt; 5% for at least one brain age model are included here. Switch the level back to <b>Variants</b> for the 59 genome-wide significant loci of the SNP-level analysis.</p>
+    </div>
+
+    <div data-for="mr">
+      <p><b>Mendelian randomization</b> uses genetic variants as instruments to test whether one trait has a causal effect on another. Effects were estimated with GSMR between the brain age gap GWAS (combined European meta-analysis, n = 54,890) and 12 published GWAS of cardiometabolic, anthropometric, psychiatric and educational traits, in both directions: <b>trait → brain age gap</b> (the trait as exposure) and <b>brain age gap → trait</b> (brain age gap as exposure). Instruments were clumped (r² &lt; 0.001, 10,000-kb window), and pleiotropic outliers were removed with the HEIDI test. FDR is the Benjamini–Hochberg q-value within each direction and brain age model. The effect size b is on the scale of the summary statistics used.</p>
+      <p>The robustness of each estimate was checked with nine further methods on the same instruments (without HEIDI outlier removal): inverse-variance weighted (IVW), debiased and penalized IVW, weighted median, MR-Egger, maximum likelihood, mode-based estimation, contamination mixture and MR-PRESSO. The number of methods with p &lt; 0.05 is shown for each estimate, out of ten including GSMR. For Educational attainment, no estimate is available with brain age gap as the exposure.</p>
+      <p>Mendelian randomization rests on assumptions, in particular that the instruments affect the outcome only through the exposure; results should be read together with the sensitivity analyses.</p>
+    </div>
+
+    <div data-for="cmp">
+      <p>This view reproduces the comparison of genetic and phenotypic correlations reported in the paper. Each point is a UK Biobank trait with a <b>genetic correlation</b> (r<sub>g</sub>, LD score regression between the combined European brain age gap GWAS, n = 54,890, and the Neale lab GWAS) and a <b>phenotypic correlation</b> (r, PHESANT in the UK Biobank imaging discovery sample, n = 32,634) with brain age gap. Trait pairs are matched by description; multinomial models are excluded and only traits with SNP heritability h²/SE &gt; 1.96 are kept. A few descriptions pair fields that share a name, for example body mass index from two UK Biobank fields.</p>
+      <p>Above the plot are the Pearson correlation across trait pairs, its p-value and the mean absolute difference (MAD) between r<sub>g</sub> and r; the line is the least-squares fit.</p>
+    </div>
+
+    <h2>Cite</h2>
+    <p class="cite">Jawinski P, Forstbach H, Kirsten H, Beyer F, Villringer A, Witte AV, Scholz M, Ripke S, Markett S. Genome-wide analysis of brain age identifies 59 associated loci and unveils relationships with mental and physical health. <i>Nature Aging</i> 5, 2086–2103 (2025). <a href="https://doi.org/10.1038/s43587-025-00962-7">doi:10.1038/s43587-025-00962-7</a></p>
+    <button type="button" class="btn" id="copy-bib">Copy BibTeX</button>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <p>This research has been conducted using the <a href="https://www.ukbiobank.ac.uk/">UK Biobank</a> resource under application number 42032 and data from the <a href="https://www.uniklinikum-leipzig.de/einrichtungen/life">LIFE-Adult study</a>.</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -4,7 +4,7 @@
 # === install conda environments ===
 # ==================================
 
-for env in default; do
+for env in default eqtl finemap genesis gofuncr ldsc locuszoom mendelian phesant pointdensity pops power vectorplot xgb; do
 	if [ ! -d "envs/${env}" ]; then
 		mamba env create --file envs/${env}.yml -p envs/${env}
 	fi
