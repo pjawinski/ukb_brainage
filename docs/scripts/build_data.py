@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
-"""
-Build the compact JSON files used by the interactive PheWAS browser (docs/).
+"""Build the compact JSON files used by the interactive PheWAS browser (docs/)."""
 
-Input : results/combined/discovery*.phewas.txt (output of code/genetics/phesant.combine*.R)
-Output: docs/data/meta.json        trait annotations (shared by all samples)
-        docs/data/<sample>.json    per-sample statistics, column-oriented and aligned to meta.json
-        docs/data/rg.json          genetic correlations with Neale lab UK Biobank GWAS (gwama.eur.rgNeale.txt)
-        docs/data/herit.json       SNP heritability (LDSC), polygenicity (GENESIS) and partitioned heritability (LDSC),
-                                   copied from the result tables without recomputation
-        docs/data/loci.json        genome-wide significant loci with gene prioritisation evidence
-                                   (gwama.eur.snplevel/discoveries.main.txt and discoveries.suppl.txt,
-                                   copied as reported)
-        docs/data/rgsel.json       genetic correlations with 38 selected published GWAS (gwama.eur.rgSelection.txt),
-                                   in the order and domains of code/genetics/rg.plotSelection.R
-        docs/data/genes.json       fastBAT gene-based tests (gwama.eur.fastbat.txt),
-                                   genes with FDR < 5% in at least one model
-        docs/data/mr.json          Mendelian randomization in both directions (gwama.eur.gsmr.multi.labels.txt):
-                                   GSMR estimates and the p-values of the sensitivity methods, as reported
-
-Run from the repository root:
-    python3 docs/scripts/build_data.py
-"""
+# Input : results/combined/discovery*.phewas.txt (output of code/genetics/phesant.combine*.R)
+# Output: docs/data/meta.json        trait annotations (shared by all samples)
+#         docs/data/<sample>.json    per-sample statistics, column-oriented and aligned to meta.json
+#         docs/data/rg.json          genetic correlations with Neale lab UK Biobank GWAS
+#                                    (gwama.eur.rgNeale.txt)
+#         docs/data/herit.json       SNP heritability (LDSC), polygenicity (GENESIS) and partitioned
+#                                    heritability (LDSC),
+#                                    copied from the result tables without recomputation
+#         docs/data/loci.json        genome-wide significant loci with gene prioritisation evidence
+#                                    (gwama.eur.snplevel/discoveries.main.txt and discoveries.suppl.txt,
+#                                    copied as reported)
+#         docs/data/rgsel.json       genetic correlations with 38 selected published GWAS (gwama.eur.rgSelection.txt),
+#                                    in the order and domains of code/genetics/rg.plotSelection.R
+#         docs/data/genes.json       fastBAT gene-based tests (gwama.eur.fastbat.txt),
+#                                    genes with FDR < 5% in at least one model
+#         docs/data/mr.json          Mendelian randomization in both directions (gwama.eur.gsmr.multi.labels.txt):
+#                                    GSMR estimates and the p-values of the sensitivity methods, as reported
+#
+# Run from the repository root:
+#     python3 docs/scripts/build_data.py
 
 import json
 import math
@@ -47,6 +47,7 @@ RGNEALE = "gwama.eur.rgNeale.txt"
 
 
 def read(fname):
+    """Read a tab-separated result table as strings, exactly as written."""
     return pd.read_csv(os.path.join(RES, fname), sep="\t", dtype=str, keep_default_na=False, quoting=3)
 
 
@@ -63,7 +64,7 @@ def num(x, sig=4):
 
 
 def pval(x):
-    # p-values span hundreds of orders of magnitude -> keep 4 significant digits in exponent form
+    """Round a p-value to 4 significant digits (p-values span hundreds of orders of magnitude)."""
     return num(x, 4)
 
 
@@ -93,8 +94,9 @@ rtypes = sorted({meta_rows[v].resType for v in ids})
 
 
 def qualifiers(descs, paths_of, fields):
-    """Short labels that tell apart different fields sharing one description, e.g. the fluid intelligence
-    score from the assessment centre and from the online follow-up. Descriptions themselves stay unchanged."""
+    """Return short labels that tell apart different fields sharing one description."""
+    # e.g. the fluid intelligence score from the assessment centre and from the online follow-up;
+    # the descriptions themselves stay unchanged
     short = {
         "UK Biobank Assessment Centre": "assessment centre",
         "Assessment Centre": "assessment centre",
@@ -116,6 +118,7 @@ def qualifiers(descs, paths_of, fields):
 
 
 def field_id(var):
+    """Return the UK Biobank field ID at the start of a PHESANT variable name."""
     m = re.match(r"^(\d+)", var)
     return int(m.group(1)) if m else None
 
@@ -181,11 +184,12 @@ with open(os.path.join(OUT, "sexdiff.json"), "w") as f:
 
 # ---- genetic correlations with Neale lab UK Biobank GWAS ----
 def norm(t):
+    """Normalise a trait name for matching: lower case, alphanumerics only."""
     return re.sub(r"[^a-z0-9]+", " ", t.lower()).strip()
 
 
 by_field = {}
-for i, v in enumerate(ids):
+for i in range(len(ids)):
     by_field.setdefault(meta["field"][i], []).append(i)
 
 
@@ -262,6 +266,7 @@ summary["rg"] = {
 
 # ---- heritability: values taken as reported in the result tables ----
 def ldsc_h2(fname):
+    """Read LDSC SNP heritability per model from a result table."""
     t = read(fname).set_index("trait")
     return {
         m: {
@@ -297,7 +302,8 @@ GENESIS_KEYS = {
 
 
 def exact(x):
-    return float(x)  # keep GENESIS counts exactly as tabulated (no rounding)
+    """Keep GENESIS counts exactly as tabulated (no rounding)."""
+    return float(x)
 
 
 herit["genesis"] = [
@@ -317,6 +323,7 @@ herit["genesis"] = [
 
 
 def partitioned(fname):
+    """Read partitioned heritability (LDSC) per annotation and model."""
     t = read(fname)
     out = {"annotation": t.annotation.str.strip().tolist(), "propSnps": [num(x) for x in t["Prop._SNPs"]]}
     for m in MEASURES:
@@ -344,6 +351,7 @@ MAIN_KEY = {"GM": "gm", "WM": "wm", "GWM": "gwm"}
 
 
 def dash(x):
+    """Return None for empty, dash or NA cells, else the stripped text."""
     return None if x.strip() in ("", "-", "NA") else x.strip()
 
 
@@ -351,7 +359,8 @@ loci = []
 for k, r in lm.iterrows():
     locus_id = k + 1  # discoveries.main.txt lists loci in LOCUS_COUNT order
     rows = ls[ls.LOCUS_COUNT.astype(int) == locus_id]
-    assert len(rows) and rows.CHR.iloc[0] == r.CHR, f"locus {locus_id} does not match"
+    if not len(rows) or rows.CHR.iloc[0] != r.CHR:
+        raise ValueError(f"locus {locus_id} does not match")
     first = rows.iloc[0]
     loci.append(
         {
@@ -460,8 +469,11 @@ RGSEL_DOMAINS = {
 }
 rs = read("gwama.eur.rgSelection.txt")
 rl = read("gwama.eur.rgSelection.labels.txt")
-assert len(rs) == len(rl) == len(RGSEL_ORDER)
-assert (rs.gap_gwm_rg.values == rl.gap_gwm_rg.values).all()  # the label file lists the same rows in the same order
+if not len(rs) == len(rl) == len(RGSEL_ORDER):
+    raise ValueError("rgSelection tables and RGSEL_ORDER differ in length")
+# the label file lists the same rows in the same order
+if not (rs.gap_gwm_rg.values == rl.gap_gwm_rg.values).all():
+    raise ValueError("rgSelection label file is not aligned with the result table")
 rs["label"] = rl["label"].values
 rs = rs.set_index("p2")
 rgsel = []
@@ -498,8 +510,8 @@ summary["rgsel"] = {
 
 # ---------- fastBAT gene-based tests ----------
 fb = read("gwama.eur.fastbat.txt")
-nGenes = len(fb)
-bonf = 0.05 / nGenes
+n_genes = len(fb)
+bonf = 0.05 / n_genes
 fbk = fb[fb.topFDR.astype(float) < 0.05]
 # lead gene of each locus (per model): the gene with GENE_COUNT 1 in that locus
 lead = {
@@ -537,10 +549,10 @@ for _, r in fbk.iterrows():
         }
     )
 with open(os.path.join(OUT, "genes.json"), "w") as f:
-    json.dump({"genes": genes, "nTested": nGenes, "bonf": bonf}, f, separators=(",", ":"))
+    json.dump({"genes": genes, "nTested": n_genes, "bonf": bonf}, f, separators=(",", ":"))
 fbp = {t: fb[f"gap_{t}_Pvalue"].astype(float) for t in MEASURES}
 summary["genes"] = {
-    "nTested": nGenes,
+    "nTested": n_genes,
     "bonf": bonf,
     **{
         t: {
