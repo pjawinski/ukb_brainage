@@ -1,35 +1,73 @@
 cff-version: 1.2.0
-preferred-citation:
-  type: article
-  authors:
+message: "If you use this code or these results, please cite the article below."
+title: "Genome-wide analysis of brain age identifies 59 associated loci and unveils relationships with mental and physical health"
+authors:
   - family-names: "Jawinski"
     given-names: "Philippe"
-    orcid: "http://orcid.org/0000-0002-2994-3075"
+    orcid: "https://orcid.org/0000-0002-2994-3075"
   - family-names: "Forstbach"
     given-names: "Helena"
   - family-names: "Kirsten"
     given-names: "Holger"
-    orcid: "http://orcid.org/0000-0002-3126-7950"
+    orcid: "https://orcid.org/0000-0002-3126-7950"
   - family-names: "Beyer"
     given-names: "Frauke"
-    orcid: "http://orcid.org/0000-0001-5401-852X"
+    orcid: "https://orcid.org/0000-0001-5401-852X"
   - family-names: "Villringer"
     given-names: "Arno"
-    orcid: "http://orcid.org/0000-0003-2604-2404"
+    orcid: "https://orcid.org/0000-0003-2604-2404"
   - family-names: "Witte"
     given-names: "A. Veronica"
-    orcid: "http://orcid.org/0000-0001-9054-6688"
+    orcid: "https://orcid.org/0000-0001-9054-6688"
   - family-names: "Scholz"
     given-names: "Markus"
-    orcid: "http://orcid.org/0000-0002-4059-1779"
+    orcid: "https://orcid.org/0000-0002-4059-1779"
   - family-names: "Ripke"
     given-names: "Stephan"
-    orcid: "http://orcid.org/0000-0003-3622-835X"
+    orcid: "https://orcid.org/0000-0003-3622-835X"
   - family-names: "Markett"
     given-names: "Sebastian"
-    orcid: "http://orcid.org/0000-0002-0841-3163"
-  title: "Genome-wide analysis of brain age identifies 25 associated loci and unveils relationships with mental and physical health"
-  doi: 10.1101/2023.12.26.23300533
-  journal: "medRxiv"
-  year: 2023
-  month: 12
+    orcid: "https://orcid.org/0000-0002-0841-3163"
+doi: "10.1038/s43587-025-00962-7"
+repository-code: "https://github.com/pjawinski/ukb_brainage"
+url: "https://pjawinski.github.io/ukb_brainage/"
+license: GPL-3.0
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Jawinski"
+      given-names: "Philippe"
+      orcid: "https://orcid.org/0000-0002-2994-3075"
+    - family-names: "Forstbach"
+      given-names: "Helena"
+    - family-names: "Kirsten"
+      given-names: "Holger"
+      orcid: "https://orcid.org/0000-0002-3126-7950"
+    - family-names: "Beyer"
+      given-names: "Frauke"
+      orcid: "https://orcid.org/0000-0001-5401-852X"
+    - family-names: "Villringer"
+      given-names: "Arno"
+      orcid: "https://orcid.org/0000-0003-2604-2404"
+    - family-names: "Witte"
+      given-names: "A. Veronica"
+      orcid: "https://orcid.org/0000-0001-9054-6688"
+    - family-names: "Scholz"
+      given-names: "Markus"
+      orcid: "https://orcid.org/0000-0002-4059-1779"
+    - family-names: "Ripke"
+      given-names: "Stephan"
+      orcid: "https://orcid.org/0000-0003-3622-835X"
+    - family-names: "Markett"
+      given-names: "Sebastian"
+      orcid: "https://orcid.org/0000-0002-0841-3163"
+  title: "Genome-wide analysis of brain age identifies 59 associated loci and unveils relationships with mental and physical health"
+  journal: "Nature Aging"
+  volume: 5
+  issue: 10
+  start: 2086
+  end: 2103
+  year: 2025
+  month: 10
+  doi: "10.1038/s43587-025-00962-7"
+  url: "https://doi.org/10.1038/s43587-025-00962-7"
